@@ -31,10 +31,6 @@
       background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
     }
 
-    .glow-emerald {
-      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
-    }
-
     .custom-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -646,32 +642,32 @@
         container.innerHTML += `
           <div onclick="abrirVistaComercio('${c.id}')" class="card-gradient rounded-3xl p-4 shadow-lg hover:shadow-2xl border border-slate-800/90 transition hover:border-slate-700 space-y-3 cursor-pointer group">
             <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3.5">
+              <div class="flex items-center gap-3.5 min-w-0 flex-1">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-13 h-13 rounded-2xl object-cover border border-slate-800 shadow-md">`
-                  : `<div class="w-13 h-13 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center text-emerald-400 font-black text-xl group-hover:border-emerald-500/40 transition">
+                  ? `<img src="${c.logo_url}" class="w-20 h-20 rounded-2xl object-cover border border-slate-800 shadow-md flex-shrink-0">`
+                  : `<div class="w-20 h-20 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center text-emerald-400 font-black text-2xl group-hover:border-emerald-500/40 transition flex-shrink-0">
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
-                <div>
-                  <h4 class="font-bold text-white text-base tracking-tight leading-snug group-hover:text-emerald-400 transition">${c.nombre}</h4>
-                  <div class="flex items-center gap-1.5 mt-1">
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-black text-white text-base tracking-tight leading-snug group-hover:text-emerald-400 transition truncate">${c.nombre}</h4>
+                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
                     <span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60">${c.categoria}</span>
                     ${c.hace_envios ? '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
                   </div>
                 </div>
               </div>
 
-              <span class="text-xs font-black text-slate-300 bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 px-3 py-2 rounded-xl transition flex items-center gap-1 border border-slate-700 group-hover:border-emerald-500 shadow-sm">
+              <span class="text-xs font-black text-slate-300 bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 px-3 py-2 rounded-xl transition flex items-center gap-1 border border-slate-700 group-hover:border-emerald-500 shadow-sm flex-shrink-0">
                 Ver <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
               </span>
             </div>
 
             <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-              <span class="flex items-center gap-1">
-                <i data-lucide="map-pin" class="w-3 h-3 text-slate-500"></i> ${c.direccion || 'Necochea / Quequén'}
+              <span class="flex items-center gap-1 truncate">
+                <i data-lucide="map-pin" class="w-3 h-3 text-slate-500 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea / Quequén'}</span>
               </span>
-              <span class="font-bold text-emerald-400/90">${cantidadProds} productos</span>
+              <span class="font-bold text-emerald-400/90 flex-shrink-0">${cantidadProds} productos</span>
             </div>
           </div>
         `;
