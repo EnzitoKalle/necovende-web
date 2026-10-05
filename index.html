@@ -152,6 +152,37 @@
 
   </main>
 
+  <!-- MODAL: Ver Imagen Ampliada / Detalle de Producto -->
+  <div id="modal-ver-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 transition-all">
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-200">
+      
+      <button onclick="cerrarModal('modal-ver-producto')" type="button" class="absolute top-3 right-3 bg-slate-900/60 hover:bg-slate-900 text-white p-2 rounded-full backdrop-blur-sm transition z-10">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="bg-slate-100 relative min-h-[260px] flex items-center justify-center">
+        <img id="view-prod-img" src="" class="w-full h-72 object-cover hidden">
+        <div id="view-prod-no-img" class="text-slate-400 flex flex-col items-center gap-2">
+          <i data-lucide="image-off" class="w-10 h-10"></i>
+          <span class="text-xs font-medium">Sin imagen para mostrar</span>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div>
+          <h3 id="view-prod-titulo" class="text-xl font-black text-slate-900 leading-snug"></h3>
+          <p id="view-prod-precio" class="text-xl font-black text-emerald-600 mt-1"></p>
+        </div>
+
+        <p id="view-prod-descripcion" class="text-xs text-slate-500 leading-relaxed max-h-32 overflow-y-auto"></p>
+
+        <button id="view-prod-btn-agregar" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Carrito de Compras -->
   <div id="modal-carrito" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
@@ -242,7 +273,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Agregar Producto -->
+  <!-- MODAL: Cargar Producto -->
   <div id="modal-producto" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       
@@ -355,26 +386,56 @@
       }
 
       productos.forEach(p => {
+        const pEscapedTitulo = p.titulo.replace(/'/g, "\\'");
+        const pEscapedDesc = (p.descripcion || '').replace(/'/g, "\\'");
+        const pImagen = p.imagen_url || '';
+
         container.innerHTML += `
           <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 overflow-hidden">
+            <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')">
               ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0">` 
+                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0 hover:opacity-80 transition">` 
                 : `<div class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="truncate">
-                <h4 class="font-bold text-sm text-slate-900 truncate">${p.titulo}</h4>
-                <p class="text-xs text-slate-500 truncate">${p.descripcion || ''}</p>
+                <h4 class="font-bold text-sm text-slate-900 truncate group-hover:text-emerald-600">${p.titulo}</h4>
+                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
                 <p class="text-sm font-black text-emerald-600 mt-1">$${p.precio}</p>
               </div>
             </div>
 
-            <button onclick="agregarAlCarrito('${p.id}', '${p.titulo.replace(/'/g, "\\'")}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap shadow-sm transition flex items-center gap-1.5 flex-shrink-0">
+            <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap shadow-sm transition flex items-center gap-1.5 flex-shrink-0">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
             </button>
           </div>
         `;
       });
 
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function abrirVerProducto(id, titulo, precio, descripcion, imagenUrl) {
+      document.getElementById('view-prod-titulo').innerText = titulo;
+      document.getElementById('view-prod-precio').innerText = `$${precio}`;
+      document.getElementById('view-prod-descripcion').innerText = descripcion || 'Sin descripción adicional.';
+
+      const imgElem = document.getElementById('view-prod-img');
+      const noImgElem = document.getElementById('view-prod-no-img');
+
+      if (imagenUrl) {
+        imgElem.src = imagenUrl;
+        imgElem.classList.remove('hidden');
+        noImgElem.classList.add('hidden');
+      } else {
+        imgElem.classList.add('hidden');
+        noImgElem.classList.remove('hidden');
+      }
+
+      document.getElementById('view-prod-btn-agregar').onclick = () => {
+        agregarAlCarrito(id, titulo, precio);
+        cerrarModal('modal-ver-producto');
+      };
+
+      abrirModal('modal-ver-producto');
       if (window.lucide) lucide.createIcons();
     }
 
