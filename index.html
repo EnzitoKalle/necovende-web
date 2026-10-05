@@ -22,12 +22,12 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased pb-20">
+<body class="bg-slate-50 text-slate-800 antialiased pb-28">
 
   <!-- Header / Navbar -->
   <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/50 text-white">
     <div class="max-w-xl mx-auto px-4 py-3.5 flex justify-between items-center">
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="mostrarInicio()">
         <div class="w-9 h-9 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl flex items-center justify-center font-black text-slate-950 text-xl shadow-lg shadow-emerald-500/20">
           N
         </div>
@@ -37,7 +37,7 @@
         </div>
       </div>
       
-      <button onclick="alert('Funcionalidad de carrito global en desarrollo.')" class="relative bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-200 font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-2">
+      <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-200 font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-2">
         <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i>
         <span>Carrito</span>
         <span id="cart-count" class="bg-emerald-500 text-slate-950 text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
@@ -45,7 +45,8 @@
     </div>
   </header>
 
-  <main class="max-w-xl mx-auto px-4 pt-5 space-y-6">
+  <!-- CONTENEDOR VISTA INICIO (MARKETPLACE) -->
+  <main id="vista-inicio" class="max-w-xl mx-auto px-4 pt-5 space-y-6">
 
     <!-- Banner Hero -->
     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-6 text-white shadow-xl border border-slate-800">
@@ -57,7 +58,7 @@
           Impulsá tu negocio en la ciudad.
         </h2>
         <p class="text-slate-400 text-xs font-normal leading-relaxed">
-          Sumá tu local o emprendimiento hoy. Vendé sin intermediarios y gestioná tus pedidos directo por WhatsApp.
+          Sumá tu local o emprendimiento hoy. Publicá tus productos y gestioná tus pedidos directo por la plataforma.
         </p>
         
         <button id="btn-sumar-comercio" type="button" class="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm py-3.5 px-5 rounded-2xl shadow-lg shadow-emerald-500/25 transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
@@ -123,6 +124,64 @@
 
   </main>
 
+  <!-- CONTENEDOR VISTA DETALLE COMERCIO -->
+  <main id="vista-comercio" class="max-w-xl mx-auto px-4 pt-5 space-y-5 hidden">
+    
+    <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl transition shadow-sm">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a comercios
+    </button>
+
+    <!-- Encabezado del Comercio -->
+    <div id="detalle-comercio-header" class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+      <!-- Se llena dinámicamente con JS -->
+    </div>
+
+    <!-- Catálogo de Productos -->
+    <section class="space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-bold text-slate-900">Catálogo de Productos</h3>
+        <button id="btn-agregar-prod-vista" class="text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> Cargar Producto
+        </button>
+      </div>
+
+      <div id="productos-container" class="grid grid-cols-1 gap-3">
+        <!-- Se llena dinámicamente con JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Carrito de Compras -->
+  <div id="modal-carrito" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Tu Carrito</h3>
+          <p class="text-xs text-slate-500" id="cart-comercio-nombre">Resumen del pedido</p>
+        </div>
+        <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="carrito-items" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+        <!-- Ítems agregados -->
+      </div>
+
+      <div class="border-t border-slate-100 pt-3 space-y-3">
+        <div class="flex justify-between items-center text-sm font-black text-slate-900">
+          <span>Total:</span>
+          <span id="cart-total-precio" class="text-emerald-600 text-lg">$0</span>
+        </div>
+
+        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 py-3.5 rounded-2xl font-extrabold text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i> Enviar Pedido al Local
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Registrar Comercio -->
   <div id="modal-registro" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
@@ -144,7 +203,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp para pedidos</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp para recibir pedidos</label>
           <input type="text" id="telefono" placeholder="Ej: 5492262123456" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
         </div>
 
@@ -235,33 +294,185 @@
 
     let comerciosGlobales = [];
     let categoriaSeleccionada = 'Todas';
+    let comercioActivo = null;
+    let carrito = [];
 
-    function abrirModal(id) {
-      document.getElementById(id).classList.remove('hidden');
+    function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function mostrarInicio() {
+      document.getElementById('vista-comercio').classList.add('hidden');
+      document.getElementById('vista-inicio').classList.remove('hidden');
+      window.scrollTo(0, 0);
     }
 
-    function cerrarModal(id) {
-      document.getElementById(id).classList.add('hidden');
+    async function abrirVistaComercio(comercioId) {
+      comercioActivo = comerciosGlobales.find(c => c.id === comercioId);
+      if (!comercioActivo) return;
+
+      const header = document.getElementById('detalle-comercio-header');
+      header.innerHTML = `
+        <div class="flex items-center gap-3.5">
+          ${comercioActivo.logo_url 
+            ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">`
+            : `<div class="w-16 h-16 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center font-black text-2xl text-slate-700">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+          }
+          <div>
+            <h2 class="text-xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md">${comercioActivo.categoria}</span>
+              ${comercioActivo.hace_envios ? '<span class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">Con Envíos</span>' : ''}
+            </div>
+            <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> ${comercioActivo.direccion || 'Necochea'}</p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btn-agregar-prod-vista').onclick = () => prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
+
+      renderizarProductosComercio(comercioActivo.productos || []);
+
+      document.getElementById('vista-inicio').classList.add('hidden');
+      document.getElementById('vista-comercio').classList.remove('hidden');
+      window.scrollTo(0, 0);
+
+      if (window.lucide) lucide.createIcons();
     }
 
-    // Helper para subir fotos a Supabase con límite de 2MB
+    function renderizarProductosComercio(productos) {
+      const container = document.getElementById('productos-container');
+      container.innerHTML = '';
+
+      if (productos.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 bg-white rounded-2xl border border-slate-200 text-center text-slate-400 space-y-2">
+            <i data-lucide="package-open" class="w-8 h-8 mx-auto text-slate-300"></i>
+            <p class="text-xs font-semibold">Este comercio aún no tiene productos publicados.</p>
+          </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      productos.forEach(p => {
+        container.innerHTML += `
+          <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 overflow-hidden">
+              ${p.imagen_url 
+                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0">` 
+                : `<div class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0"><i data-lucide="package" class="w-6 h-6"></i></div>`}
+              <div class="truncate">
+                <h4 class="font-bold text-sm text-slate-900 truncate">${p.titulo}</h4>
+                <p class="text-xs text-slate-500 truncate">${p.descripcion || ''}</p>
+                <p class="text-sm font-black text-emerald-600 mt-1">$${p.precio}</p>
+              </div>
+            </div>
+
+            <button onclick="agregarAlCarrito('${p.id}', '${p.titulo.replace(/'/g, "\\'")}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap shadow-sm transition flex items-center gap-1.5 flex-shrink-0">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
+            </button>
+          </div>
+        `;
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function agregarAlCarrito(id, titulo, precio) {
+      if (comercioActivo) {
+        document.getElementById('cart-comercio-nombre').innerText = `Pedido para: ${comercioActivo.nombre}`;
+      }
+
+      const existe = carrito.find(item => item.id === id);
+      if (existe) {
+        existe.cantidad += 1;
+      } else {
+        carrito.push({ id, titulo, precio, cantidad: 1 });
+      }
+
+      actualizarCarrito();
+    }
+
+    function cambiarCantidad(id, cambio) {
+      const item = carrito.find(i => i.id === id);
+      if (!item) return;
+
+      item.cantidad += cambio;
+      if (item.cantidad <= 0) {
+        carrito = carrito.filter(i => i.id !== id);
+      }
+
+      actualizarCarrito();
+    }
+
+    function actualizarCarrito() {
+      const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+      const totalPrecio = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+
+      document.getElementById('cart-count').innerText = totalItems;
+      document.getElementById('cart-total-precio').innerText = `$${totalPrecio}`;
+
+      const itemsContainer = document.getElementById('carrito-items');
+      itemsContainer.innerHTML = '';
+
+      if (carrito.length === 0) {
+        itemsContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">El carrito está vacío.</p>`;
+        return;
+      }
+
+      carrito.forEach(item => {
+        itemsContainer.innerHTML += `
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+            <div>
+              <p class="font-bold text-xs text-slate-800">${item.titulo}</p>
+              <p class="text-[11px] text-slate-500 font-semibold">$${item.precio * item.cantidad}</p>
+            </div>
+            <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1">
+              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-500 hover:text-slate-800 font-bold text-xs">-</button>
+              <span class="text-xs font-bold text-slate-800 px-1">${item.cantidad}</span>
+              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-500 hover:text-slate-800 font-bold text-xs">+</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function enviarPedidoWhatsApp() {
+      if (carrito.length === 0) {
+        alert("Agregá productos al carrito antes de realizar el pedido.");
+        return;
+      }
+      if (!comercioActivo) return;
+
+      let mensaje = `¡Hola *${comercioActivo.nombre}*! Quiero realizar el siguiente pedido desde *NecoVende*:\n\n`;
+      let total = 0;
+
+      carrito.forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        mensaje += `• *${item.cantidad}x* ${item.titulo} ($${subtotal})\n`;
+      });
+
+      mensaje += `\n*Total a pagar: $${total}*\n\n¿Me confirman la demora? ¡Muchas gracias!`;
+
+      const url = `https://wa.me/${comercioActivo.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+    }
+
     async function subirImagen(fileInput) {
       const file = fileInput.files[0];
       if (!file) return null;
 
-      // Validación de tamaño (2MB máximo)
       const maxMB = 2;
       if (file.size > maxMB * 1024 * 1024) {
-        alert(`La imagen "${file.name}" supera el tamaño máximo permitido de ${maxMB} MB. Por favor elegí una imagen más liviana.`);
+        alert(`La imagen "${file.name}" supera el tamaño máximo permitido de ${maxMB} MB.`);
         return false;
       }
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-      const { data, error } = await _supabase.storage
-        .from('imagenes')
-        .upload(fileName, file);
+      const { data, error } = await _supabase.storage.from('imagenes').upload(fileName, file);
 
       if (error) {
         console.error('Error al subir imagen:', error);
@@ -269,17 +480,12 @@
         return false;
       }
 
-      const { data: publicData } = _supabase.storage
-        .from('imagenes')
-        .getPublicUrl(fileName);
-
+      const { data: publicData } = _supabase.storage.from('imagenes').getPublicUrl(fileName);
       return publicData.publicUrl;
     }
 
     async function cargarComercios() {
-      const { data: comercios, error } = await _supabase
-        .from('comercios')
-        .select('*, productos(*)');
+      const { data: comercios, error } = await _supabase.from('comercios').select('*, productos(*)');
 
       if (error) {
         console.error("Error al cargar comercios:", error);
@@ -304,7 +510,6 @@
               <i data-lucide="store-off" class="w-5 h-5"></i>
             </div>
             <p class="text-xs font-semibold text-slate-600">No hay comercios cargados en este rubro.</p>
-            <p class="text-[11px] text-slate-400">Sé el primero en registrar tu local haciendo clic en el botón verde de arriba.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -312,35 +517,19 @@
       }
 
       lista.forEach(c => {
-        const productosHTML = (c.productos || []).map(p => `
-          <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200/60 rounded-xl gap-2">
-            <div class="flex items-center gap-2.5 overflow-hidden">
-              ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0">` 
-                : `<div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-slate-400 flex-shrink-0"><i data-lucide="package" class="w-4 h-4"></i></div>`}
-              <div class="truncate">
-                <p class="font-bold text-xs text-slate-800 truncate">${p.titulo}</p>
-                <p class="text-[10px] text-slate-500 font-semibold">$${p.precio}</p>
-              </div>
-            </div>
-            <a href="https://wa.me/${c.telefono_whatsapp}?text=¡Hola!%20Quiero%20pedir%20el%20producto:%20${encodeURIComponent(p.titulo)}" target="_blank" class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1.5 rounded-lg text-[10px] whitespace-nowrap hover:bg-emerald-400 transition flex items-center gap-1">
-              Pedir <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            </a>
-          </div>
-        `).join('');
-
+        const cantidadProds = c.productos ? c.productos.length : 0;
         container.innerHTML += `
-          <div class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border border-slate-200/70 transition space-y-3">
-            <div class="flex items-start justify-between gap-3">
+          <div onclick="abrirVistaComercio('${c.id}')" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border border-slate-200/70 transition space-y-3 cursor-pointer group">
+            <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
                 ${c.logo_url 
                   ? `<img src="${c.logo_url}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">`
-                  : `<div class="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200/60 flex items-center justify-center text-slate-700 font-black text-xl">
+                  : `<div class="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200/60 flex items-center justify-center text-slate-700 font-black text-xl group-hover:border-emerald-500/40 transition">
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
                 <div>
-                  <h4 class="font-bold text-slate-900 text-sm tracking-tight leading-snug">${c.nombre}</h4>
+                  <h4 class="font-bold text-slate-900 text-sm tracking-tight leading-snug group-hover:text-emerald-600 transition">${c.nombre}</h4>
                   <div class="flex items-center gap-1.5 mt-0.5">
                     <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">${c.categoria}</span>
                     ${c.hace_envios ? '<span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
@@ -348,29 +537,16 @@
                 </div>
               </div>
 
-              <button onclick="prepararModalProducto('${c.id}', '${c.nombre}')" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200/60 transition flex items-center gap-1">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Producto
-              </button>
+              <span class="text-xs font-bold text-slate-700 bg-slate-100 group-hover:bg-emerald-500 group-hover:text-slate-950 px-3 py-2 rounded-xl transition flex items-center gap-1">
+                Ver Catálogo <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </span>
             </div>
 
-            ${c.productos && c.productos.length > 0 ? `
-              <div class="space-y-2 pt-1">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Productos Destacados</p>
-                <div class="grid grid-cols-1 gap-1.5">
-                  ${productosHTML}
-                </div>
-              </div>
-            ` : ''}
-
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span class="text-[11px] text-slate-400 flex items-center gap-1 truncate">
-                <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
-                ${c.direccion || 'Necochea'}
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+              <span class="flex items-center gap-1">
+                <i data-lucide="map-pin" class="w-3 h-3"></i> ${c.direccion || 'Necochea'}
               </span>
-              <a href="https://wa.me/${c.telefono_whatsapp}?text=¡Hola!%20Te%20encontré%20en%20NecoVende.com" target="_blank" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5">
-                <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-emerald-600 text-emerald-600"></i>
-                WhatsApp
-              </a>
+              <span class="font-semibold text-slate-500">${cantidadProds} productos</span>
             </div>
           </div>
         `;
@@ -403,8 +579,7 @@
         resultado = resultado.filter(c => 
           c.nombre.toLowerCase().includes(texto) || 
           (c.direccion && c.direccion.toLowerCase().includes(texto)) ||
-          c.categoria.toLowerCase().includes(texto) ||
-          (c.productos && c.productos.some(p => p.titulo.toLowerCase().includes(texto)))
+          c.categoria.toLowerCase().includes(texto)
         );
       }
 
@@ -423,7 +598,6 @@
       document.getElementById('btn-sumar-comercio').addEventListener('click', () => abrirModal('modal-registro'));
       document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
 
-      // Formulario Registrar Comercio
       document.getElementById('form-comercio').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-guardar-comercio');
@@ -465,7 +639,6 @@
         btn.disabled = false;
       });
 
-      // Formulario Agregar Producto
       document.getElementById('form-producto').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-guardar-producto');
@@ -499,7 +672,10 @@
           alert('¡Producto guardado exitosamente!');
           cerrarModal('modal-producto');
           document.getElementById('form-producto').reset();
-          cargarComercios();
+          await cargarComercios();
+          if (comercioActivo && comercioActivo.id === comercio_id) {
+            abrirVistaComercio(comercio_id);
+          }
         }
 
         btn.innerText = "Publicar Producto";
