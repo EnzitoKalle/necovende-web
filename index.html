@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NECOVENDE.COM - Encontrá lo que buscás en Necochea</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+  </style>
+</head>
+<body class="pb-24">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
+    <div class="max-w-md mx-auto flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-black tracking-wider text-emerald-400">NECOVENDE.COM</h1>
+        <p class="text-xs text-slate-300">Encontrá lo que buscás en Necochea</p>
+      </div>
+      <button onclick="alert('Tu carrito está vacío')" class="relative bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold px-3 py-2 rounded-xl transition flex items-center gap-1">
+        🛒 Carrito
+        <span id="cart-count" class="bg-slate-900 text-white text-xs font-extrabold rounded-full px-2 py-0.5 ml-1">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-6">
+
+    <!-- Botón Agregar Comercio -->
+    <button onclick="abrirModalRegistro()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-lg py-4 px-6 rounded-2xl shadow-lg transition transform active:scale-95 text-center flex items-center justify-center gap-2">
+      🚀 ¡AGREGÁ TU COMERCIO / EMPRENDIMIENTO!
+    </button>
+
+    <!-- Categorías -->
+    <section class="bg-blue-600 p-4 rounded-3xl shadow-md text-white">
+      <h2 class="text-center font-bold text-lg mb-3">Categorías</h2>
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="cargarComercios('Gastronomía')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Gastronomía</button>
+        <button onclick="cargarComercios('Indumentaria')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Indumentaria</button>
+        <button onclick="cargarComercios('Bazar')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Bazar</button>
+        <button onclick="cargarComercios('Regalería')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Regalería</button>
+        <button onclick="cargarComercios('Mercados')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Mercados</button>
+        <button onclick="cargarComercios()" class="bg-emerald-400 text-slate-950 font-bold py-2 px-1 rounded-xl text-xs hover:bg-emerald-300">Todas</button>
+      </div>
+    </section>
+
+    <!-- Comercios Destacados -->
+    <section class="space-y-3">
+      <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+        🔥 Comercios Destacados
+      </h2>
+      <div id="comercios-container" class="grid grid-cols-1 gap-4">
+        <div class="p-4 bg-white rounded-2xl border text-center text-slate-400">Cargando comercios de Necochea...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal para registrar comercio -->
+  <div id="modal-registro" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 max-h-[90vh] overflow-y-auto">
+      <h3 class="text-xl font-bold text-slate-900">Registrar mi Comercio</h3>
+      
+      <form id="form-comercio" onsubmit="guardarComercio(event)" class="space-y-3">
+        <input type="text" id="nombre" placeholder="Nombre del Negocio" required class="w-full p-3 border rounded-xl text-sm">
+        <input type="text" id="telefono" placeholder="WhatsApp (Ej: 5492262123456)" required class="w-full p-3 border rounded-xl text-sm">
+        <input type="text" id="direccion" placeholder="Dirección (Ej: Calle 59 N° 3400)" class="w-full p-3 border rounded-xl text-sm">
+        
+        <select id="categoria" required class="w-full p-3 border rounded-xl text-sm text-slate-700">
+          <option value="">Seleccionar Categoría</option>
+          <option value="Gastronomía">Gastronomía</option>
+          <option value="Indumentaria">Indumentaria</option>
+          <option value="Bazar">Bazar</option>
+          <option value="Regalería">Regalería</option>
+          <option value="Mercados">Mercados</option>
+        </select>
+
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="envios" checked class="w-4 h-4 text-emerald-500">
+          <label for="envios" class="text-sm text-slate-700 font-medium">Hacemos envíos a domicilio</label>
+        </div>
+
+        <div class="flex gap-2 pt-4">
+          <button type="button" onclick="cerrarModalRegistro()" class="w-1/2 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">Cancelar</button>
+          <button type="submit" class="w-1/2 bg-emerald-500 text-slate-950 py-3 rounded-xl font-bold">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://itpkfuprqihmclsqjfki.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_sW8WBd-hoa155VOla5xj8A__0X494yO";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function cargarComercios(categoriaFiltro = null) {
+      let query = _supabase.from('comercios').select('*').order('total_pedidos', { ascending: false });
+      
+      if (categoriaFiltro) {
+        query = query.eq('categoria', categoriaFiltro);
+      }
+
+      const { data, error } = await query;
+      const container = document.getElementById('comercios-container');
+      container.innerHTML = '';
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<div class="p-6 bg-white rounded-2xl text-center text-slate-500 shadow-sm border">
+          No hay comercios cargados aún. ¡Sé el primero haciendo clic en el botón verde de arriba!
+        </div>`;
+        return;
+      }
+
+      data.forEach(c => {
+        container.innerHTML += `
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-lg">${c.nombre}</h3>
+                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">${c.categoria}</span>
+              </div>
+              ${c.hace_envios ? '<span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">🛵 Envíos</span>' : ''}
+            </div>
+            <p class="text-xs text-slate-500">📍 ${c.direccion || 'Necochea'}</p>
+            <a href="https://wa.me/${c.telefono_whatsapp}?text=¡Hola!%20Te%20encontré%20en%20NecoVende.com" target="_blank" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-center text-sm block">
+              Contactar por WhatsApp
+            </a>
+          </div>
+        `;
+      });
+    }
+
+    function abrirModalRegistro() { document.getElementById('modal-registro').classList.remove('hidden'); }
+    function cerrarModalRegistro() { document.getElementById('modal-registro').classList.add('hidden'); }
+
+    async function guardarComercio(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('nombre').value;
+      const telefono = document.getElementById('telefono').value;
+      const direccion = document.getElementById('direccion').value;
+      const categoria = document.getElementById('categoria').value;
+      const hace_envios = document.getElementById('envios').checked;
+
+      const { error } = await _supabase.from('comercios').insert([{
+        nombre, telefono_whatsapp: telefono, direccion, categoria, hace_envios
+      }]);
+
+      if (error) {
+        alert('Error al guardar el comercio: ' + error.message);
+      } else {
+        alert('¡Comercio registrado con éxito!');
+        cerrarModalRegistro();
+        document.getElementById('form-comercio').reset();
+        cargarComercios();
+      }
+    }
+
+    window.onload = () => cargarComercios();
+  </script>
+</body>
+</html>
