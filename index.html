@@ -273,13 +273,13 @@
     </div>
   </div>
 
-  <!-- MODAL: Cargar Producto -->
+  <!-- MODAL: Cargar / Editar Producto -->
   <div id="modal-producto" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-bold text-slate-900">Agregar Producto</h3>
+          <h3 class="text-lg font-bold text-slate-900" id="modal-producto-titulo-head">Agregar Producto</h3>
           <p class="text-xs text-slate-500" id="subtitulo-comercio-prod">Sumá un ítem a tu catálogo.</p>
         </div>
         <button onclick="cerrarModal('modal-producto')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
@@ -289,6 +289,8 @@
       
       <form id="form-producto" class="space-y-3.5">
         <input type="hidden" id="prod-comercio-id">
+        <input type="hidden" id="prod-edit-id">
+        <input type="hidden" id="prod-imagen-existente">
         
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Producto</label>
@@ -308,6 +310,7 @@
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Foto del Producto (Máx. 2MB)</label>
           <input type="file" id="prod-imagen" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+          <p class="text-[10px] text-slate-400 mt-1" id="help-imagen-edit"></p>
         </div>
 
         <div class="flex gap-2.5 pt-3">
@@ -391,7 +394,7 @@
         const pImagen = p.imagen_url || '';
 
         container.innerHTML += `
-          <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3">
+          <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3 relative group">
             <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')">
               ${p.imagen_url 
                 ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0 hover:opacity-80 transition">` 
@@ -403,9 +406,20 @@
               </div>
             </div>
 
-            <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap shadow-sm transition flex items-center gap-1.5 flex-shrink-0">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
-            </button>
+            <div class="flex flex-col items-end gap-2 flex-shrink-0">
+              <div class="flex items-center gap-1">
+                <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                </button>
+                <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-sm transition flex items-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
+              </button>
+            </div>
           </div>
         `;
       });
@@ -648,9 +662,56 @@
     }
 
     function prepararModalProducto(comercioId, nombreComercio) {
+      document.getElementById('form-producto').reset();
+      document.getElementById('prod-edit-id').value = '';
+      document.getElementById('prod-imagen-existente').value = '';
+      document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
+      document.getElementById('btn-guardar-producto').innerText = 'Publicar Producto';
+      document.getElementById('help-imagen-edit').innerText = '';
+
       document.getElementById('prod-comercio-id').value = comercioId;
       document.getElementById('subtitulo-comercio-prod').innerText = `Agregando a: ${nombreComercio}`;
       abrirModal('modal-producto');
+    }
+
+    function prepararEditarProducto(id, titulo, precio, descripcion, imagenUrl) {
+      document.getElementById('form-producto').reset();
+      document.getElementById('prod-edit-id').value = id;
+      document.getElementById('prod-comercio-id').value = comercioActivo ? comercioActivo.id : '';
+      document.getElementById('prod-imagen-existente').value = imagenUrl || '';
+
+      document.getElementById('prod-titulo').value = titulo;
+      document.getElementById('prod-precio').value = precio;
+      document.getElementById('prod-descripcion').value = descripcion;
+
+      document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
+      document.getElementById('subtitulo-comercio-prod').innerText = `Modificando: ${titulo}`;
+      document.getElementById('btn-guardar-producto').innerText = 'Guardar Cambios';
+      
+      const help = document.getElementById('help-imagen-edit');
+      help.innerText = imagenUrl ? 'Dejá el campo vacío si querés conservar la imagen actual.' : '';
+
+      abrirModal('modal-producto');
+    }
+
+    async function eliminarProducto(id) {
+      if (!confirm("¿Estás seguro de que querés eliminar este producto? Esta acción no se puede deshacer.")) {
+        return;
+      }
+
+      const { error } = await _supabase.from('productos').delete().eq('id', id);
+
+      if (error) {
+        alert('Error al eliminar producto: ' + error.message);
+      } else {
+        carrito = carrito.filter(item => item.id !== id);
+        actualizarCarrito();
+        
+        await cargarComercios();
+        if (comercioActivo) {
+          abrirVistaComercio(comercioActivo.id);
+        }
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -703,18 +764,24 @@
       document.getElementById('form-producto').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-guardar-producto');
-        btn.innerText = "Publicando...";
+        const editId = document.getElementById('prod-edit-id').value;
+        const esEdicion = Boolean(editId);
+
+        btn.innerText = esEdicion ? "Guardando..." : "Publicando...";
         btn.disabled = true;
 
         const prodImgInput = document.getElementById('prod-imagen');
-        let imagen_url = null;
+        let imagen_url = document.getElementById('prod-imagen-existente').value || null;
 
         if (prodImgInput.files.length > 0) {
-          imagen_url = await subirImagen(prodImgInput);
-          if (imagen_url === false) {
-            btn.innerText = "Publicar Producto";
+          const nuevaUrl = await subirImagen(prodImgInput);
+          if (nuevaUrl === false) {
+            btn.innerText = esEdicion ? "Guardar Cambios" : "Publicar Producto";
             btn.disabled = false;
             return;
+          }
+          if (nuevaUrl) {
+            imagen_url = nuevaUrl;
           }
         }
 
@@ -723,23 +790,33 @@
         const precio = parseFloat(document.getElementById('prod-precio').value);
         const descripcion = document.getElementById('prod-descripcion').value;
 
-        const { error } = await _supabase.from('productos').insert([{
-          comercio_id, titulo, precio, descripcion, imagen_url
-        }]);
+        let error = null;
+
+        if (esEdicion) {
+          const res = await _supabase.from('productos').update({
+            titulo, precio, descripcion, imagen_url
+          }).eq('id', editId);
+          error = res.error;
+        } else {
+          const res = await _supabase.from('productos').insert([{
+            comercio_id, titulo, precio, descripcion, imagen_url
+          }]);
+          error = res.error;
+        }
 
         if (error) {
           alert('Error al guardar producto: ' + error.message);
         } else {
-          alert('¡Producto guardado exitosamente!');
+          alert(esEdicion ? '¡Producto actualizado exitosamente!' : '¡Producto guardado exitosamente!');
           cerrarModal('modal-producto');
           document.getElementById('form-producto').reset();
           await cargarComercios();
-          if (comercioActivo && comercioActivo.id === comercio_id) {
-            abrirVistaComercio(comercio_id);
+          if (comercioActivo) {
+            abrirVistaComercio(comercioActivo.id);
           }
         }
 
-        btn.innerText = "Publicar Producto";
+        btn.innerText = esEdicion ? "Guardar Cambios" : "Publicar Producto";
         btn.disabled = false;
       });
 
