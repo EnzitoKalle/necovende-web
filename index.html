@@ -1,163 +1,177 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NECOVENDE.COM - Encontrá lo que buscás en Necochea</title>
+  <title>NecoVende | El Marketplace de Necochea & Quequén</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Fuente Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+    body { font-family: 'Inter', sans-serif; }
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+    }
   </style>
 </head>
-<body class="pb-24">
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white pb-20">
 
-  <!-- Header -->
-  <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
-    <div class="max-w-md mx-auto flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-black tracking-wider text-emerald-400">NECOVENDE.COM</h1>
-        <p class="text-xs text-slate-300">Encontrá lo que buscás en Necochea</p>
+  <!-- Header / Navbar Principal -->
+  <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/50 text-white">
+    <div class="max-w-xl mx-auto px-4 py-3.5 flex justify-between items-center">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl flex items-center justify-center font-black text-slate-950 text-xl shadow-lg shadow-emerald-500/20">
+          N
+        </div>
+        <div>
+          <h1 class="text-lg font-black tracking-tight leading-none text-white">Neco<span class="text-emerald-400">Vende</span></h1>
+          <p class="text-[10px] text-slate-400 font-medium tracking-wide">NECOCHEA & QUEQUÉN</p>
+        </div>
       </div>
-      <button onclick="alert('Tu carrito está vacío')" class="relative bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold px-3 py-2 rounded-xl transition flex items-center gap-1">
-        🛒 Carrito
-        <span id="cart-count" class="bg-slate-900 text-white text-xs font-extrabold rounded-full px-2 py-0.5 ml-1">0</span>
+      
+      <button onclick="alert('Tu carrito está vacío')" class="relative bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-200 font-semibold text-xs px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-2">
+        <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i>
+        <span>Carrito</span>
+        <span id="cart-count" class="bg-emerald-500 text-slate-950 text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
       </button>
     </div>
   </header>
 
-  <main class="max-w-md mx-auto p-4 space-y-6">
+  <main class="max-w-xl mx-auto px-4 pt-5 space-y-6">
 
-    <!-- Botón Agregar Comercio -->
-    <button onclick="abrirModalRegistro()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-lg py-4 px-6 rounded-2xl shadow-lg transition transform active:scale-95 text-center flex items-center justify-center gap-2">
-      🚀 ¡AGREGÁ TU COMERCIO / EMPRENDIMIENTO!
-    </button>
+    <!-- Banner Hero / Captura Comerciantes -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-6 text-white shadow-xl border border-slate-800">
+      <div class="relative z-10 space-y-3">
+        <span class="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-2.5 py-1 rounded-full">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Red de Comercios Locales
+        </span>
+        <h2 class="text-2xl font-black tracking-tight leading-tight">
+          Impulsá tu negocio en la ciudad.
+        </h2>
+        <p class="text-slate-400 text-xs font-normal leading-relaxed">
+          Suma tu local o emprendimiento hoy. Vendé sin intermediarios y gestioná tus pedidos directo por WhatsApp.
+        </p>
+        
+        <button onclick="abrirModalRegistro()" class="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm py-3.5 px-5 rounded-2xl shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          Sumá tu comercio gratis
+        </button>
+      </div>
+      
+      <!-- Círculos decorativos de fondo -->
+      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -left-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+    </div>
 
-    <!-- Categorías -->
-    <section class="bg-blue-600 p-4 rounded-3xl shadow-md text-white">
-      <h2 class="text-center font-bold text-lg mb-3">Categorías</h2>
-      <div class="grid grid-cols-3 gap-2">
-        <button onclick="cargarComercios('Gastronomía')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Gastronomía</button>
-        <button onclick="cargarComercios('Indumentaria')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Indumentaria</button>
-        <button onclick="cargarComercios('Bazar')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Bazar</button>
-        <button onclick="cargarComercios('Regalería')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Regalería</button>
-        <button onclick="cargarComercios('Mercados')" class="bg-white text-blue-900 font-semibold py-2 px-1 rounded-xl text-xs hover:bg-blue-50">Mercados</button>
-        <button onclick="cargarComercios()" class="bg-emerald-400 text-slate-950 font-bold py-2 px-1 rounded-xl text-xs hover:bg-emerald-300">Todas</button>
+    <!-- Buscador Integrado -->
+    <div class="relative">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+      <input type="text" id="input-buscar" oninput="filtrarPorBusqueda()" placeholder="Buscar comercios, productos o rubros..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-slate-400">
+    </div>
+
+    <!-- Categorías Tipo Chips -->
+    <section class="space-y-2.5">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Explorar Rubros</h3>
+        <span id="categoria-activa" class="text-xs font-semibold text-emerald-600">Todas</span>
+      </div>
+      
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-medium">
+        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-slate-900 text-white font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="grid" class="w-3.5 h-3.5"></i> Todas
+        </button>
+        <button onclick="seleccionarCategoria('Gastronomía', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5">
+          <i data-lucide="utensils" class="w-3.5 h-3.5"></i> Gastronomía
+        </button>
+        <button onclick="seleccionarCategoria('Indumentaria', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Indumentaria
+        </button>
+        <button onclick="seleccionarCategoria('Bazar', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i> Bazar
+        </button>
+        <button onclick="seleccionarCategoria('Regalería', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5">
+          <i data-lucide="gift" class="w-3.5 h-3.5"></i> Regalería
+        </button>
+        <button onclick="seleccionarCategoria('Mercados', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5">
+          <i data-lucide="store" class="w-3.5 h-3.5"></i> Mercados
+        </button>
       </div>
     </section>
 
-    <!-- Comercios Destacados -->
-    <section class="space-y-3">
-      <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-        🔥 Comercios Destacados
-      </h2>
-      <div id="comercios-container" class="grid grid-cols-1 gap-4">
-        <div class="p-4 bg-white rounded-2xl border text-center text-slate-400">Cargando comercios de Necochea...</div>
+    <!-- Lista de Comercios -->
+    <section class="space-y-3 pt-2">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+          <i data-lucide="flame" class="w-4 h-4 text-amber-500 fill-amber-500"></i> Comercios Destacados
+        </h3>
+        <span class="text-[11px] font-medium text-slate-400" id="total-comercios">Cargando...</span>
+      </div>
+
+      <div id="comercios-container" class="grid grid-cols-1 gap-3.5">
+        <div class="p-8 bg-white rounded-2xl border border-slate-200/80 text-center text-slate-400 space-y-2">
+          <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-emerald-500"></i>
+          <p class="text-xs font-medium">Obteniendo los mejores locales de la ciudad...</p>
+        </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Modal para registrar comercio -->
-  <div id="modal-registro" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 max-h-[90vh] overflow-y-auto">
-      <h3 class="text-xl font-bold text-slate-900">Registrar mi Comercio</h3>
+  <!-- Modal Estilizado para Registrar Comercio -->
+  <div id="modal-registro" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       
-      <form id="form-comercio" onsubmit="guardarComercio(event)" class="space-y-3">
-        <input type="text" id="nombre" placeholder="Nombre del Negocio" required class="w-full p-3 border rounded-xl text-sm">
-        <input type="text" id="telefono" placeholder="WhatsApp (Ej: 5492262123456)" required class="w-full p-3 border rounded-xl text-sm">
-        <input type="text" id="direccion" placeholder="Dirección (Ej: Calle 59 N° 3400)" class="w-full p-3 border rounded-xl text-sm">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Registrar mi Comercio</h3>
+          <p class="text-xs text-slate-500">Completá los datos básicos para aparecer en NecoVende.</p>
+        </div>
+        <button onclick="cerrarModalRegistro()" class="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <form id="form-comercio" onsubmit="guardarComercio(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Local / Emprendimiento</label>
+          <input type="text" id="nombre" placeholder="Ej: Pizzería El Puente" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp para recibir pedidos</label>
+          <input type="text" id="telefono" placeholder="Ej: 5492262123456" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <span class="text-[10px] text-slate-400 mt-1 block">Incluí el código de área sin espacios ni guiones.</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Dirección o Zona</label>
+          <input type="text" id="direccion" placeholder="Ej: Av. 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+        </div>
         
-        <select id="categoria" required class="w-full p-3 border rounded-xl text-sm text-slate-700">
-          <option value="">Seleccionar Categoría</option>
-          <option value="Gastronomía">Gastronomía</option>
-          <option value="Indumentaria">Indumentaria</option>
-          <option value="Bazar">Bazar</option>
-          <option value="Regalería">Regalería</option>
-          <option value="Mercados">Mercados</option>
-        </select>
-
-        <div class="flex items-center gap-2 pt-2">
-          <input type="checkbox" id="envios" checked class="w-4 h-4 text-emerald-500">
-          <label for="envios" class="text-sm text-slate-700 font-medium">Hacemos envíos a domicilio</label>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Rubro Principal</label>
+          <select id="categoria" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+            <option value="">Seleccionar Categoría...</option>
+            <option value="Gastronomía">Gastronomía</option>
+            <option value="Indumentaria">Indumentaria</option>
+            <option value="Bazar">Bazar</option>
+            <option value="Regalería">Regalería</option>
+            <option value="Mercados">Mercados</option>
+          </select>
         </div>
 
-        <div class="flex gap-2 pt-4">
-          <button type="button" onclick="cerrarModalRegistro()" class="w-1/2 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">Cancelar</button>
-          <button type="submit" class="w-1/2 bg-emerald-500 text-slate-950 py-3 rounded-xl font-bold">Guardar</button>
+        <div class="flex items-center gap-2.5 py-1">
+          <input type="checkbox" id="envios" checked class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20 border-slate-300">
+          <label for="envios" class="text-xs text-slate-700 font-medium">Ofrecemos envíos a domicilio</label>
         </div>
-      </form>
-    </div>
-  </div>
 
-  <script>
-    const SUPABASE_URL = "https://itpkfuprqihmclsqjfki.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_sW8WBd-hoa155VOla5xj8A__0X494yO";
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function cargarComercios(categoriaFiltro = null) {
-      let query = _supabase.from('comercios').select('*').order('total_pedidos', { ascending: false });
-      
-      if (categoriaFiltro) {
-        query = query.eq('categoria', categoriaFiltro);
-      }
-
-      const { data, error } = await query;
-      const container = document.getElementById('comercios-container');
-      container.innerHTML = '';
-
-      if (error || !data || data.length === 0) {
-        container.innerHTML = `<div class="p-6 bg-white rounded-2xl text-center text-slate-500 shadow-sm border">
-          No hay comercios cargados aún. ¡Sé el primero haciendo clic en el botón verde de arriba!
-        </div>`;
-        return;
-      }
-
-      data.forEach(c => {
-        container.innerHTML += `
-          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-bold text-slate-900 text-lg">${c.nombre}</h3>
-                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">${c.categoria}</span>
-              </div>
-              ${c.hace_envios ? '<span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">🛵 Envíos</span>' : ''}
-            </div>
-            <p class="text-xs text-slate-500">📍 ${c.direccion || 'Necochea'}</p>
-            <a href="https://wa.me/${c.telefono_whatsapp}?text=¡Hola!%20Te%20encontré%20en%20NecoVende.com" target="_blank" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-center text-sm block">
-              Contactar por WhatsApp
-            </a>
-          </div>
-        `;
-      });
-    }
-
-    function abrirModalRegistro() { document.getElementById('modal-registro').classList.remove('hidden'); }
-    function cerrarModalRegistro() { document.getElementById('modal-registro').classList.add('hidden'); }
-
-    async function guardarComercio(e) {
-      e.preventDefault();
-      const nombre = document.getElementById('nombre').value;
-      const telefono = document.getElementById('telefono').value;
-      const direccion = document.getElementById('direccion').value;
-      const categoria = document.getElementById('categoria').value;
-      const hace_envios = document.getElementById('envios').checked;
-
-      const { error } = await _supabase.from('comercios').insert([{
-        nombre, telefono_whatsapp: telefono, direccion, categoria, hace_envios
-      }]);
-
-      if (error) {
-        alert('Error al guardar el comercio: ' + error.message);
-      } else {
-        alert('¡Comercio registrado con éxito!');
-        cerrarModalRegistro();
-        document.getElementById('form-comercio').reset();
-        cargarComercios();
-      }
-    }
-
-    window.onload = () => cargarComercios();
-  </script>
-</body>
-</html>
+        <div class="flex gap-2.5
