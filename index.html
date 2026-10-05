@@ -12,112 +12,133 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b1329;
+      color: #f1f5f9;
+    }
+    
     .glass-nav {
-      background: rgba(15, 23, 42, 0.90);
-      backdrop-filter: blur(12px);
+      background: rgba(11, 19, 41, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .card-gradient {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+    }
+
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased pb-28">
+<body class="antialiased pb-28 min-h-screen">
 
   <!-- Header / Navbar -->
-  <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/50 text-white">
-    <div class="max-w-xl mx-auto px-4 py-3.5 flex justify-between items-center">
-      <div class="flex items-center gap-2.5 cursor-pointer" onclick="mostrarInicio()">
-        <div class="w-9 h-9 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl flex items-center justify-center font-black text-slate-950 text-xl shadow-lg shadow-emerald-500/20">
+  <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/80 text-white">
+    <div class="max-w-xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
+      <!-- Logo -->
+      <div class="flex items-center gap-2.5 cursor-pointer group" onclick="mostrarInicio()">
+        <div class="w-10 h-10 bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 rounded-2xl flex items-center justify-center font-black text-slate-950 text-2xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition">
           N
         </div>
         <div>
           <h1 class="text-lg font-black tracking-tight leading-none text-white">Neco<span class="text-emerald-400">Vende</span></h1>
-          <p class="text-[10px] text-slate-400 font-medium tracking-wide">NECOCHEA & QUEQUÉN</p>
+          <p class="text-[9px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">Necochea & Quequén</p>
         </div>
       </div>
       
-      <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-200 font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-2">
-        <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i>
-        <span>Carrito</span>
-        <span id="cart-count" class="bg-emerald-500 text-slate-950 text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
-      </button>
+      <!-- Acciones de Header -->
+      <div class="flex items-center gap-2">
+        <button id="btn-sumar-comercio" type="button" class="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Sumar Local</span>
+          <span class="sm:hidden">Unirme</span>
+        </button>
+
+        <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-2">
+          <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i>
+          <span id="cart-count" class="bg-emerald-500 text-slate-950 text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
+        </button>
+      </div>
     </div>
   </header>
 
   <!-- CONTENEDOR VISTA INICIO (MARKETPLACE) -->
-  <main id="vista-inicio" class="max-w-xl mx-auto px-4 pt-5 space-y-6">
+  <main id="vista-inicio" class="max-w-xl mx-auto px-4 pt-4 space-y-5">
 
-    <!-- Banner Hero -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-6 text-white shadow-xl border border-slate-800">
-      <div class="relative z-10 space-y-3">
-        <span class="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-2.5 py-1 rounded-full">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Red de Comercios Locales
-        </span>
-        <h2 class="text-2xl font-black tracking-tight leading-tight">
-          Impulsá tu negocio en la ciudad.
-        </h2>
-        <p class="text-slate-400 text-xs font-normal leading-relaxed">
-          Sumá tu local o emprendimiento hoy. Publicá tus productos y gestioná tus pedidos directo por la plataforma.
-        </p>
-        
-        <button id="btn-sumar-comercio" type="button" class="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm py-3.5 px-5 rounded-2xl shadow-lg shadow-emerald-500/25 transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
-          Sumá tu comercio gratis
-        </button>
+    <!-- Subtítulo Identidad Local -->
+    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+      <div>
+        <h2 class="text-lg font-black text-white tracking-tight">Comercio Local a un Clic</h2>
+        <p class="text-xs text-slate-400 font-medium">Pedí directamente a tus locales favoritos sin comisiones.</p>
       </div>
-      
-      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <span class="flex h-2.5 w-2.5 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
     </div>
 
     <!-- Buscador -->
     <div class="relative">
       <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
-      <input type="text" id="input-buscar" placeholder="Buscar comercios, productos o rubros..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition placeholder:text-slate-400">
+      <input type="text" id="input-buscar" placeholder="Buscar comercios, productos o rubros..." class="w-full bg-slate-900/90 border border-slate-800/90 pl-11 pr-4 py-3 rounded-2xl text-xs font-semibold text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition placeholder:text-slate-500">
     </div>
 
     <!-- Categorías -->
-    <section class="space-y-2.5">
+    <section class="space-y-2">
       <div class="flex justify-between items-center">
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Explorar Rubros</h3>
-        <span id="categoria-activa" class="text-xs font-semibold text-emerald-600">Todas</span>
+        <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Explorar Rubros</h3>
+        <span id="categoria-activa" class="text-xs font-bold text-emerald-400">Todas</span>
       </div>
       
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-medium">
-        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-slate-900 text-white font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition flex items-center gap-1.5">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar">
+        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5">
           <i data-lucide="grid" class="w-3.5 h-3.5"></i> Todas
         </button>
-        <button onclick="seleccionarCategoria('Gastronomía', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5">
+        <button onclick="seleccionarCategoria('Gastronomía', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
           <i data-lucide="utensils" class="w-3.5 h-3.5"></i> Gastronomía
         </button>
-        <button onclick="seleccionarCategoria('Indumentaria', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5">
+        <button onclick="seleccionarCategoria('Indumentaria', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
           <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Indumentaria
         </button>
-        <button onclick="seleccionarCategoria('Bazar', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5">
+        <button onclick="seleccionarCategoria('Bazar', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
           <i data-lucide="home" class="w-3.5 h-3.5"></i> Bazar
         </button>
-        <button onclick="seleccionarCategoria('Regalería', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5">
+        <button onclick="seleccionarCategoria('Regalería', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
           <i data-lucide="gift" class="w-3.5 h-3.5"></i> Regalería
         </button>
-        <button onclick="seleccionarCategoria('Mercados', this)" class="btn-cat bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5">
+        <button onclick="seleccionarCategoria('Mercados', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
           <i data-lucide="store" class="w-3.5 h-3.5"></i> Mercados
         </button>
       </div>
     </section>
 
     <!-- Lista de Comercios -->
-    <section class="space-y-3 pt-2">
+    <section class="space-y-3 pt-1">
       <div class="flex justify-between items-center">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-          <i data-lucide="flame" class="w-4 h-4 text-amber-500 fill-amber-500"></i> Comercios Destacados
+        <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i> Locales Destacados
         </h3>
-        <span class="text-[11px] font-medium text-slate-400" id="total-comercios">Cargando...</span>
+        <span class="text-[11px] font-bold text-slate-500" id="total-comercios">Cargando...</span>
       </div>
 
       <div id="comercios-container" class="grid grid-cols-1 gap-3.5">
-        <div class="p-8 bg-white rounded-2xl border border-slate-200/80 text-center text-slate-400 space-y-2">
-          <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-emerald-500"></i>
-          <p class="text-xs font-medium">Obteniendo locales de la ciudad...</p>
+        <div class="p-8 card-gradient rounded-3xl border border-slate-800 text-center text-slate-400 space-y-2">
+          <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-emerald-400"></i>
+          <p class="text-xs font-semibold">Cargando locales de la ciudad...</p>
         </div>
       </div>
     </section>
@@ -125,22 +146,22 @@
   </main>
 
   <!-- CONTENEDOR VISTA DETALLE COMERCIO -->
-  <main id="vista-comercio" class="max-w-xl mx-auto px-4 pt-5 space-y-5 hidden">
+  <main id="vista-comercio" class="max-w-xl mx-auto px-4 pt-4 space-y-5 hidden">
     
-    <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl transition shadow-sm">
+    <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl transition">
       <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a comercios
     </button>
 
     <!-- Encabezado del Comercio -->
-    <div id="detalle-comercio-header" class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+    <div id="detalle-comercio-header" class="card-gradient rounded-3xl p-5 border border-slate-800 shadow-xl space-y-3">
       <!-- Se llena dinámicamente con JS -->
     </div>
 
     <!-- Catálogo de Productos -->
     <section class="space-y-3">
       <div class="flex justify-between items-center">
-        <h3 class="text-sm font-bold text-slate-900">Catálogo de Productos</h3>
-        <button id="btn-agregar-prod-vista" class="text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Catálogo de Productos</h3>
+        <button id="btn-agregar-prod-vista" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl transition flex items-center gap-1">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i> Cargar Producto
         </button>
       </div>
@@ -152,31 +173,48 @@
 
   </main>
 
+  <!-- BARRA FLOTANTE INFERIOR - IR AL CARRITO -->
+  <div id="barra-flotante-carrito" class="fixed bottom-4 left-0 right-0 z-30 px-4 hidden">
+    <div class="max-w-xl mx-auto">
+      <button onclick="abrirModal('modal-carrito')" class="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 px-5 rounded-2xl shadow-2xl shadow-emerald-500/40 border border-emerald-300/30 transition active:scale-[0.98] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span id="float-cart-count" class="bg-slate-950 text-emerald-400 text-xs font-black px-2 py-0.5 rounded-lg">0</span>
+          <span class="text-xs tracking-tight uppercase">Ver mi pedido</span>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <span id="float-cart-total" class="text-base font-black text-slate-950">$0</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </div>
+      </button>
+    </div>
+  </div>
+
   <!-- MODAL: Ver Imagen Ampliada / Detalle de Producto -->
   <div id="modal-ver-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 transition-all">
-    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-200">
+    <div class="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-800 relative">
       
-      <button onclick="cerrarModal('modal-ver-producto')" type="button" class="absolute top-3 right-3 bg-slate-900/60 hover:bg-slate-900 text-white p-2 rounded-full backdrop-blur-sm transition z-10">
+      <button onclick="cerrarModal('modal-ver-producto')" type="button" class="absolute top-3 right-3 bg-slate-950/70 hover:bg-slate-950 text-white p-2 rounded-full backdrop-blur-sm transition z-10">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <div class="bg-slate-100 relative min-h-[260px] flex items-center justify-center">
+      <div class="bg-slate-950 relative min-h-[260px] flex items-center justify-center">
         <img id="view-prod-img" src="" class="w-full h-72 object-cover hidden">
-        <div id="view-prod-no-img" class="text-slate-400 flex flex-col items-center gap-2">
+        <div id="view-prod-no-img" class="text-slate-600 flex flex-col items-center gap-2">
           <i data-lucide="image-off" class="w-10 h-10"></i>
-          <span class="text-xs font-medium">Sin imagen para mostrar</span>
+          <span class="text-xs font-bold">Sin imagen para mostrar</span>
         </div>
       </div>
 
       <div class="p-6 space-y-4">
         <div>
-          <h3 id="view-prod-titulo" class="text-xl font-black text-slate-900 leading-snug"></h3>
-          <p id="view-prod-precio" class="text-xl font-black text-emerald-600 mt-1"></p>
+          <h3 id="view-prod-titulo" class="text-xl font-black text-white leading-snug"></h3>
+          <p id="view-prod-precio" class="text-2xl font-black text-emerald-400 mt-1"></p>
         </div>
 
-        <p id="view-prod-descripcion" class="text-xs text-slate-500 leading-relaxed max-h-32 overflow-y-auto"></p>
+        <p id="view-prod-descripcion" class="text-xs text-slate-400 leading-relaxed max-h-32 overflow-y-auto"></p>
 
-        <button id="view-prod-btn-agregar" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+        <button id="view-prod-btn-agregar" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
       </div>
@@ -184,14 +222,14 @@
   </div>
 
   <!-- MODAL: Carrito de Compras -->
-  <div id="modal-carrito" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+  <div id="modal-carrito" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start border-b border-slate-800 pb-3">
         <div>
-          <h3 class="text-lg font-bold text-slate-900">Tu Carrito</h3>
-          <p class="text-xs text-slate-500" id="cart-comercio-nombre">Resumen del pedido</p>
+          <h3 class="text-lg font-black text-white">Tu Carrito</h3>
+          <p class="text-xs text-slate-400 font-medium" id="cart-comercio-nombre">Resumen del pedido</p>
         </div>
-        <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
+        <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -200,52 +238,52 @@
         <!-- Ítems agregados -->
       </div>
 
-      <div class="border-t border-slate-100 pt-3 space-y-3">
-        <div class="flex justify-between items-center text-sm font-black text-slate-900">
+      <div class="border-t border-slate-800 pt-3 space-y-3">
+        <div class="flex justify-between items-center text-sm font-black text-white">
           <span>Total:</span>
-          <span id="cart-total-precio" class="text-emerald-600 text-lg">$0</span>
+          <span id="cart-total-precio" class="text-emerald-400 text-xl font-black">$0</span>
         </div>
 
-        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 py-3.5 rounded-2xl font-extrabold text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
-          <i data-lucide="send" class="w-4 h-4"></i> Enviar Pedido al Local
+        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i> Enviar Pedido por WhatsApp
         </button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: Registrar Comercio -->
-  <div id="modal-registro" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+  <div id="modal-registro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
       
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-bold text-slate-900">Registrar mi Comercio</h3>
-          <p class="text-xs text-slate-500">Completá los datos y subí tu logo.</p>
+          <h3 class="text-lg font-black text-white">Registrar mi Comercio</h3>
+          <p class="text-xs text-slate-400">Sumá tu negocio gratis a NecoVende.</p>
         </div>
-        <button onclick="cerrarModal('modal-registro')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
+        <button onclick="cerrarModal('modal-registro')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       
       <form id="form-comercio" class="space-y-3.5">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Local / Emprendimiento</label>
-          <input type="text" id="nombre" placeholder="Ej: Pizzería El Puente" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Local / Emprendimiento</label>
+          <input type="text" id="nombre" placeholder="Ej: Pizzería El Puente" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp para recibir pedidos</label>
-          <input type="text" id="telefono" placeholder="Ej: 5492262123456" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1">WhatsApp para recibir pedidos</label>
+          <input type="text" id="telefono" placeholder="Ej: 5492262123456" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Dirección / Zona</label>
-          <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Dirección / Zona</label>
+          <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
         
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Rubro Principal</label>
-          <select id="categoria" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Rubro Principal</label>
+          <select id="categoria" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
             <option value="">Seleccionar Categoría...</option>
             <option value="Gastronomía">Gastronomía</option>
             <option value="Indumentaria">Indumentaria</option>
@@ -256,33 +294,33 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Logo / Foto de Perfil (Máx. 2MB)</label>
-          <input type="file" id="logo-input" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Logo / Foto de Perfil (Máx. 2MB)</label>
+          <input type="file" id="logo-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer">
         </div>
 
         <div class="flex items-center gap-2.5 py-1">
-          <input type="checkbox" id="envios" checked class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20 border-slate-300">
-          <label for="envios" class="text-xs text-slate-700 font-medium">Ofrecemos envíos a domicilio</label>
+          <input type="checkbox" id="envios" checked class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20 border-slate-700 bg-slate-950">
+          <label for="envios" class="text-xs text-slate-300 font-semibold">Ofrecemos envíos a domicilio</label>
         </div>
 
         <div class="flex gap-2.5 pt-3">
-          <button onclick="cerrarModal('modal-registro')" type="button" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
-          <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-emerald-500/20 transition">Guardar Local</button>
+          <button onclick="cerrarModal('modal-registro')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
+          <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-black text-xs shadow-md shadow-emerald-500/20 transition">Guardar Local</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- MODAL: Cargar / Editar Producto -->
-  <div id="modal-producto" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+  <div id="modal-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
       
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-bold text-slate-900" id="modal-producto-titulo-head">Agregar Producto</h3>
-          <p class="text-xs text-slate-500" id="subtitulo-comercio-prod">Sumá un ítem a tu catálogo.</p>
+          <h3 class="text-lg font-black text-white" id="modal-producto-titulo-head">Agregar Producto</h3>
+          <p class="text-xs text-slate-400" id="subtitulo-comercio-prod">Sumá un ítem a tu catálogo.</p>
         </div>
-        <button onclick="cerrarModal('modal-producto')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
+        <button onclick="cerrarModal('modal-producto')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -293,29 +331,29 @@
         <input type="hidden" id="prod-imagen-existente">
         
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Pizza Muzzarella XL" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Producto</label>
+          <input type="text" id="prod-titulo" placeholder="Ej: Pizza Muzzarella XL" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Precio ($)</label>
-          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Precio ($)</label>
+          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Salsa de tomate casera, abundante muzzarella y aceitunas." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition" rows="2"></textarea>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Descripción corta</label>
+          <textarea id="prod-descripcion" placeholder="Ej: Salsa de tomate casera, abundante muzzarella y aceitunas." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Foto del Producto (Máx. 2MB)</label>
-          <input type="file" id="prod-imagen" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
-          <p class="text-[10px] text-slate-400 mt-1" id="help-imagen-edit"></p>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Foto del Producto (Máx. 2MB)</label>
+          <input type="file" id="prod-imagen" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer">
+          <p class="text-[10px] text-slate-500 mt-1" id="help-imagen-edit"></p>
         </div>
 
         <div class="flex gap-2.5 pt-3">
-          <button onclick="cerrarModal('modal-producto')" type="button" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
-          <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-emerald-500/20 transition">Publicar Producto</button>
+          <button onclick="cerrarModal('modal-producto')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
+          <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-black text-xs shadow-md shadow-emerald-500/20 transition">Publicar Producto</button>
         </div>
       </form>
     </div>
@@ -348,16 +386,16 @@
       header.innerHTML = `
         <div class="flex items-center gap-3.5">
           ${comercioActivo.logo_url 
-            ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">`
-            : `<div class="w-16 h-16 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center font-black text-2xl text-slate-700">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+            ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-700 shadow-md">`
+            : `<div class="w-16 h-16 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center font-black text-2xl text-emerald-400">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
           }
           <div>
-            <h2 class="text-xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
+            <h2 class="text-xl font-black text-white leading-tight">${comercioActivo.nombre}</h2>
             <div class="flex items-center gap-2 mt-1">
-              <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md">${comercioActivo.categoria}</span>
-              ${comercioActivo.hace_envios ? '<span class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">Con Envíos</span>' : ''}
+              <span class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-lg border border-slate-700">${comercioActivo.categoria}</span>
+              ${comercioActivo.hace_envios ? '<span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">Envíos Disponibles</span>' : ''}
             </div>
-            <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> ${comercioActivo.direccion || 'Necochea'}</p>
+            <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
           </div>
         </div>
       `;
@@ -379,9 +417,9 @@
 
       if (productos.length === 0) {
         container.innerHTML = `
-          <div class="p-8 bg-white rounded-2xl border border-slate-200 text-center text-slate-400 space-y-2">
-            <i data-lucide="package-open" class="w-8 h-8 mx-auto text-slate-300"></i>
-            <p class="text-xs font-semibold">Este comercio aún no tiene productos publicados.</p>
+          <div class="p-8 card-gradient rounded-3xl border border-slate-800 text-center text-slate-500 space-y-2">
+            <i data-lucide="package-open" class="w-8 h-8 mx-auto text-slate-600"></i>
+            <p class="text-xs font-semibold">Este local aún no ha publicado productos.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -394,29 +432,29 @@
         const pImagen = p.imagen_url || '';
 
         container.innerHTML += `
-          <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3 relative group">
+          <div class="card-gradient rounded-2xl p-3.5 border border-slate-800/90 shadow-lg flex items-center justify-between gap-3 relative group hover:border-slate-700 transition">
             <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')">
               ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0 hover:opacity-80 transition">` 
-                : `<div class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0"><i data-lucide="package" class="w-6 h-6"></i></div>`}
+                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-800 flex-shrink-0 group-hover:scale-105 transition">` 
+                : `<div class="w-16 h-16 bg-slate-950 rounded-xl flex items-center justify-center text-slate-600 flex-shrink-0 border border-slate-800"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="truncate">
-                <h4 class="font-bold text-sm text-slate-900 truncate group-hover:text-emerald-600">${p.titulo}</h4>
-                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
-                <p class="text-sm font-black text-emerald-600 mt-1">$${p.precio}</p>
+                <h4 class="font-bold text-sm text-white truncate group-hover:text-emerald-400 transition">${p.titulo}</h4>
+                <p class="text-xs text-slate-400 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
+                <p class="text-base font-black text-emerald-400 mt-1">$${p.precio}</p>
               </div>
             </div>
 
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               <div class="flex items-center gap-1">
-                <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
                   <i data-lucide="edit-3" class="w-4 h-4"></i>
                 </button>
-                <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
               </div>
 
-              <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-sm transition flex items-center gap-1">
+              <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
               </button>
             </div>
@@ -487,29 +525,41 @@
       document.getElementById('cart-count').innerText = totalItems;
       document.getElementById('cart-total-precio').innerText = `$${totalPrecio}`;
 
+      // Barra flotante inferior
+      const barraFlotante = document.getElementById('barra-flotante-carrito');
+      if (totalItems > 0) {
+        barraFlotante.classList.remove('hidden');
+        document.getElementById('float-cart-count').innerText = totalItems;
+        document.getElementById('float-cart-total').innerText = `$${totalPrecio}`;
+      } else {
+        barraFlotante.classList.add('hidden');
+      }
+
       const itemsContainer = document.getElementById('carrito-items');
       itemsContainer.innerHTML = '';
 
       if (carrito.length === 0) {
-        itemsContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">El carrito está vacío.</p>`;
+        itemsContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4 font-semibold">El carrito está vacío.</p>`;
         return;
       }
 
       carrito.forEach(item => {
         itemsContainer.innerHTML += `
-          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+          <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
             <div>
-              <p class="font-bold text-xs text-slate-800">${item.titulo}</p>
-              <p class="text-[11px] text-slate-500 font-semibold">$${item.precio * item.cantidad}</p>
+              <p class="font-bold text-xs text-white">${item.titulo}</p>
+              <p class="text-[11px] text-emerald-400 font-extrabold">$${item.precio * item.cantidad}</p>
             </div>
-            <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1">
-              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-500 hover:text-slate-800 font-bold text-xs">-</button>
-              <span class="text-xs font-bold text-slate-800 px-1">${item.cantidad}</span>
-              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-500 hover:text-slate-800 font-bold text-xs">+</button>
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-400 hover:text-white font-black text-xs">-</button>
+              <span class="text-xs font-bold text-white px-1">${item.cantidad}</span>
+              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-400 hover:text-white font-black text-xs">+</button>
             </div>
           </div>
         `;
       });
+
+      if (window.lucide) lucide.createIcons();
     }
 
     function enviarPedidoWhatsApp() {
@@ -580,11 +630,11 @@
 
       if (lista.length === 0) {
         container.innerHTML = `
-          <div class="p-8 bg-white rounded-2xl border border-slate-200/80 text-center space-y-3">
-            <div class="w-10 h-10 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
+          <div class="p-8 card-gradient rounded-3xl border border-slate-800 text-center space-y-3">
+            <div class="w-10 h-10 bg-slate-900 text-slate-500 rounded-full flex items-center justify-center mx-auto border border-slate-800">
               <i data-lucide="store-off" class="w-5 h-5"></i>
             </div>
-            <p class="text-xs font-semibold text-slate-600">No hay comercios cargados en este rubro.</p>
+            <p class="text-xs font-semibold text-slate-400">No hay comercios registrados en este rubro.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -594,34 +644,34 @@
       lista.forEach(c => {
         const cantidadProds = c.productos ? c.productos.length : 0;
         container.innerHTML += `
-          <div onclick="abrirVistaComercio('${c.id}')" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border border-slate-200/70 transition space-y-3 cursor-pointer group">
+          <div onclick="abrirVistaComercio('${c.id}')" class="card-gradient rounded-3xl p-4 shadow-lg hover:shadow-2xl border border-slate-800/90 transition hover:border-slate-700 space-y-3 cursor-pointer group">
             <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3.5">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">`
-                  : `<div class="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200/60 flex items-center justify-center text-slate-700 font-black text-xl group-hover:border-emerald-500/40 transition">
+                  ? `<img src="${c.logo_url}" class="w-13 h-13 rounded-2xl object-cover border border-slate-800 shadow-md">`
+                  : `<div class="w-13 h-13 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center text-emerald-400 font-black text-xl group-hover:border-emerald-500/40 transition">
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
                 <div>
-                  <h4 class="font-bold text-slate-900 text-sm tracking-tight leading-snug group-hover:text-emerald-600 transition">${c.nombre}</h4>
-                  <div class="flex items-center gap-1.5 mt-0.5">
-                    <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">${c.categoria}</span>
-                    ${c.hace_envios ? '<span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
+                  <h4 class="font-bold text-white text-base tracking-tight leading-snug group-hover:text-emerald-400 transition">${c.nombre}</h4>
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60">${c.categoria}</span>
+                    ${c.hace_envios ? '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
                   </div>
                 </div>
               </div>
 
-              <span class="text-xs font-bold text-slate-700 bg-slate-100 group-hover:bg-emerald-500 group-hover:text-slate-950 px-3 py-2 rounded-xl transition flex items-center gap-1">
-                Ver Catálogo <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              <span class="text-xs font-black text-slate-300 bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 px-3 py-2 rounded-xl transition flex items-center gap-1 border border-slate-700 group-hover:border-emerald-500 shadow-sm">
+                Ver <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
               </span>
             </div>
 
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+            <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
               <span class="flex items-center gap-1">
-                <i data-lucide="map-pin" class="w-3 h-3"></i> ${c.direccion || 'Necochea'}
+                <i data-lucide="map-pin" class="w-3 h-3 text-slate-500"></i> ${c.direccion || 'Necochea / Quequén'}
               </span>
-              <span class="font-semibold text-slate-500">${cantidadProds} productos</span>
+              <span class="font-bold text-emerald-400/90">${cantidadProds} productos</span>
             </div>
           </div>
         `;
@@ -635,9 +685,9 @@
       document.getElementById('categoria-activa').innerText = cat;
 
       document.querySelectorAll('.btn-cat').forEach(b => {
-        b.className = 'btn-cat bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5';
+        b.className = 'btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700';
       });
-      elemento.className = 'btn-cat bg-slate-900 text-white font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition flex items-center gap-1.5';
+      elemento.className = 'btn-cat bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5';
 
       aplicarFiltros();
     }
