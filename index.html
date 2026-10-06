@@ -45,7 +45,6 @@
   <!-- Header / Navbar -->
   <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/80 text-white">
     <div class="max-w-xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
-      <!-- Logo -->
       <div class="flex items-center gap-2.5 cursor-pointer group" onclick="mostrarInicio()">
         <div class="w-10 h-10 bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 rounded-2xl flex items-center justify-center font-black text-slate-950 text-2xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition">
           N
@@ -56,7 +55,6 @@
         </div>
       </div>
       
-      <!-- Acciones de Header -->
       <div class="flex items-center gap-2">
         <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
@@ -64,7 +62,6 @@
           <span class="sm:hidden">Unirme</span>
         </button>
 
-        <!-- Botón de Login con Google (Visible cuando NO hay sesión) -->
         <button id="btn-login-google" onclick="iniciarSesionGoogle()" type="button" class="bg-white hover:bg-slate-100 text-slate-900 border border-slate-200 text-xs font-black px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95 shadow-sm">
           <svg class="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -75,13 +72,11 @@
           <span class="hidden sm:inline">Ingresar</span>
         </button>
 
-        <!-- Perfil (Abre el Panel de Control) -->
         <button id="user-profile-menu" onclick="abrirPanelControl()" type="button" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/80 p-1 pr-2.5 rounded-xl transition active:scale-95">
           <img id="user-avatar" src="" class="w-7 h-7 rounded-lg object-cover border border-emerald-400" alt="Perfil">
           <span class="text-xs font-bold text-slate-200 hidden sm:inline">Mi Cuenta</span>
         </button>
 
-        <!-- Carrito -->
         <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i>
           <span id="cart-count" class="bg-emerald-500 text-slate-950 text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
@@ -107,35 +102,18 @@
     <!-- Buscador -->
     <div class="relative">
       <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
-      <input type="text" id="input-buscar" placeholder="Buscar comercios, productos o rubros..." class="w-full bg-slate-900/90 border border-slate-800/90 pl-11 pr-4 py-3 rounded-2xl text-xs font-semibold text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition placeholder:text-slate-500">
+      <input type="text" id="input-buscar" placeholder="Buscar comercios, empanadas, helados, ropa..." class="w-full bg-slate-900/90 border border-slate-800/90 pl-11 pr-4 py-3 rounded-2xl text-xs font-semibold text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition placeholder:text-slate-500">
     </div>
 
-    <!-- Categorías -->
+    <!-- Rubros Dinámicos -->
     <section class="space-y-2">
       <div class="flex justify-between items-center">
-        <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Explorar Rubros</h3>
+        <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Explorar Categorías</h3>
         <span id="categoria-activa" class="text-xs font-bold text-emerald-400">Todas</span>
       </div>
       
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar">
-        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5">
-          <i data-lucide="grid" class="w-3.5 h-3.5"></i> Todas
-        </button>
-        <button onclick="seleccionarCategoria('Gastronomía', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
-          <i data-lucide="utensils" class="w-3.5 h-3.5"></i> Gastronomía
-        </button>
-        <button onclick="seleccionarCategoria('Indumentaria', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
-          <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Indumentaria
-        </button>
-        <button onclick="seleccionarCategoria('Bazar', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
-          <i data-lucide="home" class="w-3.5 h-3.5"></i> Bazar
-        </button>
-        <button onclick="seleccionarCategoria('Regalería', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
-          <i data-lucide="gift" class="w-3.5 h-3.5"></i> Regalería
-        </button>
-        <button onclick="seleccionarCategoria('Mercados', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
-          <i data-lucide="store" class="w-3.5 h-3.5"></i> Mercados
-        </button>
+      <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar">
+        <!-- Renderizado dinámico desde JS -->
       </div>
     </section>
 
@@ -171,12 +149,10 @@
       </button>
     </div>
 
-    <!-- Encabezado del Comercio -->
     <div id="detalle-comercio-header" class="card-gradient rounded-3xl p-5 border border-slate-800 shadow-xl space-y-4">
-      <!-- Se llena dinámicamente con JS -->
+      <!-- Se llena dinámicamente -->
     </div>
 
-    <!-- Catálogo de Productos -->
     <section class="space-y-3">
       <div class="flex justify-between items-center">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Catálogo de Productos</h3>
@@ -186,13 +162,13 @@
       </div>
 
       <div id="productos-container" class="grid grid-cols-1 gap-3">
-        <!-- Se llena dinámicamente con JS -->
+        <!-- Se llena dinámicamente -->
       </div>
     </section>
 
   </main>
 
-  <!-- BARRA FLOTANTE INFERIOR - IR AL CARRITO -->
+  <!-- BARRA FLOTANTE CARRITO -->
   <div id="barra-flotante-carrito" class="fixed bottom-4 left-0 right-0 z-30 px-4 hidden">
     <div class="max-w-xl mx-auto">
       <button onclick="abrirModal('modal-carrito')" class="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 px-5 rounded-2xl shadow-2xl shadow-emerald-500/40 border border-emerald-300/30 transition active:scale-[0.98] flex items-center justify-between">
@@ -200,7 +176,6 @@
           <span id="float-cart-count" class="bg-slate-950 text-emerald-400 text-xs font-black px-2 py-0.5 rounded-lg">0</span>
           <span class="text-xs tracking-tight uppercase">Ver mi pedido</span>
         </div>
-        
         <div class="flex items-center gap-2">
           <span id="float-cart-total" class="text-base font-black text-slate-950">$0</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -223,7 +198,6 @@
         </button>
       </div>
 
-      <!-- Mis Datos -->
       <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center gap-3.5">
         <img id="panel-avatar" src="" class="w-14 h-14 rounded-2xl object-cover border border-emerald-400/50 shadow-md">
         <div class="truncate">
@@ -235,7 +209,6 @@
         </div>
       </div>
 
-      <!-- Resumen / Estadísticas -->
       <div class="grid grid-cols-2 gap-3">
         <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 text-center">
           <span id="panel-stat-comercios" class="text-2xl font-black text-emerald-400">0</span>
@@ -247,7 +220,6 @@
         </div>
       </div>
 
-      <!-- Mis Comercios -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <h4 class="text-xs font-black text-white uppercase tracking-wider">Mis Comercios</h4>
@@ -256,12 +228,9 @@
           </button>
         </div>
 
-        <div id="panel-comercios-lista" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-          <!-- Lista cargada dinámicamente -->
-        </div>
+        <div id="panel-comercios-lista" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
       </div>
 
-      <!-- Botón Cerrar Sesión -->
       <div class="border-t border-slate-800 pt-4">
         <button onclick="cerrarSesion()" type="button" class="w-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-2">
           <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
@@ -271,10 +240,9 @@
     </div>
   </div>
 
-  <!-- MODAL: Ver Imagen Ampliada / Detalle de Producto -->
-  <div id="modal-ver-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 transition-all">
+  <!-- MODAL: Ver Producto Ampliado -->
+  <div id="modal-ver-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-800 relative">
-      
       <button onclick="cerrarModal('modal-ver-producto')" type="button" class="absolute top-3 right-3 bg-slate-950/70 hover:bg-slate-950 text-white p-2 rounded-full backdrop-blur-sm transition z-10">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
@@ -302,7 +270,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Carrito de Compras -->
+  <!-- MODAL: Carrito -->
   <div id="modal-carrito" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-start border-b border-slate-800 pb-3">
@@ -315,9 +283,7 @@
         </button>
       </div>
 
-      <div id="carrito-items" class="space-y-3 max-h-60 overflow-y-auto pr-1">
-        <!-- Ítems agregados -->
-      </div>
+      <div id="carrito-items" class="space-y-3 max-h-60 overflow-y-auto pr-1"></div>
 
       <div class="border-t border-slate-800 pt-3 space-y-3">
         <div class="flex justify-between items-center text-sm font-black text-white">
@@ -365,19 +331,18 @@
           <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
         
+        <!-- Selección de hasta 3 categorías -->
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Rubro Principal</label>
-          <select id="categoria" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-            <option value="">Seleccionar Categoría...</option>
-            <option value="Gastronomía">Gastronomía</option>
-            <option value="Indumentaria">Indumentaria</option>
-            <option value="Bazar">Bazar</option>
-            <option value="Regalería">Regalería</option>
-            <option value="Mercados">Mercados</option>
-          </select>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-bold text-slate-300">Categorías (Elegí hasta 3)</label>
+            <span id="cat-count-badge" class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">0 / 3</span>
+          </div>
+          <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 max-h-36 overflow-y-auto">
+            <!-- Renderizado dinámico desde JS -->
+          </div>
         </div>
 
-        <!-- Horario Turno 1 (Cuadro de texto libre) -->
+        <!-- Horarios -->
         <div class="space-y-1">
           <label class="block text-xs font-bold text-slate-300">Horario Principal / Turno 1</label>
           <div class="grid grid-cols-2 gap-2.5">
@@ -386,40 +351,37 @@
           </div>
         </div>
 
-        <!-- Horario Turno 2 (Cuadro de texto libre) -->
         <div class="space-y-1">
           <label class="block text-xs font-bold text-slate-300">Turno 2 (Opcional - Horario Cortado)</label>
           <div class="grid grid-cols-2 gap-2.5">
             <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
             <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
           </div>
-          <p class="text-[10px] text-slate-500">Dejá en blanco si hacés horario corrido.</p>
         </div>
 
-        <!-- Costo de Envío -->
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Costo de Envío</label>
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
-        <!-- Medios de Pago Aceptados -->
+        <!-- Medios de Pago -->
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Medios de Pago Aceptados</label>
           <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-efectivo" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0"> Efectivo
+              <input type="checkbox" id="pago-efectivo" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Efectivo
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-transferencia" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0"> Transferencia
+              <input type="checkbox" id="pago-transferencia" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Transferencia
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-qr" class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0"> MercadoPago / QR
+              <input type="checkbox" id="pago-qr" class="rounded border-slate-700 bg-slate-900 text-emerald-500"> MercadoPago / QR
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-cuenta-dni" class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0"> Cuenta DNI
+              <input type="checkbox" id="pago-cuenta-dni" class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Cuenta DNI
             </label>
             <label class="flex items-center gap-2 cursor-pointer col-span-2">
-              <input type="checkbox" id="pago-tarjeta" class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0"> Tarjeta Débito / Crédito
+              <input type="checkbox" id="pago-tarjeta" class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Tarjeta Débito / Crédito
             </label>
           </div>
         </div>
@@ -431,13 +393,20 @@
         </div>
 
         <div class="flex items-center gap-2.5 py-1">
-          <input type="checkbox" id="envios" checked class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20 border-slate-700 bg-slate-950">
+          <input type="checkbox" id="envios" checked class="w-4 h-4 rounded text-emerald-500 border-slate-700 bg-slate-950">
           <label for="envios" class="text-xs text-slate-300 font-semibold">Ofrecemos envíos a domicilio</label>
         </div>
 
         <div class="flex gap-2.5 pt-3">
           <button onclick="cerrarModal('modal-registro')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
           <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-black text-xs shadow-md shadow-emerald-500/20 transition">Guardar Local</button>
+        </div>
+
+        <!-- Botón Borrar Comercio (Aparece solo en modo edición) -->
+        <div id="contenedor-btn-eliminar-comercio" class="hidden pt-2 border-t border-slate-800/80">
+          <button type="button" onclick="eliminarComercioActual()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar Comercio
+          </button>
         </div>
       </form>
     </div>
@@ -496,53 +465,49 @@
     const SUPABASE_ANON_KEY = "sb_publishable_sW8WBd-hoa155VOla5xj8A__0X494yO";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // LISTADO EXTENSO DE CATEGORÍAS ESPECÍFICAS
+    const CATEGORIAS_DISPONIBLES = [
+      "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", "Rotisería", 
+      "Panaderías & Pastelería", "Cafetería", "Sushi & Comida Oriental", "Postres & Dulces", 
+      "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", 
+      "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", 
+      "Mercados & Almacén", "Kiosco", "Cervecería & Bebidas", 
+      "Cosmética & Belleza", "Mascotas", "Tecnología & Celulares"
+    ];
+
     let comerciosGlobales = [];
     let categoriaSeleccionada = 'Todas';
     let comercioActivo = null;
     let carrito = [];
     let usuarioActual = null;
 
-    // --- SLUGS AMIGABLES ---
     function crearSlug(texto) {
       if (!texto) return '';
-      return texto
-        .toString()
-        .toLowerCase()
-        .trim()
-        .normalize('NFD')
+      return texto.toString().toLowerCase().trim().normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9 -]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
     }
 
-    // --- EVALUAR RANGO DE HORARIO ---
     function estaEnRango(hApertura, hCierre) {
       if (!hApertura || !hCierre) return false;
       const ahora = new Date();
       const actualMin = ahora.getHours() * 60 + ahora.getMinutes();
-
       const partesA = hApertura.trim().split(':');
       const partesC = hCierre.trim().split(':');
-
       if (partesA.length < 2 || partesC.length < 2) return false;
-
       const apMin = parseInt(partesA[0], 10) * 60 + parseInt(partesA[1], 10);
       const ciMin = parseInt(partesC[0], 10) * 60 + parseInt(partesC[1], 10);
-
       if (isNaN(apMin) || isNaN(ciMin)) return false;
 
-      if (apMin <= ciMin) {
-        return actualMin >= apMin && actualMin <= ciMin;
-      } else {
-        return actualMin >= apMin || actualMin <= ciMin;
-      }
+      return apMin <= ciMin 
+        ? (actualMin >= apMin && actualMin <= ciMin) 
+        : (actualMin >= apMin || actualMin <= ciMin);
     }
 
     function estaAbierto(c) {
-      const turno1 = estaEnRango(c.hora_apertura, c.hora_cierre);
-      const turno2 = estaEnRango(c.hora_apertura_2, c.hora_cierre_2);
-      return turno1 || turno2;
+      return estaEnRango(c.hora_apertura, c.hora_cierre) || estaEnRango(c.hora_apertura_2, c.hora_cierre_2);
     }
 
     function formatearHorarios(c) {
@@ -553,7 +518,6 @@
       return texto;
     }
 
-    // --- LINK DIRECTO ---
     function copiarLinkComercio() {
       if (!comercioActivo) return;
       const identificador = comercioActivo.slug || comercioActivo.id;
@@ -563,7 +527,6 @@
       }).catch(err => console.error("Error al copiar link:", err));
     }
 
-    // --- AUTENTICACIÓN GOOGLE ---
     async function iniciarSesionGoogle() {
       const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -602,7 +565,6 @@
       }
     }
 
-    // --- PANEL DE CONTROL ---
     function abrirPanelControl() {
       if (!usuarioActual) return;
 
@@ -623,6 +585,7 @@
         lista.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">Aún no registraste ningún comercio.</p>`;
       } else {
         misComercios.forEach(c => {
+          const cats = c.categorias && c.categorias.length > 0 ? c.categorias.join(', ') : (c.categoria || 'Sin categoría');
           lista.innerHTML += `
             <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.slug || c.id}');">
@@ -631,7 +594,7 @@
                   : `<div class="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center font-bold text-emerald-400 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
                 <div class="min-w-0">
                   <p class="font-bold text-xs text-white truncate">${c.nombre}</p>
-                  <p class="text-[10px] text-slate-400">${c.categoria}</p>
+                  <p class="text-[10px] text-slate-400 truncate">${cats}</p>
                 </div>
               </div>
               <button onclick="cerrarModal('modal-panel'); prepararModalEditarComercio('${c.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition flex-shrink-0" title="Editar datos">
@@ -654,7 +617,6 @@
       prepararModalNuevoComercio();
     }
 
-    // --- MODALES & VISTAS ---
     function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
@@ -671,7 +633,6 @@
       if (!comercioActivo) return;
 
       const slugOId = comercioActivo.slug || comercioActivo.id;
-
       if (cambiarUrl) {
         window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
       }
@@ -685,6 +646,10 @@
       if (comercioActivo.pagos_qr) pagos.push('MercadoPago / QR');
       if (comercioActivo.pagos_cuenta_dni) pagos.push('Cuenta DNI');
       if (comercioActivo.pagos_tarjeta) pagos.push('Tarjeta Débito/Crédito');
+
+      const listaCats = comercioActivo.categorias && comercioActivo.categorias.length > 0 
+        ? comercioActivo.categorias 
+        : [comercioActivo.categoria || 'General'];
 
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
@@ -701,9 +666,9 @@
                   ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
                 </span>
               </div>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-lg border border-slate-700">${comercioActivo.categoria}</span>
-                ${comercioActivo.hace_envios ? '<span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">Envíos Disponibles</span>' : ''}
+              <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">${cat}</span>`).join('')}
+                ${comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md">Envíos</span>' : ''}
               </div>
               <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
             </div>
@@ -963,6 +928,7 @@
       }
 
       comerciosGlobales = comercios || [];
+      renderizarBarraCategorias();
       renderizarComercios(comerciosGlobales);
 
       const params = new URLSearchParams(window.location.search);
@@ -970,6 +936,26 @@
       if (comercioUrlId) {
         abrirVistaComercio(comercioUrlId, false);
       }
+    }
+
+    // Renderizar categorías superiores del marketplace
+    function renderizarBarraCategorias() {
+      const bar = document.getElementById('bar-categorias-filtros');
+      bar.innerHTML = `
+        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5">
+          <i data-lucide="grid" class="w-3.5 h-3.5"></i> Todas
+        </button>
+      `;
+
+      CATEGORIAS_DISPONIBLES.forEach(cat => {
+        bar.innerHTML += `
+          <button onclick="seleccionarCategoria('${cat}', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
+            ${cat}
+          </button>
+        `;
+      });
+
+      if (window.lucide) lucide.createIcons();
     }
 
     function renderizarComercios(lista) {
@@ -985,7 +971,7 @@
             <div class="w-10 h-10 bg-slate-900 text-slate-500 rounded-full flex items-center justify-center mx-auto border border-slate-800">
               <i data-lucide="store-off" class="w-5 h-5"></i>
             </div>
-            <p class="text-xs font-semibold text-slate-400">No hay comercios registrados en este rubro.</p>
+            <p class="text-xs font-semibold text-slate-400">No hay comercios registrados en esta categoría.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -996,6 +982,10 @@
         const cantidadProds = c.productos ? c.productos.length : 0;
         const abierto = estaAbierto(c);
         const identificador = c.slug || c.id;
+
+        const listaCats = c.categorias && c.categorias.length > 0 
+          ? c.categorias 
+          : [c.categoria || 'General'];
 
         container.innerHTML += `
           <div onclick="abrirVistaComercio('${identificador}')" class="card-gradient rounded-3xl p-4 shadow-lg hover:shadow-2xl border border-slate-800/90 transition hover:border-slate-700 space-y-3 cursor-pointer group">
@@ -1014,8 +1004,8 @@
                       ${abierto ? 'ABIERTO' : 'CERRADO'}
                     </span>
                   </div>
-                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-                    <span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60">${c.categoria}</span>
+                  <div class="flex items-center gap-1 mt-1 flex-wrap">
+                    ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60">${cat}</span>`).join('')}
                     ${c.hace_envios ? '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
                   </div>
                 </div>
@@ -1056,14 +1046,20 @@
       let resultado = comerciosGlobales;
 
       if (categoriaSeleccionada !== 'Todas') {
-        resultado = resultado.filter(c => c.categoria === categoriaSeleccionada);
+        resultado = resultado.filter(c => {
+          if (c.categorias && c.categorias.length > 0) {
+            return c.categorias.includes(categoriaSeleccionada);
+          }
+          return c.categoria === categoriaSeleccionada;
+        });
       }
 
       if (texto.trim() !== '') {
         resultado = resultado.filter(c => 
           c.nombre.toLowerCase().includes(texto) || 
           (c.direccion && c.direccion.toLowerCase().includes(texto)) ||
-          c.categoria.toLowerCase().includes(texto)
+          (c.categorias && c.categorias.some(cat => cat.toLowerCase().includes(texto))) ||
+          (c.categoria && c.categoria.toLowerCase().includes(texto))
         );
       }
 
@@ -1071,6 +1067,41 @@
     }
 
     // --- FORMULARIO COMERCIO (CREAR & EDITAR) ---
+    function renderizarOpcionesCategoriasModal(categoriasSeleccionadas = []) {
+      const grid = document.getElementById('grid-categorias-form');
+      grid.innerHTML = '';
+
+      CATEGORIAS_DISPONIBLES.forEach((cat, index) => {
+        const isChecked = categoriasSeleccionadas.includes(cat);
+        grid.innerHTML += `
+          <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-300">
+            <input type="checkbox" name="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="validarLimiteCategorias(this)" class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0">
+            <span class="truncate">${cat}</span>
+          </label>
+        `;
+      });
+      actualizarContadorCategorias();
+    }
+
+    function validarLimiteCategorias(checkbox) {
+      const seleccionados = document.querySelectorAll('input[name="cat-checkbox"]:checked');
+      if (seleccionados.length > 3) {
+        checkbox.checked = false;
+        alert("Podés seleccionar un máximo de 3 categorías por comercio.");
+      }
+      actualizarContadorCategorias();
+    }
+
+    function actualizarContadorCategorias() {
+      const total = document.querySelectorAll('input[name="cat-checkbox"]:checked').length;
+      document.getElementById('cat-count-badge').innerText = `${total} / 3`;
+    }
+
+    function obtenerCategoriasSeleccionadasModal() {
+      const checkboxes = document.querySelectorAll('input[name="cat-checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
+    }
+
     function prepararModalNuevoComercio() {
       document.getElementById('form-comercio').reset();
       document.getElementById('comercio-edit-id').value = '';
@@ -1079,6 +1110,7 @@
       document.getElementById('modal-comercio-head-sub').innerText = 'Sumá tu negocio gratis a NecoVende.';
       document.getElementById('btn-guardar-comercio').innerText = 'Guardar Local';
       document.getElementById('help-logo-edit').innerText = '';
+      document.getElementById('contenedor-btn-eliminar-comercio').classList.add('hidden');
 
       document.getElementById('hora-apertura').value = "09:00";
       document.getElementById('hora-cierre').value = "13:00";
@@ -1092,6 +1124,7 @@
       document.getElementById('pago-cuenta-dni').checked = false;
       document.getElementById('pago-tarjeta').checked = false;
 
+      renderizarOpcionesCategoriasModal([]);
       abrirModal('modal-registro');
     }
 
@@ -1106,7 +1139,6 @@
       document.getElementById('nombre').value = c.nombre;
       document.getElementById('telefono').value = c.telefono_whatsapp;
       document.getElementById('direccion').value = c.direccion || '';
-      document.getElementById('categoria').value = c.categoria;
       document.getElementById('envios').checked = Boolean(c.hace_envios);
 
       document.getElementById('hora-apertura').value = c.hora_apertura || "09:00";
@@ -1121,14 +1153,42 @@
       document.getElementById('pago-cuenta-dni').checked = Boolean(c.pagos_cuenta_dni);
       document.getElementById('pago-tarjeta').checked = Boolean(c.pagos_tarjeta);
 
+      const misCategorias = c.categorias && c.categorias.length > 0 ? c.categorias : [c.categoria].filter(Boolean);
+      renderizarOpcionesCategoriasModal(misCategorias);
+
       document.getElementById('modal-comercio-head-title').innerText = 'Editar mi Comercio';
       document.getElementById('modal-comercio-head-sub').innerText = `Modificando datos de: ${c.nombre}`;
       document.getElementById('btn-guardar-comercio').innerText = 'Guardar Cambios';
+      document.getElementById('contenedor-btn-eliminar-comercio').classList.remove('hidden');
 
       const help = document.getElementById('help-logo-edit');
       help.innerText = c.logo_url ? 'Dejá el campo vacío si querés conservar el logo actual.' : '';
 
       abrirModal('modal-registro');
+    }
+
+    async function eliminarComercioActual() {
+      const editId = document.getElementById('comercio-edit-id').value;
+      if (!editId) return;
+
+      const c = comerciosGlobales.find(item => item.id === editId);
+      const nombreComercio = c ? c.nombre : 'este comercio';
+
+      if (!confirm(`¿Estás seguro de que querés eliminar definitivamente "${nombreComercio}"? Se borrarán también todos sus productos.`)) {
+        return;
+      }
+
+      const { error } = await _supabase.from('comercios').delete().eq('id', editId);
+
+      if (error) {
+        alert('Error al eliminar comercio: ' + error.message);
+      } else {
+        alert('Comercio eliminado exitosamente.');
+        cerrarModal('modal-registro');
+        comercioActivo = null;
+        await cargarComercios();
+        mostrarInicio();
+      }
     }
 
     // --- FORMULARIO PRODUCTO (CREAR & EDITAR) ---
@@ -1198,12 +1258,18 @@
 
       document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
 
-      // Formulario Registrar / Editar Comercio
+      // Submit Formulario Comercio
       document.getElementById('form-comercio').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         if (!usuarioActual) {
           alert("Debés estar autenticado para guardar un comercio.");
+          return;
+        }
+
+        const categoriasElegidas = obtenerCategoriasSeleccionadasModal();
+        if (categoriasElegidas.length === 0) {
+          alert("Por favor selecciona al menos 1 categoría para tu comercio.");
           return;
         }
 
@@ -1237,7 +1303,8 @@
           slug: slugGenerado,
           telefono_whatsapp: document.getElementById('telefono').value,
           direccion: document.getElementById('direccion').value,
-          categoria: document.getElementById('categoria').value,
+          categorias: categoriasElegidas,
+          categoria: categoriasElegidas[0], // fallback para compatibilidad
           hace_envios: document.getElementById('envios').checked,
           hora_apertura: document.getElementById('hora-apertura').value,
           hora_cierre: document.getElementById('hora-cierre').value,
@@ -1279,7 +1346,7 @@
         btn.disabled = false;
       });
 
-      // Formulario Cargar / Editar Producto
+      // Submit Formulario Producto
       document.getElementById('form-producto').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-guardar-producto');
