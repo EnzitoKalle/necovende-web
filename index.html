@@ -113,7 +113,7 @@
       </div>
       
       <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar">
-        <!-- Renderizado dinámico desde JS -->
+        <!-- Renderizado dinámico -->
       </div>
     </section>
 
@@ -144,7 +144,7 @@
         <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a comercios
       </button>
 
-      <button onclick="copiarLinkComercio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-2 rounded-xl transition">
+      <button onclick="compartirOlinkComercio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-2 rounded-xl transition">
         <i data-lucide="share-2" class="w-4 h-4"></i> Compartir Local
       </button>
     </div>
@@ -180,6 +180,57 @@
           <span id="float-cart-total" class="text-base font-black text-slate-950">$0</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: SELECCIONAR SABORES & COCCIÓN -->
+  <div id="modal-sabores" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-lg font-black text-white" id="modal-sabores-titulo">Personalizar Pedido</h3>
+          <p class="text-xs text-slate-400" id="modal-sabores-sub">Elegí los gustos de tu preferencia.</p>
+        </div>
+        <button onclick="cerrarModal('modal-sabores')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Selector Tipo Cocción (Solo Empanadas) -->
+      <div id="box-opcion-coccion" class="hidden space-y-1.5">
+        <label class="block text-xs font-bold text-slate-300">Tipo de Cocción</label>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <label class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 cursor-pointer">
+            <input type="radio" name="coccion-elegida" value="Al Horno" checked class="text-emerald-500">
+            <span>Al Horno</span>
+          </label>
+          <label class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 cursor-pointer">
+            <input type="radio" name="coccion-elegida" value="Fritas" class="text-emerald-500">
+            <span>Fritas</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sabores Disponibles -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <label class="block text-xs font-bold text-slate-300">Seleccionar Gustos</label>
+          <span id="sabores-count-badge" class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">0 Seleccionados</span>
+        </div>
+        <div id="grid-sabores-seleccion" class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 max-h-40 overflow-y-auto text-xs">
+          <!-- Sabores del comercio -->
+        </div>
+      </div>
+
+      <!-- Campo Detalles / Aclaraciones -->
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1">Aclaraciones o Cantidades Especiales</label>
+        <textarea id="sabores-detalles" placeholder="Ej: 2 de Dulce de Leche, 1 de Frutilla..." class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
+      </div>
+
+      <button id="btn-confirmar-sabores" type="button" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3 rounded-xl text-xs shadow-md shadow-emerald-500/20 transition">
+        Agregar al Carrito
       </button>
     </div>
   </div>
@@ -318,7 +369,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Local / Emprendimiento</label>
-          <input type="text" id="nombre" placeholder="Ej: Pizzería El Puente" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <input type="text" id="nombre" placeholder="Ej: Heladería Saturno" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
         <div>
@@ -342,13 +393,30 @@
           </div>
         </div>
 
+        <!-- Sección Específica: Sabores/Gustos -->
+        <div id="seccion-sabores-config" class="hidden space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <label class="block text-xs font-bold text-emerald-400 mb-1">Sabores / Gustos Disponibles</label>
+          <textarea id="sabores-input" placeholder="Ingresá los sabores separados por coma. Ej: Dulce de Leche, Tramontana, Chocolatada, Muzzarella, Carne..." class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition" rows="3"></textarea>
+          <p class="text-[10px] text-slate-500">Separá cada gusto con una coma (,).</p>
+        </div>
+
+        <!-- Opción Cocción Empanadas -->
+        <div id="seccion-coccion-config" class="hidden space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <label class="block text-xs font-bold text-emerald-400 mb-1">Tipo de Cocción de Empanadas</label>
+          <select id="tipo-coccion-select" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200">
+            <option value="ambas">Ofrecemos Al Horno y Fritas</option>
+            <option value="horno">Solo Al Horno</option>
+            <option value="fritas">Solo Fritas</option>
+          </select>
+        </div>
+
         <!-- Checkbox Envíos -->
         <div class="flex items-center gap-2.5 py-1">
           <input type="checkbox" id="envios" checked onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded text-emerald-500 border-slate-700 bg-slate-950 cursor-pointer">
           <label for="envios" class="text-xs text-slate-300 font-semibold cursor-pointer">Ofrecemos envíos a domicilio</label>
         </div>
 
-        <!-- Costo de Envío (Dinamico) -->
+        <!-- Costo de Envío (Dinámico) -->
         <div id="contenedor-costo-envio">
           <label class="block text-xs font-bold text-slate-300 mb-1">Costo de Envío</label>
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
@@ -404,7 +472,6 @@
           <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-black text-xs shadow-md shadow-emerald-500/20 transition">Guardar Local</button>
         </div>
 
-        <!-- Botón Borrar Comercio -->
         <div id="contenedor-btn-eliminar-comercio" class="hidden pt-2 border-t border-slate-800/80">
           <button type="button" onclick="eliminarComercioActual()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5">
             <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar Comercio
@@ -435,7 +502,7 @@
         
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Pizza Muzzarella XL" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <input type="text" id="prod-titulo" placeholder="Ej: 1 Kilo de Helado o Docena de Empanadas" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
         <div>
@@ -445,7 +512,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Salsa de tomate casera, abundante muzzarella y aceitunas." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
+          <textarea id="prod-descripcion" placeholder="Ej: Elegí hasta 4 gustos. Incluye cucuruchos." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
         </div>
 
         <div>
@@ -481,6 +548,7 @@
     let comercioActivo = null;
     let carrito = [];
     let usuarioActual = null;
+    let productoPendienteSabores = null;
 
     function crearSlug(texto) {
       if (!texto) return '';
@@ -489,6 +557,25 @@
         .replace(/[^a-z0-9 -]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
+    }
+
+    // --- COMPARTIR NATIVO O LINK DIRECTO ---
+    function compartirOlinkComercio() {
+      if (!comercioActivo) return;
+      const identificador = comercioActivo.slug || comercioActivo.id;
+      const url = `${window.location.origin}${window.location.pathname}?comercio=${identificador}`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: comercioActivo.nombre,
+          text: `¡Mirá el catálogo de ${comercioActivo.nombre} en NecoVende!`,
+          url: url
+        }).catch(err => console.error("Error compartiendo:", err));
+      } else {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("¡Link del local copiado al portapapeles!");
+        }).catch(err => console.error("Error al copiar link:", err));
+      }
     }
 
     function toggleCampoCostoEnvio() {
@@ -527,15 +614,6 @@
         texto += ` y ${c.hora_apertura_2} a ${c.hora_cierre_2} hs`;
       }
       return texto;
-    }
-
-    function copiarLinkComercio() {
-      if (!comercioActivo) return;
-      const identificador = comercioActivo.slug || comercioActivo.id;
-      const url = `${window.location.origin}${window.location.pathname}?comercio=${identificador}`;
-      navigator.clipboard.writeText(url).then(() => {
-        alert("¡Link del local copiado al portapapeles!");
-      }).catch(err => console.error("Error al copiar link:", err));
     }
 
     async function iniciarSesionGoogle() {
@@ -769,7 +847,7 @@
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               ${esDuenio ? `
                 <div class="flex items-center gap-1">
-                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}',${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
                   <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
@@ -778,7 +856,7 @@
                 </div>
               ` : ''}
 
-              <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
+              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
               </button>
             </div>
@@ -787,6 +865,102 @@
       });
 
       if (window.lucide) lucide.createIcons();
+    }
+
+    // --- LÓGICA DE SELECCIÓN DE SABORES Y COCCIÓN ---
+    function obtenerMaxSaboresSegunTitulo(titulo) {
+      const t = titulo.toLowerCase();
+      if (t.includes('kilo') || t.includes('1 kg') || t.includes('1kg')) return 4;
+      if (t.includes('medio') || t.includes('1/2')) return 3;
+      if (t.includes('cuarto') || t.includes('1/4')) return 2;
+      if (t.includes('docena')) return 12;
+      if (t.includes('media docena') || t.includes('1/2 docena')) return 6;
+      return 4; // Límite por defecto
+    }
+
+    function intentarAgregarProductoConSabores(id, titulo, precio) {
+      const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
+      const esHeladeria = categoriasLocal.includes('Heladerías');
+      const esEmpanadas = categoriasLocal.includes('Empanadas');
+
+      if ((esHeladeria || esEmpanadas) && comercioActivo.sabores && comercioActivo.sabores.length > 0) {
+        productoPendienteSabores = { id, titulo, precio, esEmpanadas };
+        
+        document.getElementById('modal-sabores-titulo').innerText = titulo;
+        const maxSabores = obtenerMaxSaboresSegunTitulo(titulo);
+        document.getElementById('modal-sabores-sub').innerText = `Podés elegir hasta ${maxSabores} gustos.`;
+
+        // Mostrar u ocultar radio buttons de cocción
+        const boxCoccion = document.getElementById('box-opcion-coccion');
+        if (esEmpanadas && comercioActivo.tipo_coccion_empanadas === 'ambas') {
+          boxCoccion.classList.remove('hidden');
+        } else {
+          boxCoccion.classList.add('hidden');
+        }
+
+        // Renderizar Sabores
+        const grid = document.getElementById('grid-sabores-seleccion');
+        grid.innerHTML = '';
+        comercioActivo.sabores.forEach(sabor => {
+          grid.innerHTML += `
+            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+              <input type="checkbox" name="sabor-item" value="${sabor.trim()}" onchange="validarLimiteSabores(this, ${maxSabores})" class="rounded border-slate-700 bg-slate-900 text-emerald-500">
+              <span class="truncate">${sabor.trim()}</span>
+            </label>
+          `;
+        });
+
+        document.getElementById('sabores-detalles').value = '';
+        document.getElementById('sabores-count-badge').innerText = `0 / ${maxSabores}`;
+        document.getElementById('btn-confirmar-sabores').onclick = confirmarAgregarConSabores;
+
+        abrirModal('modal-sabores');
+      } else {
+        agregarAlCarrito(id, titulo, precio);
+      }
+    }
+
+    function validarLimiteSabores(checkbox, max) {
+      const elegidos = document.querySelectorAll('input[name="sabor-item"]:checked');
+      if (elegidos.length > max) {
+        checkbox.checked = false;
+        alert(`Podés seleccionar un máximo de ${max} sabores para esta opción.`);
+      }
+      const total = document.querySelectorAll('input[name="sabor-item"]:checked').length;
+      document.getElementById('sabores-count-badge').innerText = `${total} / ${max}`;
+    }
+
+    function confirmarAgregarConSabores() {
+      if (!productoPendienteSabores) return;
+
+      const saboresElegidos = Array.from(document.querySelectorAll('input[name="sabor-item"]:checked')).map(cb => cb.value);
+      const detalles = document.getElementById('sabores-detalles').value.trim();
+
+      let especificacion = "";
+      
+      // Agregar tipo de cocción si aplica
+      if (productoPendienteSabores.esEmpanadas) {
+        if (comercioActivo.tipo_coccion_empanadas === 'ambas') {
+          const coccion = document.querySelector('input[name="coccion-elegida"]:checked')?.value || 'Al Horno';
+          especificacion += `[${coccion}] `;
+        } else if (comercioActivo.tipo_coccion_empanadas) {
+          especificacion += `[${comercioActivo.tipo_coccion_empanadas.toUpperCase()}] `;
+        }
+      }
+
+      if (saboresElegidos.length > 0) {
+        especificacion += `Sabores: ${saboresElegidos.join(', ')}`;
+      }
+
+      if (detalles) {
+        especificacion += ` (${detalles})`;
+      }
+
+      const tituloFinal = especificacion ? `${productoPendienteSabores.titulo} - ${especificacion}` : productoPendienteSabores.titulo;
+
+      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio);
+      cerrarModal('modal-sabores');
+      productoPendienteSabores = null;
     }
 
     function abrirVerProducto(id, titulo, precio, descripcion, imagenUrl) {
@@ -807,7 +981,7 @@
       }
 
       document.getElementById('view-prod-btn-agregar').onclick = () => {
-        agregarAlCarrito(id, titulo, precio);
+        intentarAgregarProductoConSabores(id, titulo, precio);
         cerrarModal('modal-ver-producto');
       };
 
@@ -820,7 +994,7 @@
         document.getElementById('cart-comercio-nombre').innerText = `Pedido para: ${comercioActivo.nombre}`;
       }
 
-      const existe = carrito.find(item => item.id === id);
+      const existe = carrito.find(item => item.titulo === titulo);
       if (existe) {
         existe.cantidad += 1;
       } else {
@@ -869,11 +1043,11 @@
       carrito.forEach(item => {
         itemsContainer.innerHTML += `
           <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <div>
-              <p class="font-bold text-xs text-white">${item.titulo}</p>
-              <p class="text-[11px] text-emerald-400 font-extrabold">$${item.precio * item.cantidad}</p>
+            <div class="pr-2 min-w-0 flex-1">
+              <p class="font-bold text-xs text-white leading-tight">${item.titulo}</p>
+              <p class="text-[11px] text-emerald-400 font-extrabold mt-0.5">$${item.precio * item.cantidad}</p>
             </div>
-            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 flex-shrink-0">
               <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-400 hover:text-white font-black text-xs">-</button>
               <span class="text-xs font-bold text-white px-1">${item.cantidad}</span>
               <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-400 hover:text-white font-black text-xs">+</button>
@@ -1078,7 +1252,7 @@
       renderizarComercios(resultado);
     }
 
-    // --- FORMULARIO COMERCIO (CREAR & EDITAR) ---
+    // --- FORMULARIO COMERCIO ---
     function renderizarOpcionesCategoriasModal(categoriasSeleccionadas = []) {
       const grid = document.getElementById('grid-categorias-form');
       grid.innerHTML = '';
@@ -1087,7 +1261,7 @@
         const isChecked = categoriasSeleccionadas.includes(cat);
         grid.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-300">
-            <input type="checkbox" name="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="validarLimiteCategorias(this)" class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0">
+            <input type="checkbox" name="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="validarLimiteCategorias(this)" class="rounded border-slate-700 bg-slate-900 text-emerald-500">
             <span class="truncate">${cat}</span>
           </label>
         `;
@@ -1102,6 +1276,25 @@
         alert("Podés seleccionar un máximo de 3 categorías por comercio.");
       }
       actualizarContadorCategorias();
+      evaluarCamposEspecialesSegunCategoria();
+    }
+
+    function evaluarCamposEspecialesSegunCategoria() {
+      const elegidas = obtenerCategoriasSeleccionadasModal();
+      const secSabores = document.getElementById('seccion-sabores-config');
+      const secCoccion = document.getElementById('seccion-coccion-config');
+
+      if (elegidas.includes('Heladerías') || elegidas.includes('Empanadas')) {
+        secSabores.classList.remove('hidden');
+      } else {
+        secSabores.classList.add('hidden');
+      }
+
+      if (elegidas.includes('Empanadas')) {
+        secCoccion.classList.remove('hidden');
+      } else {
+        secCoccion.classList.add('hidden');
+      }
     }
 
     function actualizarContadorCategorias() {
@@ -1140,6 +1333,7 @@
       document.getElementById('pago-tarjeta').checked = false;
 
       renderizarOpcionesCategoriasModal([]);
+      evaluarCamposEspecialesSegunCategoria();
       abrirModal('modal-registro');
     }
 
@@ -1164,6 +1358,9 @@
       document.getElementById('hora-cierre-2').value = c.hora_cierre_2 || "";
       document.getElementById('costo-envio').value = c.costo_envio || "";
 
+      document.getElementById('sabores-input').value = c.sabores ? c.sabores.join(', ') : '';
+      document.getElementById('tipo-coccion-select').value = c.tipo_coccion_empanadas || 'ambas';
+
       document.getElementById('pago-efectivo').checked = Boolean(c.pagos_efectivo);
       document.getElementById('pago-transferencia').checked = Boolean(c.pagos_transferencia);
       document.getElementById('pago-qr').checked = Boolean(c.pagos_qr);
@@ -1172,6 +1369,7 @@
 
       const misCategorias = c.categorias && c.categorias.length > 0 ? c.categorias : [c.categoria].filter(Boolean);
       renderizarOpcionesCategoriasModal(misCategorias);
+      evaluarCamposEspecialesSegunCategoria();
 
       document.getElementById('modal-comercio-head-title').innerText = 'Editar mi Comercio';
       document.getElementById('modal-comercio-head-sub').innerText = `Modificando datos de: ${c.nombre}`;
@@ -1208,7 +1406,7 @@
       }
     }
 
-    // --- FORMULARIO PRODUCTO (CREAR & EDITAR) ---
+    // --- FORMULARIO PRODUCTO ---
     function prepararModalProducto(comercioId, nombreComercio) {
       document.getElementById('form-producto').reset();
       document.getElementById('prod-edit-id').value = '';
@@ -1316,6 +1514,9 @@
         const slugGenerado = crearSlug(nombreInput);
         const haceEnvios = document.getElementById('envios').checked;
 
+        const saboresRaw = document.getElementById('sabores-input').value;
+        const listaSabores = saboresRaw ? saboresRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+
         const datosComercio = {
           nombre: nombreInput,
           slug: slugGenerado,
@@ -1329,6 +1530,8 @@
           hora_apertura_2: document.getElementById('hora-apertura-2').value || null,
           hora_cierre_2: document.getElementById('hora-cierre-2').value || null,
           costo_envio: haceEnvios ? document.getElementById('costo-envio').value : null,
+          sabores: listaSabores,
+          tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
           pagos_efectivo: document.getElementById('pago-efectivo').checked,
           pagos_transferencia: document.getElementById('pago-transferencia').checked,
           pagos_qr: document.getElementById('pago-qr').checked,
