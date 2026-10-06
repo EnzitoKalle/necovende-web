@@ -377,24 +377,24 @@
           </select>
         </div>
 
-        <!-- Horario Turno 1 -->
-<div class="space-y-1">
-  <label class="block text-xs font-bold text-slate-300">Horario Principal / Turno 1</label>
-  <div class="grid grid-cols-2 gap-2.5">
-    <input type="time" id="hora-apertura" value="09:00" step="60" required class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
-    <input type="time" id="hora-cierre" value="13:00" step="60" required class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
-  </div>
-</div>
+        <!-- Horario Turno 1 (Cuadro de texto libre) -->
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-slate-300">Horario Principal / Turno 1</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <input type="text" id="hora-apertura" placeholder="Ej: 09:00" value="09:00" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+            <input type="text" id="hora-cierre" placeholder="Ej: 13:00" value="13:00" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          </div>
+        </div>
 
-<!-- Horario Turno 2 (Opcional - Horario Cortado) -->
-<div class="space-y-1">
-  <label class="block text-xs font-bold text-slate-300">Turno 2 (Opcional - Horario Cortado)</label>
-  <div class="grid grid-cols-2 gap-2.5">
-    <input type="time" id="hora-apertura-2" step="60" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
-    <input type="time" id="hora-cierre-2" step="60" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
-  </div>
-  <p class="text-[10px] text-slate-500">Dejá en blanco si hacés horario corrido.</p>
-</div>
+        <!-- Horario Turno 2 (Cuadro de texto libre) -->
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-slate-300">Turno 2 (Opcional - Horario Cortado)</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+            <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          </div>
+          <p class="text-[10px] text-slate-500">Dejá en blanco si hacés horario corrido.</p>
+        </div>
 
         <!-- Costo de Envío -->
         <div>
@@ -502,17 +502,35 @@
     let carrito = [];
     let usuarioActual = null;
 
+    // --- SLUGS AMIGABLES ---
+    function crearSlug(texto) {
+      if (!texto) return '';
+      return texto
+        .toString()
+        .toLowerCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    }
+
     // --- EVALUAR RANGO DE HORARIO ---
     function estaEnRango(hApertura, hCierre) {
       if (!hApertura || !hCierre) return false;
       const ahora = new Date();
       const actualMin = ahora.getHours() * 60 + ahora.getMinutes();
 
-      const [hA, mA] = hApertura.split(':').map(Number);
-      const [hC, mC] = hCierre.split(':').map(Number);
+      const partesA = hApertura.trim().split(':');
+      const partesC = hCierre.trim().split(':');
 
-      const apMin = hA * 60 + mA;
-      const ciMin = hC * 60 + mC;
+      if (partesA.length < 2 || partesC.length < 2) return false;
+
+      const apMin = parseInt(partesA[0], 10) * 60 + parseInt(partesA[1], 10);
+      const ciMin = parseInt(partesC[0], 10) * 60 + parseInt(partesC[1], 10);
+
+      if (isNaN(apMin) || isNaN(ciMin)) return false;
 
       if (apMin <= ciMin) {
         return actualMin >= apMin && actualMin <= ciMin;
@@ -538,7 +556,8 @@
     // --- LINK DIRECTO ---
     function copiarLinkComercio() {
       if (!comercioActivo) return;
-      const url = `${window.location.origin}${window.location.pathname}?comercio=${comercioActivo.id}`;
+      const identificador = comercioActivo.slug || comercioActivo.id;
+      const url = `${window.location.origin}${window.location.pathname}?comercio=${identificador}`;
       navigator.clipboard.writeText(url).then(() => {
         alert("¡Link del local copiado al portapapeles!");
       }).catch(err => console.error("Error al copiar link:", err));
@@ -579,7 +598,7 @@
       }
 
       if (comercioActivo) {
-        abrirVistaComercio(comercioActivo.id, false);
+        abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     }
 
@@ -606,7 +625,7 @@
         misComercios.forEach(c => {
           lista.innerHTML += `
             <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.id}');">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.slug || c.id}');">
                 ${c.logo_url 
                   ? `<img src="${c.logo_url}" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">` 
                   : `<div class="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center font-bold text-emerald-400 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
@@ -647,12 +666,14 @@
       window.scrollTo(0, 0);
     }
 
-    async function abrirVistaComercio(comercioId, cambiarUrl = true) {
-      comercioActivo = comerciosGlobales.find(c => c.id === comercioId);
+    async function abrirVistaComercio(identificador, cambiarUrl = true) {
+      comercioActivo = comerciosGlobales.find(c => c.slug === identificador || c.id === identificador);
       if (!comercioActivo) return;
 
+      const slugOId = comercioActivo.slug || comercioActivo.id;
+
       if (cambiarUrl) {
-        window.history.pushState({}, '', `${window.location.pathname}?comercio=${comercioId}`);
+        window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
       }
 
       const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
@@ -974,9 +995,10 @@
       lista.forEach(c => {
         const cantidadProds = c.productos ? c.productos.length : 0;
         const abierto = estaAbierto(c);
+        const identificador = c.slug || c.id;
 
         container.innerHTML += `
-          <div onclick="abrirVistaComercio('${c.id}')" class="card-gradient rounded-3xl p-4 shadow-lg hover:shadow-2xl border border-slate-800/90 transition hover:border-slate-700 space-y-3 cursor-pointer group">
+          <div onclick="abrirVistaComercio('${identificador}')" class="card-gradient rounded-3xl p-4 shadow-lg hover:shadow-2xl border border-slate-800/90 transition hover:border-slate-700 space-y-3 cursor-pointer group">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-3.5 min-w-0 flex-1">
                 ${c.logo_url 
@@ -1158,7 +1180,7 @@
         
         await cargarComercios();
         if (comercioActivo) {
-          abrirVistaComercio(comercioActivo.id, false);
+          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
         }
       }
     }
@@ -1207,8 +1229,12 @@
           }
         }
 
+        const nombreInput = document.getElementById('nombre').value;
+        const slugGenerado = crearSlug(nombreInput);
+
         const datosComercio = {
-          nombre: document.getElementById('nombre').value,
+          nombre: nombreInput,
+          slug: slugGenerado,
           telefono_whatsapp: document.getElementById('telefono').value,
           direccion: document.getElementById('direccion').value,
           categoria: document.getElementById('categoria').value,
@@ -1245,7 +1271,7 @@
           document.getElementById('form-comercio').reset();
           await cargarComercios();
           if (esEdicion && comercioActivo) {
-            abrirVistaComercio(editId, false);
+            abrirVistaComercio(slugGenerado || editId, false);
           }
         }
 
@@ -1305,7 +1331,7 @@
           document.getElementById('form-producto').reset();
           await cargarComercios();
           if (comercioActivo) {
-            abrirVistaComercio(comercioActivo.id, false);
+            abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
           }
         }
 
