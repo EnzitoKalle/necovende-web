@@ -378,23 +378,23 @@
         </div>
 
         <!-- Horario Turno 1 -->
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-300">Horario Principal / Turno 1</label>
-          <div class="grid grid-cols-2 gap-2.5">
-            <input type="time" id="hora-apertura" value="09:00" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-            <input type="time" id="hora-cierre" value="13:00" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-          </div>
-        </div>
+<div class="space-y-1">
+  <label class="block text-xs font-bold text-slate-300">Horario Principal / Turno 1</label>
+  <div class="grid grid-cols-2 gap-2.5">
+    <input type="time" id="hora-apertura" value="09:00" step="60" required class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
+    <input type="time" id="hora-cierre" value="13:00" step="60" required class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
+  </div>
+</div>
 
-        <!-- Horario Turno 2 (Opcional - Horario Cortado) -->
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-300">Turno 2 (Opcional - Horario Cortado)</label>
-          <div class="grid grid-cols-2 gap-2.5">
-            <input type="time" id="hora-apertura-2" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-            <input type="time" id="hora-cierre-2" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-          </div>
-          <p class="text-[10px] text-slate-500">Dejá en blanco si hacés horario corrido.</p>
-        </div>
+<!-- Horario Turno 2 (Opcional - Horario Cortado) -->
+<div class="space-y-1">
+  <label class="block text-xs font-bold text-slate-300">Turno 2 (Opcional - Horario Cortado)</label>
+  <div class="grid grid-cols-2 gap-2.5">
+    <input type="time" id="hora-apertura-2" step="60" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
+    <input type="time" id="hora-cierre-2" step="60" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition appearance-none">
+  </div>
+  <p class="text-[10px] text-slate-500">Dejá en blanco si hacés horario corrido.</p>
+</div>
 
         <!-- Costo de Envío -->
         <div>
