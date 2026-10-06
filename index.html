@@ -321,9 +321,9 @@
     </div>
   </div>
 
-  <!-- MODAL: Carrito -->
+  <!-- MODAL: Carrito con Opciones Modificadas -->
   <div id="modal-carrito" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
+    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-start border-b border-slate-800 pb-3">
         <div>
           <h3 class="text-lg font-black text-white">Tu Carrito</h3>
@@ -334,12 +334,41 @@
         </button>
       </div>
 
-      <div id="carrito-items" class="space-y-3 max-h-60 overflow-y-auto pr-1"></div>
+      <div id="carrito-items" class="space-y-3 max-h-52 overflow-y-auto pr-1"></div>
+
+      <!-- Opciones Dinámicas de Pago y Entrega -->
+      <div id="carrito-opciones-extra" class="space-y-3 pt-2 border-t border-slate-800 hidden">
+        <!-- Método de Pago habilitado por el local -->
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">¿Cómo querías abonar?</label>
+          <select id="cart-medio-pago" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+            <!-- Se completa dinámicamente según lo habilitado por el comercio -->
+          </select>
+        </div>
+
+        <!-- Tipo de entrega (Solo si el local ofrece envíos) -->
+        <div id="box-cart-tipo-entrega" class="hidden">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Forma de Entrega</label>
+          <select id="cart-tipo-entrega" onchange="toggleDireccionCarrito()" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+            <option value="retiro">Pasar a retirar por el local</option>
+            <option value="envio">Envío a domicilio</option>
+          </select>
+        </div>
+
+        <!-- Dirección de entrega -->
+        <div id="box-cart-direccion" class="hidden">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Dirección de Entrega</label>
+          <input type="text" id="cart-input-direccion" placeholder="Ej: Calle 60 N° 2840, Depto 2" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+        </div>
+      </div>
 
       <div class="border-t border-slate-800 pt-3 space-y-3">
-        <div class="flex justify-between items-center text-sm font-black text-white">
-          <span>Total:</span>
-          <span id="cart-total-precio" class="text-emerald-400 text-xl font-black">$0</span>
+        <div class="flex justify-between items-baseline text-sm font-black text-white">
+          <span>Total estimado:</span>
+          <div class="text-right">
+            <span id="cart-total-precio" class="text-emerald-400 text-xl font-black">$0</span>
+            <p id="cart-leyenda-envio" class="text-[10px] text-slate-400 font-normal hidden">+ envío (el local te confirma el total final)</p>
+          </div>
         </div>
 
         <button onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
@@ -510,13 +539,7 @@
           <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
-        <!-- Campo Disponibilidad / Pausa de Stock -->
-        <div class="flex items-center gap-2 py-1">
-          <input type="checkbox" id="prod-disponible" checked class="w-4 h-4 rounded text-emerald-500 border-slate-700 bg-slate-950 cursor-pointer">
-          <label for="prod-disponible" class="text-xs text-slate-300 font-semibold cursor-pointer">Producto disponible para la venta</label>
-        </div>
-
-        <!-- Campo Configuración Cantidad de Sabores (Dinámico segun la categoria del comercio) -->
+        <!-- Campo Configuración Cantidad de Sabores -->
         <div id="box-prod-max-sabores" class="hidden">
           <label class="block text-xs font-bold text-emerald-400 mb-1">Cantidad máxima de sabores/gustos a elegir</label>
           <input type="number" min="1" max="50" id="prod-max-sabores" placeholder="Ej: 4 (para 1 kg) o 12 (para 1 docena)" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
@@ -559,6 +582,7 @@
     let comerciosGlobales = [];
     let categoriaSeleccionada = 'Todas';
     let comercioActivo = null;
+    let comercioCarrito = null; // Guarda el comercio al que pertenece el carrito actual
     let carrito = [];
     let usuarioActual = null;
     let productoPendienteSabores = null;
@@ -572,7 +596,6 @@
         .replace(/-+/g, '-');
     }
 
-    // --- COMPARTIR NATIVO O LINK DIRECTO ---
     function compartirOlinkComercio() {
       if (!comercioActivo) return;
       const identificador = comercioActivo.slug || comercioActivo.id;
@@ -844,19 +867,15 @@
         const pEscapedDesc = (p.descripcion || '').replace(/'/g, "\\'");
         const pImagen = p.imagen_url || '';
         const pMaxSabores = p.max_sabores || '';
-        const estaDisponible = p.disponible !== false; // por defecto true
 
         container.innerHTML += `
-          <div class="card-gradient rounded-2xl p-3.5 border border-slate-800/90 shadow-lg flex items-center justify-between gap-3 relative group hover:border-slate-700 transition ${!estaDisponible ? 'opacity-60' : ''}">
+          <div class="card-gradient rounded-2xl p-3.5 border border-slate-800/90 shadow-lg flex items-center justify-between gap-3 relative group hover:border-slate-700 transition">
             <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')">
               ${p.imagen_url 
                 ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-800 flex-shrink-0 group-hover:scale-105 transition">` 
                 : `<div class="w-16 h-16 bg-slate-950 rounded-xl flex items-center justify-center text-slate-600 flex-shrink-0 border border-slate-800"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="truncate">
-                <div class="flex items-center gap-1.5">
-                  <h4 class="font-bold text-sm text-white truncate group-hover:text-emerald-400 transition">${p.titulo}</h4>
-                  ${!estaDisponible ? '<span class="text-[9px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 px-1.5 py-0.2 rounded-md">Sin Stock</span>' : ''}
-                </div>
+                <h4 class="font-bold text-sm text-white truncate group-hover:text-emerald-400 transition">${p.titulo}</h4>
                 <p class="text-xs text-slate-400 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
                 <p class="text-base font-black text-emerald-400 mt-1">$${p.precio}</p>
               </div>
@@ -865,7 +884,7 @@
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               ${esDuenio ? `
                 <div class="flex items-center gap-1">
-                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}', ${estaDisponible})" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
                   <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
@@ -874,15 +893,9 @@
                 </div>
               ` : ''}
 
-              ${estaDisponible ? `
-                <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio}, ${pMaxSabores || 'null'})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
-                </button>
-              ` : `
-                <span class="text-[10px] font-extrabold text-slate-500 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
-                  Agotado
-                </span>
-              `}
+              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio}, ${pMaxSabores || 'null'})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
+              </button>
             </div>
           </div>
         `;
@@ -891,7 +904,6 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // --- LÓGICA DE SELECCIÓN DE SABORES Y COCCIÓN ---
     function obtenerMaxSaboresSegunTitulo(titulo) {
       const t = titulo.toLowerCase();
       if (t.includes('kilo') || t.includes('1 kg') || t.includes('1kg')) return 4;
@@ -899,7 +911,7 @@
       if (t.includes('cuarto') || t.includes('1/4')) return 2;
       if (t.includes('docena')) return 12;
       if (t.includes('media docena') || t.includes('1/2 docena')) return 6;
-      return 4; // Límite por defecto
+      return 4;
     }
 
     function intentarAgregarProductoConSabores(id, titulo, precio, maxSaboresCustom = null) {
@@ -912,14 +924,12 @@
         
         document.getElementById('modal-sabores-titulo').innerText = titulo;
         
-        // Priorizar el maxSabores configurado por el dueño para este producto
         const maxSabores = (maxSaboresCustom && parseInt(maxSaboresCustom) > 0) 
           ? parseInt(maxSaboresCustom) 
           : obtenerMaxSaboresSegunTitulo(titulo);
 
         document.getElementById('modal-sabores-sub').innerText = `Podés elegir hasta ${maxSabores} gustos.`;
 
-        // Mostrar u ocultar radio buttons de cocción
         const boxCoccion = document.getElementById('box-opcion-coccion');
         if (esEmpanadas && comercioActivo.tipo_coccion_empanadas === 'ambas') {
           boxCoccion.classList.remove('hidden');
@@ -927,7 +937,6 @@
           boxCoccion.classList.add('hidden');
         }
 
-        // Renderizar Sabores
         const grid = document.getElementById('grid-sabores-seleccion');
         grid.innerHTML = '';
         comercioActivo.sabores.forEach(sabor => {
@@ -967,7 +976,6 @@
 
       let especificacion = "";
       
-      // Agregar tipo de cocción si aplica
       if (productoPendienteSabores.esEmpanadas) {
         if (comercioActivo.tipo_coccion_empanadas === 'ambas') {
           const coccion = document.querySelector('input[name="coccion-elegida"]:checked')?.value || 'Al Horno';
@@ -1018,9 +1026,21 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // --- RESTRICCIÓN DE UN SOLO COMERCIO EN EL CARRITO ---
     function agregarAlCarrito(id, titulo, precio) {
-      if (comercioActivo) {
-        document.getElementById('cart-comercio-nombre').innerText = `Pedido para: ${comercioActivo.nombre}`;
+      if (!comercioActivo) return;
+
+      // Verificar si ya hay ítems de otro comercio en el carrito
+      if (comercioCarrito && comercioCarrito.id !== comercioActivo.id && carrito.length > 0) {
+        const confirmar = confirm(`Tu carrito actual contiene productos de "${comercioCarrito.nombre}". Solo podés hacer pedidos a un local a la vez. ¿Querés vaciar el carrito e iniciar un nuevo pedido en "${comercioActivo.nombre}"?`);
+        if (confirmar) {
+          carrito = [];
+          comercioCarrito = comercioActivo;
+        } else {
+          return;
+        }
+      } else if (!comercioCarrito || carrito.length === 0) {
+        comercioCarrito = comercioActivo;
       }
 
       const existe = carrito.find(item => item.titulo === titulo);
@@ -1033,16 +1053,34 @@
       actualizarCarrito();
     }
 
-    function cambiarCantidad(titulo, cambio) {
-      const item = carrito.find(i => i.titulo === titulo);
+    function cambiarCantidad(id, cambio) {
+      const item = carrito.find(i => i.id === id);
       if (!item) return;
 
       item.cantidad += cambio;
       if (item.cantidad <= 0) {
-        carrito = carrito.filter(i => i.titulo !== titulo);
+        carrito = carrito.filter(i => i.id !== id);
+      }
+
+      if (carrito.length === 0) {
+        comercioCarrito = null;
       }
 
       actualizarCarrito();
+    }
+
+    function toggleDireccionCarrito() {
+      const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
+      const boxDireccion = document.getElementById('box-cart-direccion');
+      const leyendaEnvio = document.getElementById('cart-leyenda-envio');
+
+      if (tipoEntrega === 'envio') {
+        boxDireccion.classList.remove('hidden');
+        leyendaEnvio.classList.remove('hidden');
+      } else {
+        boxDireccion.classList.add('hidden');
+        leyendaEnvio.classList.add('hidden');
+      }
     }
 
     function actualizarCarrito() {
@@ -1062,15 +1100,45 @@
       }
 
       const itemsContainer = document.getElementById('carrito-items');
+      const opcionesExtra = document.getElementById('carrito-opciones-extra');
+      const boxEntrega = document.getElementById('box-cart-tipo-entrega');
+      const selectPago = document.getElementById('cart-medio-pago');
+
       itemsContainer.innerHTML = '';
 
       if (carrito.length === 0) {
         itemsContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4 font-semibold">El carrito está vacío.</p>`;
+        document.getElementById('cart-comercio-nombre').innerText = "Resumen del pedido";
+        opcionesExtra.classList.add('hidden');
+        document.getElementById('cart-leyenda-envio').classList.add('hidden');
         return;
       }
 
+      opcionesExtra.classList.remove('hidden');
+      document.getElementById('cart-comercio-nombre').innerText = `Pedido para: ${comercioCarrito.nombre}`;
+
+      // Configurar Opciones de Pago del Comercio
+      selectPago.innerHTML = '';
+      if (comercioCarrito.pagos_efectivo) selectPago.innerHTML += `<option value="Efectivo">Efectivo</option>`;
+      if (comercioCarrito.pagos_transferencia) selectPago.innerHTML += `<option value="Transferencia">Transferencia</option>`;
+      if (comercioCarrito.pagos_qr) selectPago.innerHTML += `<option value="MercadoPago / QR">MercadoPago / QR</option>`;
+      if (comercioCarrito.pagos_cuenta_dni) selectPago.innerHTML += `<option value="Cuenta DNI">Cuenta DNI</option>`;
+      if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">Tarjeta Débito / Crédito</option>`;
+      if (selectPago.options.length === 0) {
+        selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
+      }
+
+      // Configurar Envíos
+      if (comercioCarrito.hace_envios) {
+        boxEntrega.classList.remove('hidden');
+      } else {
+        boxEntrega.classList.add('hidden');
+        document.getElementById('cart-tipo-entrega').value = 'retiro';
+      }
+
+      toggleDireccionCarrito();
+
       carrito.forEach(item => {
-        const itemTituloEscaped = item.titulo.replace(/'/g, "\\'");
         itemsContainer.innerHTML += `
           <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
             <div class="pr-2 min-w-0 flex-1">
@@ -1078,9 +1146,9 @@
               <p class="text-[11px] text-emerald-400 font-extrabold mt-0.5">$${item.precio * item.cantidad}</p>
             </div>
             <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 flex-shrink-0">
-              <button onclick="cambiarCantidad('${itemTituloEscaped}', -1)" class="text-slate-400 hover:text-white font-black text-xs">-</button>
+              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-400 hover:text-white font-black text-xs">-</button>
               <span class="text-xs font-bold text-white px-1">${item.cantidad}</span>
-              <button onclick="cambiarCantidad('${itemTituloEscaped}', 1)" class="text-slate-400 hover:text-white font-black text-xs">+</button>
+              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-400 hover:text-white font-black text-xs">+</button>
             </div>
           </div>
         `;
@@ -1094,9 +1162,19 @@
         alert("Agregá productos al carrito antes de realizar el pedido.");
         return;
       }
-      if (!comercioActivo) return;
+      if (!comercioCarrito) return;
 
-      let mensaje = `¡Hola *${comercioActivo.nombre}*! Quiero realizar el siguiente pedido desde *NecoVende*:\n\n`;
+      const medioPago = document.getElementById('cart-medio-pago').value;
+      const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
+      const direccion = document.getElementById('cart-input-direccion').value.trim();
+
+      if (comercioCarrito.hace_envios && tipoEntrega === 'envio' && !direccion) {
+        alert("Por favor, ingresá tu dirección para poder realizar el envío.");
+        document.getElementById('cart-input-direccion').focus();
+        return;
+      }
+
+      let mensaje = `¡Hola *${comercioCarrito.nombre}*! Quiero realizar el siguiente pedido desde *NecoVende*:\n\n`;
       let total = 0;
 
       carrito.forEach(item => {
@@ -1105,9 +1183,21 @@
         mensaje += `• *${item.cantidad}x* ${item.titulo} ($${subtotal})\n`;
       });
 
-      mensaje += `\n*Total a pagar: $${total}*\n\n¿Me confirman la demora? ¡Muchas gracias!`;
+      mensaje += `\n📌 *Detalles del Pedido:*\n`;
+      mensaje += `• *Medio de pago:* ${medioPago}\n`;
 
-      const url = `https://wa.me/${comercioActivo.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
+      if (comercioCarrito.hace_envios && tipoEntrega === 'envio') {
+        mensaje += `• *Entrega:* Envío a domicilio\n`;
+        mensaje += `• *Dirección:* ${direccion}\n`;
+        mensaje += `\n*Total Productos:* $${total} (+ Costo de Envío)\n`;
+      } else {
+        mensaje += `• *Entrega:* Retiro en el local\n`;
+        mensaje += `\n*Total a pagar:* $${total}\n`;
+      }
+
+      mensaje += `\n¿Me confirman la recepción y la demora? ¡Muchas gracias!`;
+
+      const url = `https://wa.me/${comercioCarrito.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
       window.open(url, '_blank');
     }
 
@@ -1441,7 +1531,6 @@
       document.getElementById('prod-edit-id').value = '';
       document.getElementById('prod-imagen-existente').value = '';
       document.getElementById('prod-max-sabores').value = '';
-      document.getElementById('prod-disponible').checked = true;
       
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio}`;
@@ -1452,7 +1541,7 @@
       abrirModal('modal-producto');
     }
 
-    function prepararEditarProducto(id, titulo, precio, descripcion, imagenUrl, maxSabores, disponible = true) {
+    function prepararEditarProducto(id, titulo, precio, descripcion, imagenUrl, maxSabores) {
       document.getElementById('form-producto').reset();
       document.getElementById('prod-edit-id').value = id;
       document.getElementById('prod-comercio-id').value = comercioActivo.id;
@@ -1461,7 +1550,6 @@
       document.getElementById('prod-descripcion').value = descripcion || '';
       document.getElementById('prod-imagen-existente').value = imagenUrl || '';
       document.getElementById('prod-max-sabores').value = maxSabores || '';
-      document.getElementById('prod-disponible').checked = disponible;
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Modificando en: ${comercioActivo.nombre}`;
@@ -1597,8 +1685,7 @@
         precio: parseFloat(document.getElementById('prod-precio').value),
         descripcion: document.getElementById('prod-descripcion').value.trim(),
         imagen_url: imagenUrl,
-        max_sabores: maxSaboresVal ? parseInt(maxSaboresVal, 10) : null,
-        disponible: document.getElementById('prod-disponible').checked
+        max_sabores: maxSaboresVal ? parseInt(maxSaboresVal, 10) : null
       };
 
       let error = null;
