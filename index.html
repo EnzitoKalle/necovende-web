@@ -510,6 +510,13 @@
           <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
         </div>
 
+        <!-- Campo Configuración Cantidad de Sabores (Dinámico segun la categoria del comercio) -->
+        <div id="box-prod-max-sabores" class="hidden">
+          <label class="block text-xs font-bold text-emerald-400 mb-1">Cantidad máxima de sabores/gustos a elegir</label>
+          <input type="number" min="1" max="50" id="prod-max-sabores" placeholder="Ej: 4 (para 1 kg) o 12 (para 1 docena)" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <p class="text-[10px] text-slate-500 mt-1">Límite máximo de gustos que el cliente podrá elegir en este producto.</p>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Descripción corta</label>
           <textarea id="prod-descripcion" placeholder="Ej: Elegí hasta 4 gustos. Incluye cucuruchos." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
@@ -830,10 +837,11 @@
         const pEscapedTitulo = p.titulo.replace(/'/g, "\\'");
         const pEscapedDesc = (p.descripcion || '').replace(/'/g, "\\'");
         const pImagen = p.imagen_url || '';
+        const pMaxSabores = p.max_sabores || '';
 
         container.innerHTML += `
           <div class="card-gradient rounded-2xl p-3.5 border border-slate-800/90 shadow-lg flex items-center justify-between gap-3 relative group hover:border-slate-700 transition">
-            <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')">
+            <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')">
               ${p.imagen_url 
                 ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-800 flex-shrink-0 group-hover:scale-105 transition">` 
                 : `<div class="w-16 h-16 bg-slate-950 rounded-xl flex items-center justify-center text-slate-600 flex-shrink-0 border border-slate-800"><i data-lucide="package" class="w-6 h-6"></i></div>`}
@@ -847,7 +855,7 @@
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               ${esDuenio ? `
                 <div class="flex items-center gap-1">
-                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
                   <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
@@ -856,7 +864,7 @@
                 </div>
               ` : ''}
 
-              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
+              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio}, ${pMaxSabores || 'null'})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
               </button>
             </div>
@@ -878,7 +886,7 @@
       return 4; // Límite por defecto
     }
 
-    function intentarAgregarProductoConSabores(id, titulo, precio) {
+    function intentarAgregarProductoConSabores(id, titulo, precio, maxSaboresCustom = null) {
       const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esHeladeria = categoriasLocal.includes('Heladerías');
       const esEmpanadas = categoriasLocal.includes('Empanadas');
@@ -887,7 +895,12 @@
         productoPendienteSabores = { id, titulo, precio, esEmpanadas };
         
         document.getElementById('modal-sabores-titulo').innerText = titulo;
-        const maxSabores = obtenerMaxSaboresSegunTitulo(titulo);
+        
+        // Priorizar el maxSabores configurado por el dueño para este producto
+        const maxSabores = (maxSaboresCustom && parseInt(maxSaboresCustom) > 0) 
+          ? parseInt(maxSaboresCustom) 
+          : obtenerMaxSaboresSegunTitulo(titulo);
+
         document.getElementById('modal-sabores-sub').innerText = `Podés elegir hasta ${maxSabores} gustos.`;
 
         // Mostrar u ocultar radio buttons de cocción
@@ -963,7 +976,7 @@
       productoPendienteSabores = null;
     }
 
-    function abrirVerProducto(id, titulo, precio, descripcion, imagenUrl) {
+    function abrirVerProducto(id, titulo, precio, descripcion, imagenUrl, maxSabores = null) {
       document.getElementById('view-prod-titulo').innerText = titulo;
       document.getElementById('view-prod-precio').innerText = `$${precio}`;
       document.getElementById('view-prod-descripcion').innerText = descripcion || 'Sin descripción adicional.';
@@ -981,7 +994,7 @@
       }
 
       document.getElementById('view-prod-btn-agregar').onclick = () => {
-        intentarAgregarProductoConSabores(id, titulo, precio);
+        intentarAgregarProductoConSabores(id, titulo, precio, maxSabores);
         cerrarModal('modal-ver-producto');
       };
 
@@ -1394,65 +1407,73 @@
       }
 
       const { error } = await _supabase.from('comercios').delete().eq('id', editId);
-
       if (error) {
-        alert('Error al eliminar comercio: ' + error.message);
+        alert('Error al eliminar el comercio: ' + error.message);
       } else {
-        alert('Comercio eliminado exitosamente.');
+        alert('Comercio eliminado con éxito.');
         cerrarModal('modal-registro');
-        comercioActivo = null;
-        await cargarComercios();
         mostrarInicio();
+        await cargarComercios();
       }
     }
 
-    // --- FORMULARIO PRODUCTO ---
+    // --- FORMULARIO PRODUCTO Y MANEJO DE SABORES ---
     function prepararModalProducto(comercioId, nombreComercio) {
       document.getElementById('form-producto').reset();
+      document.getElementById('prod-comercio-id').value = comercioId;
       document.getElementById('prod-edit-id').value = '';
       document.getElementById('prod-imagen-existente').value = '';
+      document.getElementById('prod-max-sabores').value = '';
+      
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
+      document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio}`;
       document.getElementById('btn-guardar-producto').innerText = 'Publicar Producto';
       document.getElementById('help-imagen-edit').innerText = '';
 
-      document.getElementById('prod-comercio-id').value = comercioId;
-      document.getElementById('subtitulo-comercio-prod').innerText = `Agregando a: ${nombreComercio}`;
+      evaluarVisibilidadSaboresProducto();
       abrirModal('modal-producto');
     }
 
-    function prepararEditarProducto(id, titulo, precio, descripcion, imagenUrl) {
+    function prepararEditarProducto(id, titulo, precio, descripcion, imagenUrl, maxSabores) {
       document.getElementById('form-producto').reset();
       document.getElementById('prod-edit-id').value = id;
-      document.getElementById('prod-comercio-id').value = comercioActivo ? comercioActivo.id : '';
-      document.getElementById('prod-imagen-existente').value = imagenUrl || '';
-
+      document.getElementById('prod-comercio-id').value = comercioActivo.id;
       document.getElementById('prod-titulo').value = titulo;
       document.getElementById('prod-precio').value = precio;
-      document.getElementById('prod-descripcion').value = descripcion;
+      document.getElementById('prod-descripcion').value = descripcion || '';
+      document.getElementById('prod-imagen-existente').value = imagenUrl || '';
+      document.getElementById('prod-max-sabores').value = maxSabores || '';
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
-      document.getElementById('subtitulo-comercio-prod').innerText = `Modificando: ${titulo}`;
+      document.getElementById('subtitulo-comercio-prod').innerText = `Modificando en: ${comercioActivo.nombre}`;
       document.getElementById('btn-guardar-producto').innerText = 'Guardar Cambios';
-      
-      const help = document.getElementById('help-imagen-edit');
-      help.innerText = imagenUrl ? 'Dejá el campo vacío si querés conservar la imagen actual.' : '';
 
+      const help = document.getElementById('help-imagen-edit');
+      help.innerText = imagenUrl ? 'Dejá el campo vacío si querés conservar la foto actual.' : '';
+
+      evaluarVisibilidadSaboresProducto();
       abrirModal('modal-producto');
     }
 
-    async function eliminarProducto(id) {
-      if (!confirm("¿Estás seguro de que querés eliminar este producto? Esta acción no se puede deshacer.")) {
-        return;
-      }
+    function evaluarVisibilidadSaboresProducto() {
+      const boxSabores = document.getElementById('box-prod-max-sabores');
+      const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
+      const aplicaSabores = cats.includes('Heladerías') || cats.includes('Empanadas');
 
-      const { error } = await _supabase.from('productos').delete().eq('id', id);
-
-      if (error) {
-        alert('Error al eliminar producto: ' + error.message);
+      if (aplicaSabores) {
+        boxSabores.classList.remove('hidden');
       } else {
-        carrito = carrito.filter(item => item.id !== id);
-        actualizarCarrito();
-        
+        boxSabores.classList.add('hidden');
+      }
+    }
+
+    async function eliminarProducto(prodId) {
+      if (!confirm("¿Estás seguro de que querés eliminar este producto?")) return;
+
+      const { error } = await _supabase.from('productos').delete().eq('id', prodId);
+      if (error) {
+        alert('Error al eliminar el producto: ' + error.message);
+      } else {
         await cargarComercios();
         if (comercioActivo) {
           abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
@@ -1460,174 +1481,141 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarComercios();
+    // --- SUBMIT COMERCIO ---
+    document.getElementById('form-comercio').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-      _supabase.auth.getUser().then(({ data: { user } }) => {
-        actualizarInterfazUsuario(user);
-      });
+      if (!usuarioActual) {
+        alert("Debés estar logueado para guardar tu comercio.");
+        return;
+      }
+
+      const editId = document.getElementById('comercio-edit-id').value;
+      const logoInput = document.getElementById('logo-input');
+      const logoExistente = document.getElementById('comercio-logo-existente').value;
+
+      const categorias = obtenerCategoriasSeleccionadasModal();
+      if (categorias.length === 0) {
+        alert("Seleccioná al menos una categoría para tu comercio.");
+        return;
+      }
+
+      let logoUrl = logoExistente;
+      if (logoInput.files && logoInput.files[0]) {
+        const subida = await subirImagen(logoInput);
+        if (subida === false) return;
+        if (subida) logoUrl = subida;
+      }
+
+      const saboresTxt = document.getElementById('sabores-input').value.trim();
+      const arraySabores = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+      const payload = {
+        nombre: document.getElementById('nombre').value.trim(),
+        telefono_whatsapp: document.getElementById('telefono').value.trim(),
+        direccion: document.getElementById('direccion').value.trim(),
+        categorias: categorias,
+        categoria: categorias[0],
+        hace_envios: document.getElementById('envios').checked,
+        costo_envio: document.getElementById('costo-envio').value.trim(),
+        hora_apertura: document.getElementById('hora-apertura').value.trim(),
+        hora_cierre: document.getElementById('hora-cierre').value.trim(),
+        hora_apertura_2: document.getElementById('hora-apertura-2').value.trim(),
+        hora_cierre_2: document.getElementById('hora-cierre-2').value.trim(),
+        pagos_efectivo: document.getElementById('pago-efectivo').checked,
+        pagos_transferencia: document.getElementById('pago-transferencia').checked,
+        pagos_qr: document.getElementById('pago-qr').checked,
+        pagos_cuenta_dni: document.getElementById('pago-cuenta-dni').checked,
+        pagos_tarjeta: document.getElementById('pago-tarjeta').checked,
+        sabores: arraySabores,
+        tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
+        logo_url: logoUrl,
+        user_id: usuarioActual.id,
+        slug: crearSlug(document.getElementById('nombre').value.trim())
+      };
+
+      let error = null;
+      if (editId) {
+        const res = await _supabase.from('comercios').update(payload).eq('id', editId);
+        error = res.error;
+      } else {
+        const res = await _supabase.from('comercios').insert([payload]);
+        error = res.error;
+      }
+
+      if (error) {
+        alert('Error al guardar el comercio: ' + error.message);
+      } else {
+        cerrarModal('modal-registro');
+        await cargarComercios();
+        if (editId && comercioActivo) {
+          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+        }
+      }
+    });
+
+    // --- SUBMIT PRODUCTO ---
+    document.getElementById('form-producto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const prodId = document.getElementById('prod-edit-id').value;
+      const comercioId = document.getElementById('prod-comercio-id').value;
+      const imgInput = document.getElementById('prod-imagen');
+      const imgExistente = document.getElementById('prod-imagen-existente').value;
+
+      let imagenUrl = imgExistente;
+      if (imgInput.files && imgInput.files[0]) {
+        const subida = await subirImagen(imgInput);
+        if (subida === false) return;
+        if (subida) imagenUrl = subida;
+      }
+
+      const maxSaboresVal = document.getElementById('prod-max-sabores').value;
+
+      const payload = {
+        comercio_id: comercioId,
+        titulo: document.getElementById('prod-titulo').value.trim(),
+        precio: parseFloat(document.getElementById('prod-precio').value),
+        descripcion: document.getElementById('prod-descripcion').value.trim(),
+        imagen_url: imagenUrl,
+        max_sabores: maxSaboresVal ? parseInt(maxSaboresVal, 10) : null
+      };
+
+      let error = null;
+      if (prodId) {
+        const res = await _supabase.from('productos').update(payload).eq('id', prodId);
+        error = res.error;
+      } else {
+        const res = await _supabase.from('productos').insert([payload]);
+        error = res.error;
+      }
+
+      if (error) {
+        alert('Error al guardar el producto: ' + error.message);
+      } else {
+        cerrarModal('modal-producto');
+        await cargarComercios();
+        if (comercioActivo) {
+          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+        }
+      }
+    });
+
+    // Eventos Iniciales
+    document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
+
+    // Inicializar App
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (window.lucide) lucide.createIcons();
+
+      const { data: { session } } = await _supabase.auth.getSession();
+      actualizarInterfazUsuario(session?.user || null);
 
       _supabase.auth.onAuthStateChange((_event, session) => {
-        actualizarInterfazUsuario(session?.user ?? null);
+        actualizarInterfazUsuario(session?.user || null);
       });
 
-      document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
-
-      // Submit Formulario Comercio
-      document.getElementById('form-comercio').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        if (!usuarioActual) {
-          alert("Debés estar autenticado para guardar un comercio.");
-          return;
-        }
-
-        const categoriasElegidas = obtenerCategoriasSeleccionadasModal();
-        if (categoriasElegidas.length === 0) {
-          alert("Por favor selecciona al menos 1 categoría para tu comercio.");
-          return;
-        }
-
-        const editId = document.getElementById('comercio-edit-id').value;
-        const esEdicion = Boolean(editId);
-
-        const btn = document.getElementById('btn-guardar-comercio');
-        btn.innerText = "Guardando...";
-        btn.disabled = true;
-
-        const logoInput = document.getElementById('logo-input');
-        let logo_url = document.getElementById('comercio-logo-existente').value || null;
-
-        if (logoInput.files.length > 0) {
-          const nuevaUrl = await subirImagen(logoInput);
-          if (nuevaUrl === false) {
-            btn.innerText = esEdicion ? "Guardar Cambios" : "Guardar Local";
-            btn.disabled = false;
-            return;
-          }
-          if (nuevaUrl) {
-            logo_url = nuevaUrl;
-          }
-        }
-
-        const nombreInput = document.getElementById('nombre').value;
-        const slugGenerado = crearSlug(nombreInput);
-        const haceEnvios = document.getElementById('envios').checked;
-
-        const saboresRaw = document.getElementById('sabores-input').value;
-        const listaSabores = saboresRaw ? saboresRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-        const datosComercio = {
-          nombre: nombreInput,
-          slug: slugGenerado,
-          telefono_whatsapp: document.getElementById('telefono').value,
-          direccion: document.getElementById('direccion').value,
-          categorias: categoriasElegidas,
-          categoria: categoriasElegidas[0],
-          hace_envios: haceEnvios,
-          hora_apertura: document.getElementById('hora-apertura').value,
-          hora_cierre: document.getElementById('hora-cierre').value,
-          hora_apertura_2: document.getElementById('hora-apertura-2').value || null,
-          hora_cierre_2: document.getElementById('hora-cierre-2').value || null,
-          costo_envio: haceEnvios ? document.getElementById('costo-envio').value : null,
-          sabores: listaSabores,
-          tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
-          pagos_efectivo: document.getElementById('pago-efectivo').checked,
-          pagos_transferencia: document.getElementById('pago-transferencia').checked,
-          pagos_qr: document.getElementById('pago-qr').checked,
-          pagos_cuenta_dni: document.getElementById('pago-cuenta-dni').checked,
-          pagos_tarjeta: document.getElementById('pago-tarjeta').checked,
-          logo_url
-        };
-
-        let error = null;
-
-        if (esEdicion) {
-          const res = await _supabase.from('comercios').update(datosComercio).eq('id', editId);
-          error = res.error;
-        } else {
-          datosComercio.user_id = usuarioActual.id;
-          const res = await _supabase.from('comercios').insert([datosComercio]);
-          error = res.error;
-        }
-
-        if (error) {
-          alert('Error al guardar comercio: ' + error.message);
-        } else {
-          alert(esEdicion ? '¡Comercio actualizado con éxito!' : '¡Comercio registrado con éxito!');
-          cerrarModal('modal-registro');
-          document.getElementById('form-comercio').reset();
-          await cargarComercios();
-          if (esEdicion && comercioActivo) {
-            abrirVistaComercio(slugGenerado || editId, false);
-          }
-        }
-
-        btn.innerText = esEdicion ? "Guardar Cambios" : "Guardar Local";
-        btn.disabled = false;
-      });
-
-      // Submit Formulario Producto
-      document.getElementById('form-producto').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btn-guardar-producto');
-        const editId = document.getElementById('prod-edit-id').value;
-        const esEdicion = Boolean(editId);
-
-        btn.innerText = esEdicion ? "Guardando..." : "Publicando...";
-        btn.disabled = true;
-
-        const prodImgInput = document.getElementById('prod-imagen');
-        let imagen_url = document.getElementById('prod-imagen-existente').value || null;
-
-        if (prodImgInput.files.length > 0) {
-          const nuevaUrl = await subirImagen(prodImgInput);
-          if (nuevaUrl === false) {
-            btn.innerText = esEdicion ? "Guardar Cambios" : "Publicar Producto";
-            btn.disabled = false;
-            return;
-          }
-          if (nuevaUrl) {
-            imagen_url = nuevaUrl;
-          }
-        }
-
-        const comercio_id = document.getElementById('prod-comercio-id').value;
-        const titulo = document.getElementById('prod-titulo').value;
-        const precio = parseFloat(document.getElementById('prod-precio').value);
-        const descripcion = document.getElementById('prod-descripcion').value;
-
-        let error = null;
-
-        if (esEdicion) {
-          const res = await _supabase.from('productos').update({
-            titulo, precio, descripcion, imagen_url
-          }).eq('id', editId);
-          error = res.error;
-        } else {
-          const res = await _supabase.from('productos').insert([{
-            comercio_id, titulo, precio, descripcion, imagen_url
-          }]);
-          error = res.error;
-        }
-
-        if (error) {
-          alert('Error al guardar producto: ' + error.message);
-        } else {
-          alert(esEdicion ? '¡Producto actualizado exitosamente!' : '¡Producto guardado exitosamente!');
-          cerrarModal('modal-producto');
-          document.getElementById('form-producto').reset();
-          await cargarComercios();
-          if (comercioActivo) {
-            abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
-          }
-        }
-
-        btn.innerText = esEdicion ? "Guardar Cambios" : "Publicar Producto";
-        btn.disabled = false;
-      });
-
-      if (window.lucide) lucide.createIcons();
+      await cargarComercios();
     });
   </script>
 </body>
