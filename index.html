@@ -58,7 +58,8 @@
       
       <!-- Acciones de Header & Google Auth -->
       <div class="flex items-center gap-2">
-        <button id="btn-sumar-comercio" type="button" class="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
+        <!-- Botón Sumar Local -->
+        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Sumar Local</span>
           <span class="sm:hidden">Unirme</span>
@@ -266,14 +267,14 @@
     </div>
   </div>
 
-  <!-- MODAL: Registrar Comercio -->
+  <!-- MODAL: Registrar / Editar Comercio -->
   <div id="modal-registro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
       
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-black text-white">Registrar mi Comercio</h3>
-          <p class="text-xs text-slate-400">Sumá tu negocio gratis a NecoVende.</p>
+          <h3 class="text-lg font-black text-white" id="modal-comercio-head-title">Registrar mi Comercio</h3>
+          <p class="text-xs text-slate-400" id="modal-comercio-head-sub">Sumá tu negocio gratis a NecoVende.</p>
         </div>
         <button onclick="cerrarModal('modal-registro')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -281,6 +282,9 @@
       </div>
       
       <form id="form-comercio" class="space-y-3.5">
+        <input type="hidden" id="comercio-edit-id">
+        <input type="hidden" id="comercio-logo-existente">
+
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Local / Emprendimiento</label>
           <input type="text" id="nombre" placeholder="Ej: Pizzería El Puente" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
@@ -311,6 +315,7 @@
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Logo / Foto de Perfil (Máx. 2MB)</label>
           <input type="file" id="logo-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer">
+          <p class="text-[10px] text-slate-500 mt-1" id="help-logo-edit"></p>
         </div>
 
         <div class="flex items-center gap-2.5 py-1">
@@ -383,13 +388,14 @@
     let categoriaSeleccionada = 'Todas';
     let comercioActivo = null;
     let carrito = [];
+    let usuarioActual = null;
 
     // --- FUNCIONES DE AUTENTICACIÓN GOOGLE ---
     async function iniciarSesionGoogle() {
       const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://necovende-web.vercel.app'
+          redirectTo: window.location.origin
         }
       });
       if (error) {
@@ -404,6 +410,7 @@
     }
 
     function actualizarInterfazUsuario(user) {
+      usuarioActual = user;
       const btnLogin = document.getElementById('btn-login-google');
       const menuPerfil = document.getElementById('user-profile-menu');
       const imgAvatar = document.getElementById('user-avatar');
@@ -419,6 +426,19 @@
         menuPerfil.classList.add('hidden');
         menuPerfil.classList.remove('flex');
       }
+
+      // Re-renderizar si estamos viendo el detalle de un comercio para actualizar botones de edición
+      if (comercioActivo) {
+        abrirVistaComercio(comercioActivo.id);
+      }
+    }
+
+    function intentarAbrirRegistroComercio() {
+      if (!usuarioActual) {
+        alert("Debés iniciar sesión con Google para registrar un comercio.");
+        return;
+      }
+      prepararModalNuevoComercio();
     }
 
     // --- MODALES & VISTAS ---
@@ -435,27 +455,42 @@
       comercioActivo = comerciosGlobales.find(c => c.id === comercioId);
       if (!comercioActivo) return;
 
+      const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
+
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
-        <div class="flex items-center gap-3.5">
-          ${comercioActivo.logo_url 
-            ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-700 shadow-md">`
-            : `<div class="w-16 h-16 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center font-black text-2xl text-emerald-400">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
-          }
-          <div>
-            <h2 class="text-xl font-black text-white leading-tight">${comercioActivo.nombre}</h2>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-lg border border-slate-700">${comercioActivo.categoria}</span>
-              ${comercioActivo.hace_envios ? '<span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">Envíos Disponibles</span>' : ''}
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3.5">
+            ${comercioActivo.logo_url 
+              ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-700 shadow-md">`
+              : `<div class="w-16 h-16 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center font-black text-2xl text-emerald-400">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+            }
+            <div>
+              <h2 class="text-xl font-black text-white leading-tight">${comercioActivo.nombre}</h2>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-xs font-bold bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-lg border border-slate-700">${comercioActivo.categoria}</span>
+                ${comercioActivo.hace_envios ? '<span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">Envíos Disponibles</span>' : ''}
+              </div>
+              <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
             </div>
-            <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
           </div>
+          ${esDuenio ? `
+            <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 p-2 rounded-xl transition flex items-center gap-1 text-xs font-bold">
+              <i data-lucide="edit-3" class="w-4 h-4 text-emerald-400"></i> <span class="hidden sm:inline">Editar Local</span>
+            </button>
+          ` : ''}
         </div>
       `;
 
-      document.getElementById('btn-agregar-prod-vista').onclick = () => prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
+      const btnCargarProd = document.getElementById('btn-agregar-prod-vista');
+      if (esDuenio) {
+        btnCargarProd.classList.remove('hidden');
+        btnCargarProd.onclick = () => prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
+      } else {
+        btnCargarProd.classList.add('hidden');
+      }
 
-      renderizarProductosComercio(comercioActivo.productos || []);
+      renderizarProductosComercio(comercioActivo.productos || [], esDuenio);
 
       document.getElementById('vista-inicio').classList.add('hidden');
       document.getElementById('vista-comercio').classList.remove('hidden');
@@ -464,7 +499,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function renderizarProductosComercio(productos) {
+    function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
       container.innerHTML = '';
 
@@ -498,14 +533,16 @@
             </div>
 
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
-              <div class="flex items-center gap-1">
-                <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                  <i data-lucide="edit-3" class="w-4 h-4"></i>
-                </button>
-                <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-              </div>
+              ${esDuenio ? `
+                <div class="flex items-center gap-1">
+                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}',${p.precio}, '${pEscapedDesc}', '${pImagen}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                  </button>
+                  <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              ` : ''}
 
               <button onclick="agregarAlCarrito('${p.id}', '${pEscapedTitulo}', ${p.precio})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
@@ -763,6 +800,43 @@
       renderizarComercios(resultado);
     }
 
+    // --- FORMULARIO COMERCIO (CREAR & EDITAR) ---
+    function prepararModalNuevoComercio() {
+      document.getElementById('form-comercio').reset();
+      document.getElementById('comercio-edit-id').value = '';
+      document.getElementById('comercio-logo-existente').value = '';
+      document.getElementById('modal-comercio-head-title').innerText = 'Registrar mi Comercio';
+      document.getElementById('modal-comercio-head-sub').innerText = 'Sumá tu negocio gratis a NecoVende.';
+      document.getElementById('btn-guardar-comercio').innerText = 'Guardar Local';
+      document.getElementById('help-logo-edit').innerText = '';
+      abrirModal('modal-registro');
+    }
+
+    function prepararModalEditarComercio(comercioId) {
+      const c = comerciosGlobales.find(item => item.id === comercioId);
+      if (!c) return;
+
+      document.getElementById('form-comercio').reset();
+      document.getElementById('comercio-edit-id').value = c.id;
+      document.getElementById('comercio-logo-existente').value = c.logo_url || '';
+
+      document.getElementById('nombre').value = c.nombre;
+      document.getElementById('telefono').value = c.telefono_whatsapp;
+      document.getElementById('direccion').value = c.direccion || '';
+      document.getElementById('categoria').value = c.categoria;
+      document.getElementById('envios').checked = Boolean(c.hace_envios);
+
+      document.getElementById('modal-comercio-head-title').innerText = 'Editar mi Comercio';
+      document.getElementById('modal-comercio-head-sub').innerText = `Modificando datos de: ${c.nombre}`;
+      document.getElementById('btn-guardar-comercio').innerText = 'Guardar Cambios';
+
+      const help = document.getElementById('help-logo-edit');
+      help.innerText = c.logo_url ? 'Dejá el campo vacío si querés conservar el logo actual.' : '';
+
+      abrirModal('modal-registro');
+    }
+
+    // --- FORMULARIO PRODUCTO (CREAR & EDITAR) ---
     function prepararModalProducto(comercioId, nombreComercio) {
       document.getElementById('form-producto').reset();
       document.getElementById('prod-edit-id').value = '';
@@ -830,25 +904,36 @@
       });
 
       // 3. Event Listeners
-      document.getElementById('btn-sumar-comercio').addEventListener('click', () => abrirModal('modal-registro'));
       document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
 
-      // Formulario Registrar Comercio
+      // Formulario Registrar / Editar Comercio
       document.getElementById('form-comercio').addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        if (!usuarioActual) {
+          alert("Debés estar autenticado para guardar un comercio.");
+          return;
+        }
+
+        const editId = document.getElementById('comercio-edit-id').value;
+        const esEdicion = Boolean(editId);
+
         const btn = document.getElementById('btn-guardar-comercio');
         btn.innerText = "Guardando...";
         btn.disabled = true;
 
         const logoInput = document.getElementById('logo-input');
-        let logo_url = null;
+        let logo_url = document.getElementById('comercio-logo-existente').value || null;
 
         if (logoInput.files.length > 0) {
-          logo_url = await subirImagen(logoInput);
-          if (logo_url === false) {
-            btn.innerText = "Guardar Local";
+          const nuevaUrl = await subirImagen(logoInput);
+          if (nuevaUrl === false) {
+            btn.innerText = esEdicion ? "Guardar Cambios" : "Guardar Local";
             btn.disabled = false;
             return;
+          }
+          if (nuevaUrl) {
+            logo_url = nuevaUrl;
           }
         }
 
@@ -858,20 +943,39 @@
         const categoria = document.getElementById('categoria').value;
         const hace_envios = document.getElementById('envios').checked;
 
-        const { error } = await _supabase.from('comercios').insert([{
-          nombre, telefono_whatsapp: telefono, direccion, categoria, hace_envios, logo_url
-        }]);
+        let error = null;
 
-        if (error) {
-          alert('Error al guardar: ' + error.message);
+        if (esEdicion) {
+          const res = await _supabase.from('comercios').update({
+            nombre, telefono_whatsapp: telefono, direccion, categoria, hace_envios, logo_url
+          }).eq('id', editId);
+          error = res.error;
         } else {
-          alert('¡Comercio registrado con éxito!');
-          cerrarModal('modal-registro');
-          document.getElementById('form-comercio').reset();
-          cargarComercios();
+          const res = await _supabase.from('comercios').insert([{
+            nombre, 
+            telefono_whatsapp: telefono, 
+            direccion, 
+            categoria, 
+            hace_envios, 
+            logo_url,
+            user_id: usuarioActual.id
+          }]);
+          error = res.error;
         }
 
-        btn.innerText = "Guardar Local";
+        if (error) {
+          alert('Error al guardar comercio: ' + error.message);
+        } else {
+          alert(esEdicion ? '¡Comercio actualizado con éxito!' : '¡Comercio registrado con éxito!');
+          cerrarModal('modal-registro');
+          document.getElementById('form-comercio').reset();
+          await cargarComercios();
+          if (esEdicion && comercioActivo) {
+            abrirVistaComercio(editId);
+          }
+        }
+
+        btn.innerText = esEdicion ? "Guardar Cambios" : "Guardar Local";
         btn.disabled = false;
       });
 
