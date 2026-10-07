@@ -17,8 +17,8 @@
   <style>
     body { 
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #fafaf9; /* Stone-50 Fresh Market */
-      color: #0f172a; /* Slate-900 */
+      background-color: #fafaf9;
+      color: #0f172a;
     }
     
     .glass-nav {
@@ -27,26 +27,17 @@
       -webkit-backdrop-filter: blur(16px);
     }
 
-    .card-gradient {
-      background: #ffffff;
-    }
+    .card-gradient { background: #ffffff; }
 
-    .custom-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .custom-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .custom-scrollbar::-webkit-scrollbar { display: none; }
+    .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     @keyframes cartBump {
       0% { transform: scale(1); }
       50% { transform: scale(1.08); }
       100% { transform: scale(1); }
     }
-    .cart-animate {
-      animation: cartBump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
+    .cart-animate { animation: cartBump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
     @media (max-width: 640px) {
       .modal-bottom-sheet {
@@ -113,7 +104,6 @@
 
   <!-- VISTA INICIO (MARKETPLACE) -->
   <main id="vista-inicio" class="max-w-xl mx-auto px-4 pt-4 space-y-5">
-
     <div class="flex items-center justify-between border-b border-slate-200 pb-3">
       <div>
         <h2 class="text-lg font-black text-slate-900 tracking-tight">Comercio Local a un Clic</h2>
@@ -137,10 +127,7 @@
         <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Explorar Categorías</h3>
         <span id="categoria-activa" class="text-xs font-bold text-orange-600">Todas</span>
       </div>
-      
-      <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar">
-        <!-- Renderizado dinámico -->
-      </div>
+      <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar"></div>
     </section>
 
     <!-- Lista de Comercios -->
@@ -159,12 +146,10 @@
         </div>
       </div>
     </section>
-
   </main>
 
   <!-- VISTA DETALLE COMERCIO -->
   <main id="vista-comercio" class="max-w-xl mx-auto px-4 pt-4 space-y-5 hidden">
-    
     <div class="flex items-center justify-between gap-2">
       <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm transition">
         <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a comercios
@@ -175,9 +160,7 @@
       </button>
     </div>
 
-    <div id="detalle-comercio-header" class="card-gradient rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
-      <!-- Se llena dinámicamente -->
-    </div>
+    <div id="detalle-comercio-header" class="card-gradient rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4"></div>
 
     <section class="space-y-3">
       <div class="flex justify-between items-center">
@@ -187,11 +170,8 @@
         </button>
       </div>
 
-      <div id="productos-container" class="grid grid-cols-1 gap-3">
-        <!-- Se llena dinámicamente -->
-      </div>
+      <div id="productos-container" class="grid grid-cols-1 gap-3"></div>
     </section>
-
   </main>
 
   <!-- BARRA FLOTANTE CARRITO -->
@@ -210,7 +190,7 @@
     </div>
   </div>
 
-  <!-- MODAL: SELECCIONAR SABORES & COCCIÓN -->
+  <!-- MODAL: SELECCIONAR SABORES (DESGLOSADO POR UNIDAD) -->
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
@@ -241,16 +221,9 @@
         </div>
       </div>
 
-      <!-- Sabores / Opciones Disponibles -->
-      <div class="space-y-2">
-        <div class="flex justify-between items-center">
-          <label class="block text-xs font-bold text-slate-700">Seleccionar Gustos</label>
-          <span id="sabores-count-badge" class="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">0 Seleccionados</span>
-        </div>
-        
-        <div id="grid-sabores-seleccion" class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-h-52 overflow-y-auto text-xs">
-          <!-- Renderizado dinámico -->
-        </div>
+      <!-- CONTENEDOR DINÁMICO DE UNIDADES -->
+      <div id="contenedor-bloques-unidades" class="space-y-4">
+        <!-- Se crean bloques por cada unidad seleccionada (ej: Docena 1, Docena 2) -->
       </div>
 
       <!-- Campo Detalles / Aclaraciones -->
@@ -449,8 +422,7 @@
             <label class="block text-xs font-bold text-slate-700">Categorías (Elegí hasta 3)</label>
             <span id="cat-count-badge" class="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">0 / 3</span>
           </div>
-          <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto">
-          </div>
+          <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto"></div>
         </div>
 
         <div id="seccion-sabores-config" class="hidden space-y-1 bg-orange-50/50 p-3 rounded-xl border border-orange-100">
@@ -563,7 +535,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Precio ($)</label>
-          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 850" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 21000" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <!-- CONFIGURACIÓN ESPECÍFICA DEL PRODUCTO -->
@@ -641,8 +613,11 @@
     let comercioCarrito = null;
     let carrito = [];
     let usuarioActual = null;
+
+    // Estado modal de sabores
     let productoPendienteSabores = null;
-    let contadoresSaboresActuales = {};
+    let cantidadesProductosPrevias = {}; // Almacena la cantidad seleccionada en tarjeta (ej: 2)
+    let estadoSaboresPorUnidad = {}; // Guarda contadores {1: {Carne:6, J&Q:6}, 2: {Pollo:12}}
 
     function crearSlug(texto) {
       if (!texto) return '';
@@ -674,11 +649,8 @@
     function toggleCampoCostoEnvio() {
       const tieneEnvios = document.getElementById('envios').checked;
       const contenedor = document.getElementById('contenedor-costo-envio');
-      if (tieneEnvios) {
-        contenedor.classList.remove('hidden');
-      } else {
-        contenedor.classList.add('hidden');
-      }
+      if (tieneEnvios) contenedor.classList.remove('hidden');
+      else contenedor.classList.add('hidden');
     }
 
     function estaEnRango(hApertura, hCierre) {
@@ -704,9 +676,7 @@
     function formatearHoraCorta(horaStr) {
       if (!horaStr) return '';
       const partes = horaStr.trim().split(':');
-      if (partes.length >= 2) {
-        return `${partes[0].padStart(2, '0')}:${partes[1].padStart(2, '0')}`;
-      }
+      if (partes.length >= 2) return `${partes[0].padStart(2, '0')}:${partes[1].padStart(2, '0')}`;
       return horaStr;
     }
 
@@ -718,9 +688,7 @@
       if (c.hora_apertura_2 && c.hora_cierre_2) {
         const h2Ap = formatearHoraCorta(c.hora_apertura_2);
         const h2Ci = formatearHoraCorta(c.hora_cierre_2);
-        if (h2Ap && h2Ci) {
-          texto += ` y ${h2Ap} a ${h2Ci} hs`;
-        }
+        if (h2Ap && h2Ci) texto += ` y ${h2Ap} a ${h2Ci} hs`;
       }
       return texto;
     }
@@ -831,9 +799,7 @@
       if (!comercioActivo) return;
 
       const slugOId = comercioActivo.slug || comercioActivo.id;
-      if (cambiarUrl) {
-        window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
-      }
+      if (cambiarUrl) window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
 
       const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
       const abierto = estaAbierto(comercioActivo);
@@ -920,6 +886,14 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // MANEJO DE CANTIDAD EN LA TARJETA DEL PRODUCTO
+    function cambiarCantidadPrevia(prodId, delta) {
+      if (!cantidadesProductosPrevias[prodId]) cantidadesProductosPrevias[prodId] = 1;
+      cantidadesProductosPrevias[prodId] = Math.max(1, cantidadesProductosPrevias[prodId] + delta);
+      const elem = document.getElementById(`cant-previa-${prodId}`);
+      if (elem) elem.innerText = cantidadesProductosPrevias[prodId];
+    }
+
     function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
       container.innerHTML = '';
@@ -936,20 +910,22 @@
       }
 
       productos.forEach(p => {
+        if (!cantidadesProductosPrevias[p.id]) cantidadesProductosPrevias[p.id] = 1;
+
         container.innerHTML += `
-          <div class="card-gradient rounded-2xl p-3.5 border border-slate-200 shadow-sm flex items-center justify-between gap-3 relative group hover:border-slate-300 hover:shadow-md transition">
+          <div class="card-gradient rounded-2xl p-3.5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative group hover:border-slate-300 transition">
             <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
               ${p.imagen_url 
                 ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0 group-hover:scale-105 transition">` 
                 : `<div class="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="truncate">
                 <h4 class="font-bold text-sm text-slate-900 truncate group-hover:text-orange-600 transition">${p.titulo}</h4>
-                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
+                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Tocar para ver detalles'}</p>
                 <p class="text-base font-black text-orange-600 mt-1">$${p.precio}</p>
               </div>
             </div>
 
-            <div class="flex flex-col items-end gap-2 flex-shrink-0">
+            <div class="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
               ${esDuenio ? `
                 <div class="flex items-center gap-1">
                   <button onclick="prepararEditarProducto('${p.id}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition">
@@ -961,8 +937,15 @@
                 </div>
               ` : ''}
 
-              <button onclick="intentarAgregarProducto('${p.id}')" class="bg-orange-500 hover:bg-orange-600 text-white font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1 active:scale-95">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
+              <!-- SELECTOR DE CANTIDAD ANTES DE AGREGAR -->
+              <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <button type="button" onclick="cambiarCantidadPrevia('${p.id}', -1)" class="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-slate-800 font-black text-xs shadow-sm hover:bg-slate-50 active:scale-95 transition">-</button>
+                <span id="cant-previa-${p.id}" class="w-5 text-center font-black text-xs text-slate-800">${cantidadesProductosPrevias[p.id]}</span>
+                <button type="button" onclick="cambiarCantidadPrevia('${p.id}', 1)" class="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-slate-800 font-black text-xs shadow-sm hover:bg-slate-50 active:scale-95 transition">+</button>
+              </div>
+
+              <button onclick="intentarAgregarProducto('${p.id}')" class="bg-orange-500 hover:bg-orange-600 text-white font-black px-3.5 py-2 rounded-xl text-xs whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1.5 active:scale-95">
+                <i data-lucide="plus" class="w-4 h-4"></i> Agregar
               </button>
             </div>
           </div>
@@ -975,6 +958,8 @@
     function intentarAgregarProducto(prodId) {
       const p = comercioActivo?.productos?.find(item => item.id === prodId);
       if (!p) return;
+
+      const cantidadPedida = cantidadesProductosPrevias[p.id] || 1;
 
       const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esHeladeria = categoriasLocal.includes('Heladerías');
@@ -1002,27 +987,22 @@
           id: p.id, 
           titulo: p.titulo, 
           precio: p.precio, 
+          cantidadUnidades: cantidadPedida,
           requiereCoccion, 
           maxSabores: maxSabores,
           esIlimitado: esIlimitado,
           listaSaboresUsar 
         };
 
-        document.getElementById('modal-sabores-titulo').innerText = p.titulo;
+        document.getElementById('modal-sabores-titulo').innerText = `${p.titulo} (x${cantidadPedida})`;
         document.getElementById('modal-sabores-sub').innerText = esIlimitado 
           ? 'Podés sumar la cantidad que quieras de cada gusto.'
-          : `Elegí los ${maxSabores} gustos de tu pack / combo.`;
+          : `Configurá los gustos de cada una de las ${cantidadPedida} unidades (${maxSabores} gustos c/u).`;
 
         const txtAreaDetalles = document.getElementById('sabores-detalles');
-        if (esHeladeria) {
-          txtAreaDetalles.placeholder = "Ej: Cucuruchos extra, enviar cucharitas, sin plástico...";
-        } else if (esEmpanadas) {
-          txtAreaDetalles.placeholder = "Ej: Masa fina, bien doraditas, repulgue marcado...";
-        } else if (esPizzeria) {
-          txtAreaDetalles.placeholder = "Ej: Bien cocida, sin orégano, cortar en 8 porciones...";
-        } else {
-          txtAreaDetalles.placeholder = "Aclaraciones o notas especiales sobre tu pedido...";
-        }
+        if (esHeladeria) txtAreaDetalles.placeholder = "Ej: Cucuruchos extra, enviar cucharitas...";
+        else if (esEmpanadas) txtAreaDetalles.placeholder = "Ej: Bien doraditas, repulgue marcado...";
+        else txtAreaDetalles.placeholder = "Aclaraciones o notas especiales sobre tu pedido...";
 
         const boxCoccion = document.getElementById('box-opcion-coccion');
         if (requiereCoccion && comercioActivo.tipo_coccion_empanadas === 'ambas') {
@@ -1031,90 +1011,125 @@
           boxCoccion.classList.add('hidden');
         }
 
-        contadoresSaboresActuales = {};
-        const grid = document.getElementById('grid-sabores-seleccion');
-        grid.innerHTML = '';
+        // CONSTRUIR BLOQUES DESGLOSADOS POR UNIDAD
+        estadoSaboresPorUnidad = {};
+        const contenedor = document.getElementById('contenedor-bloques-unidades');
+        contenedor.innerHTML = '';
 
-        listaSaboresUsar.forEach(sabor => {
-          const saborClean = sabor.trim();
-          contadoresSaboresActuales[saborClean] = 0;
-          grid.innerHTML += `
-            <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-              <span class="font-bold text-xs text-slate-800 truncate pr-2">${saborClean}</span>
-              <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0">
-                <button type="button" onclick="modificarContadorSabor('${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-white rounded-md text-slate-700 font-black text-xs shadow-sm border border-slate-200 active:bg-slate-100">-</button>
-                <span id="cant-sabor-${saborClean}" class="text-xs font-black text-slate-800 w-5 text-center">0</span>
-                <button type="button" onclick="modificarContadorSabor('${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-orange-500 rounded-md text-white font-black text-xs shadow-sm active:bg-orange-600">+</button>
+        for (let numUnidad = 1; numUnidad <= cantidadPedida; numUnidad++) {
+          estadoSaboresPorUnidad[numUnidad] = {};
+
+          let htmlBloque = `
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5">
+              <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
+                <span class="text-xs font-black text-slate-800 uppercase tracking-wide">
+                  ${cantidadPedida > 1 ? `Unidad #${numUnidad} de ${cantidadPedida}` : 'Seleccionar Gustos'}
+                </span>
+                <span id="badge-unidad-${numUnidad}" class="text-[10px] font-black text-orange-600 bg-orange-100/80 px-2 py-0.5 rounded-md">
+                  0 / ${esIlimitado ? '∞' : maxSabores}
+                </span>
               </div>
-            </div>
-          `;
-        });
 
-        actualizarBadgeContadorSaboresNum();
+              <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          `;
+
+          listaSaboresUsar.forEach(sabor => {
+            const saborClean = sabor.trim();
+            estadoSaboresPorUnidad[numUnidad][saborClean] = 0;
+
+            htmlBloque += `
+              <div class="flex items-center justify-between bg-white p-2 rounded-xl border border-slate-200 shadow-sm text-xs">
+                <span class="font-bold text-slate-800 truncate pr-2">${saborClean}</span>
+                <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0">
+                  <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-white rounded-md text-slate-800 font-black text-xs shadow-sm border border-slate-200 active:bg-slate-100">-</button>
+                  <span id="cant-sabor-u${numUnidad}-${saborClean}" class="text-xs font-black text-slate-800 w-4 text-center">0</span>
+                  <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-orange-500 rounded-md text-white font-black text-xs shadow-sm active:bg-orange-600">+</button>
+                </div>
+              </div>
+            `;
+          });
+
+          htmlBloque += `</div></div>`;
+          contenedor.innerHTML += htmlBloque;
+        }
+
         txtAreaDetalles.value = '';
         document.getElementById('btn-confirmar-sabores').onclick = confirmarAgregarConSabores;
 
         abrirModal('modal-sabores');
       } else {
-        agregarAlCarrito(p.id, p.titulo, p.precio, 1);
+        agregarAlCarrito(p.id, p.titulo, p.precio, cantidadPedida);
       }
     }
 
-    function modificarContadorSabor(sabor, cambio) {
+    function modificarSaborUnidad(numUnidad, sabor, cambio) {
       if (!productoPendienteSabores) return;
 
-      const sumaTotalActual = Object.values(contadoresSaboresActuales).reduce((a, b) => a + b, 0);
-      const valActual = contadoresSaboresActuales[sabor] || 0;
+      const saboresUnidad = estadoSaboresPorUnidad[numUnidad];
+      if (!saboresUnidad) return;
 
-      if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaTotalActual >= productoPendienteSabores.maxSabores) {
-        alert(`Alcanzaste el máximo de ${productoPendienteSabores.maxSabores} gustos para este pack.`);
+      const sumaActualUnidad = Object.values(saboresUnidad).reduce((a, b) => a + b, 0);
+      const valActual = saboresUnidad[sabor] || 0;
+
+      if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaActualUnidad >= productoPendienteSabores.maxSabores) {
+        alert(`Alcanzaste el máximo de ${productoPendienteSabores.maxSabores} gustos para esta unidad.`);
         return;
       }
 
       const nuevoVal = valActual + cambio;
       if (nuevoVal >= 0) {
-        contadoresSaboresActuales[sabor] = nuevoVal;
-        const elemCant = document.getElementById(`cant-sabor-${sabor}`);
+        saboresUnidad[sabor] = nuevoVal;
+        const elemCant = document.getElementById(`cant-sabor-u${numUnidad}-${sabor}`);
         if (elemCant) elemCant.innerText = nuevoVal;
-        actualizarBadgeContadorSaboresNum();
-      }
-    }
 
-    function actualizarBadgeContadorSaboresNum() {
-      const sumaTotalActual = Object.values(contadoresSaboresActuales).reduce((a, b) => a + b, 0);
-      if (productoPendienteSabores && productoPendienteSabores.esIlimitado) {
-        document.getElementById('sabores-count-badge').innerText = `${sumaTotalActual} seleccionados (Sin límite)`;
-      } else {
-        const max = productoPendienteSabores ? productoPendienteSabores.maxSabores : 0;
-        document.getElementById('sabores-count-badge').innerText = `${sumaTotalActual} / ${max} elegidos`;
+        // Actualizar badge de la unidad
+        const totalU = Object.values(saboresUnidad).reduce((a, b) => a + b, 0);
+        const badge = document.getElementById(`badge-unidad-${numUnidad}`);
+        if (badge) {
+          badge.innerText = productoPendienteSabores.esIlimitado ? `${totalU} selec.` : `${totalU} / ${productoPendienteSabores.maxSabores}`;
+        }
       }
     }
 
     function confirmarAgregarConSabores() {
       if (!productoPendienteSabores) return;
 
-      const sumaTotalActual = Object.values(contadoresSaboresActuales).reduce((a, b) => a + b, 0);
+      const totalUnidades = productoPendienteSabores.cantidadUnidades;
+      let resumenUnidadesTexto = [];
 
-      // Si es un combo fijo (ej. docena = 12), exigir seleccionar los 12
-      if (!productoPendienteSabores.esIlimitado && sumaTotalActual < productoPendienteSabores.maxSabores) {
-        if (!confirm(`Seleccionaste ${sumaTotalActual} de ${productoPendienteSabores.maxSabores} gustos. ¿Querés agregar el pedido igual?`)) {
-          return;
+      for (let u = 1; u <= totalUnidades; u++) {
+        const saboresU = estadoSaboresPorUnidad[u] || {};
+        const sumaU = Object.values(saboresU).reduce((a, b) => a + b, 0);
+
+        if (!productoPendienteSabores.esIlimitado && sumaU < productoPendienteSabores.maxSabores) {
+          if (!confirm(`La unidad #${u} tiene ${sumaU} de ${productoPendienteSabores.maxSabores} gustos elegidos. ¿Deseás continuar igual?`)) {
+            return;
+          }
+        }
+
+        const gustosArr = [];
+        for (const [sabor, cant] of Object.entries(saboresU)) {
+          if (cant > 0) gustosArr.push(`${cant}x ${sabor}`);
+        }
+
+        if (gustosArr.length > 0) {
+          if (totalUnidades > 1) {
+            resumenUnidadesTexto.push(`[Pack ${u}: ${gustosArr.join(', ')}]`);
+          } else {
+            resumenUnidadesTexto.push(`Sabores: ${gustosArr.join(', ')}`);
+          }
         }
       }
 
-      const resumenSabores = [];
-      for (const [sabor, cant] of Object.entries(contadoresSaboresActuales)) {
-        if (cant > 0) {
-          resumenSabores.push(`${cant}x ${sabor}`);
-        }
-      }
-
-      // LÓGICA DE CANTIDAD PARA EL CARRITO:
-      // Si es "ilimitado", la cantidad del carrito es la suma de los gustos (ej: 6 cubatones = 6 x precio unitario)
-      // Si es "combo/fijo", la cantidad del carrito es 1 pack (ej: 1 docena = 1 x $21.000)
-      let cantidadAAgregar = 1;
+      // Cálculo final de cantidad de ítems para el carrito
+      let cantidadAAgregarAlCarrito = totalUnidades;
       if (productoPendienteSabores.esIlimitado) {
-        cantidadAAgregar = sumaTotalActual > 0 ? sumaTotalActual : 1;
+        // En unidades ilimitadas (ej: cubatones), suma total de piezas de todas las unidades
+        let sumaTotalAbsoluta = 0;
+        for (let u = 1; u <= totalUnidades; u++) {
+          sumaTotalAbsoluta += Object.values(estadoSaboresPorUnidad[u] || {}).reduce((a, b) => a + b, 0);
+        }
+        cantidadAAgregarAlCarrito = sumaTotalAbsoluta > 0 ? sumaTotalAbsoluta : totalUnidades;
       }
 
       const detalles = document.getElementById('sabores-detalles').value.trim();
@@ -1129,8 +1144,8 @@
         }
       }
 
-      if (resumenSabores.length > 0) {
-        especificacion += `Sabores: ${resumenSabores.join(', ')}`;
+      if (resumenUnidadesTexto.length > 0) {
+        especificacion += resumenUnidadesTexto.join(' ');
       }
 
       if (detalles) {
@@ -1139,7 +1154,7 @@
 
       const tituloFinal = especificacion ? `${productoPendienteSabores.titulo} - ${especificacion}` : productoPendienteSabores.titulo;
 
-      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAAgregar);
+      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAAgregarAlCarrito);
       cerrarModal('modal-sabores');
       productoPendienteSabores = null;
     }
@@ -1214,10 +1229,7 @@
         carrito = carrito.filter(i => i.id !== id);
       }
 
-      if (carrito.length === 0) {
-        comercioCarrito = null;
-      }
-
+      if (carrito.length === 0) comercioCarrito = null;
       actualizarCarrito();
     }
 
@@ -1289,9 +1301,7 @@
       if (comercioCarrito.pagos_qr) selectPago.innerHTML += `<option value="MercadoPago / QR">MercadoPago / QR</option>`;
       if (comercioCarrito.pagos_cuenta_dni) selectPago.innerHTML += `<option value="Cuenta DNI">Cuenta DNI</option>`;
       if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">Tarjeta Débito / Crédito</option>`;
-      if (selectPago.options.length === 0) {
-        selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
-      }
+      if (selectPago.options.length === 0) selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
 
       if (comercioCarrito.hace_envios) {
         boxEntrega.classList.remove('hidden');
@@ -1404,9 +1414,7 @@
 
       const params = new URLSearchParams(window.location.search);
       const comercioUrlId = params.get('comercio');
-      if (comercioUrlId) {
-        abrirVistaComercio(comercioUrlId, false);
-      }
+      if (comercioUrlId) abrirVistaComercio(comercioUrlId, false);
     }
 
     function renderizarBarraCategorias() {
@@ -1517,9 +1525,7 @@
 
       if (categoriaSeleccionada !== 'Todas') {
         resultado = resultado.filter(c => {
-          if (c.categorias && c.categorias.length > 0) {
-            return c.categorias.includes(categoriaSeleccionada);
-          }
+          if (c.categorias && c.categorias.length > 0) return c.categorias.includes(categoriaSeleccionada);
           return c.categoria === categoriaSeleccionada;
         });
       }
@@ -1692,21 +1698,15 @@
     function toggleBoxConfigSabores() {
       const checkSabores = document.getElementById('prod-requiere-sabores').checked;
       const subBox = document.getElementById('sub-box-config-sabores');
-      if (checkSabores) {
-        subBox.classList.remove('hidden');
-      } else {
-        subBox.classList.add('hidden');
-      }
+      if (checkSabores) subBox.classList.remove('hidden');
+      else subBox.classList.add('hidden');
     }
 
     function toggleInputMaxSabores() {
       const sinLimite = document.getElementById('prod-sin-limite-sabores').checked;
       const boxMax = document.getElementById('box-input-max-sabores');
-      if (sinLimite) {
-        boxMax.classList.add('hidden');
-      } else {
-        boxMax.classList.remove('hidden');
-      }
+      if (sinLimite) boxMax.classList.add('hidden');
+      else boxMax.classList.remove('hidden');
     }
 
     function prepararModalProducto(comercioId, nombreComercio) {
@@ -1801,9 +1801,7 @@
         alert('Error al eliminar el producto: ' + error.message);
       } else {
         await cargarComercios();
-        if (comercioActivo) {
-          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
-        }
+        if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     }
 
@@ -1879,9 +1877,7 @@
       } else {
         cerrarModal('modal-registro');
         await cargarComercios();
-        if (editId && comercioActivo) {
-          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
-        }
+        if (editId && comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     });
 
@@ -1943,9 +1939,7 @@
       } else {
         cerrarModal('modal-producto');
         await cargarComercios();
-        if (comercioActivo) {
-          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
-        }
+        if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     });
 
