@@ -210,7 +210,7 @@
     </div>
   </div>
 
-  <!-- MODAL: SELECCIONAR SABORES & COCCIÓN (ADAPTADO POR RUBRO) -->
+  <!-- MODAL: SELECCIONAR SABORES & COCCIÓN -->
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
@@ -226,7 +226,7 @@
         </button>
       </div>
 
-      <!-- Selector Tipo Cocción (Solo si el producto lo requiere explícitamente) -->
+      <!-- Selector Tipo Cocción -->
       <div id="box-opcion-coccion" class="hidden space-y-1.5">
         <label class="block text-xs font-bold text-slate-700">Tipo de Cocción</label>
         <div class="grid grid-cols-2 gap-2 text-xs">
@@ -253,7 +253,7 @@
         </div>
       </div>
 
-      <!-- Campo Detalles / Aclaraciones con Placeholder Adaptativo -->
+      <!-- Campo Detalles / Aclaraciones -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Aclaraciones o Nota Especial</label>
         <textarea id="sabores-detalles" placeholder="Aclaraciones sobre tu pedido..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
@@ -351,18 +351,24 @@
     </div>
   </div>
 
-  <!-- MODAL: Carrito -->
+  <!-- MODAL: Carrito (CON BOTÓN VACIAR CARRITO) -->
   <div id="modal-carrito" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      
       <div class="flex justify-between items-start border-b border-slate-100 pb-3">
         <div>
           <h3 class="text-lg font-black text-slate-900">Tu Carrito</h3>
           <p class="text-xs text-slate-500 font-medium" id="cart-comercio-nombre">Resumen del pedido</p>
         </div>
-        <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-1">
+          <button id="btn-vaciar-carrito" onclick="vaciarCarrito()" type="button" class="text-[11px] font-bold text-rose-500 hover:text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-xl transition flex items-center gap-1 mr-1 hidden" title="Vaciar Carrito">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Vaciar
+          </button>
+          <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <div id="carrito-items" class="space-y-3 max-h-52 overflow-y-auto pr-1"></div>
@@ -552,12 +558,12 @@
         
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Pizza Muzzarella o Docena de Empanadas" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+          <input type="text" id="prod-titulo" placeholder="Ej: Cubatones (Cubanitos) o Pizza Muzzarella" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Precio ($)</label>
-          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 850" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <!-- CONFIGURACIÓN ESPECÍFICA DEL PRODUCTO -->
@@ -569,7 +575,6 @@
             <label for="prod-requiere-sabores" class="text-xs font-semibold text-slate-700 cursor-pointer">Permitir elegir sabores / gustos en este producto</label>
           </div>
 
-          <!-- Solo visible si el comercio vende empanadas -->
           <div id="box-check-coccion-prod" class="flex items-center gap-2">
             <input type="checkbox" id="prod-requiere-coccion" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
             <label for="prod-requiere-coccion" class="text-xs font-semibold text-slate-700 cursor-pointer">Pedir tipo de cocción (Al Horno / Fritas)</label>
@@ -598,7 +603,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Muzzarella, salsa de tomate y orégano." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
+          <textarea id="prod-descripcion" placeholder="Ej: Cubanitos rellenos bañados en chocolate." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
         </div>
 
         <div>
@@ -979,7 +984,6 @@
         ? Boolean(p.requiere_sabores) 
         : (esHeladeria || esEmpanadas);
 
-      // Cocción estrictamente solo si el producto lo tiene activado y no es heladería
       const requiereCoccion = Boolean(p.requiere_coccion) && !esHeladeria;
 
       let listaSaboresUsar = [];
@@ -1011,7 +1015,6 @@
           ? 'Podés agregar la cantidad que quieras de cada gusto.'
           : `Elegí hasta ${maxSabores} unidades/gustos en total.`;
 
-        // ADAPTACIÓN DE PLACEHOLDER SEGÚN RUBRO
         const txtAreaDetalles = document.getElementById('sabores-detalles');
         if (esHeladeria) {
           txtAreaDetalles.placeholder = "Ej: Cucuruchos extra, enviar cucharitas, sin plástico...";
@@ -1055,7 +1058,7 @@
 
         abrirModal('modal-sabores');
       } else {
-        agregarAlCarrito(p.id, p.titulo, p.precio);
+        agregarAlCarrito(p.id, p.titulo, p.precio, 1);
       }
     }
 
@@ -1093,11 +1096,17 @@
       if (!productoPendienteSabores) return;
 
       const resumenSabores = [];
+      let totalUnidadesSumadas = 0;
+
       for (const [sabor, cant] of Object.entries(contadoresSaboresActuales)) {
         if (cant > 0) {
           resumenSabores.push(`${cant}x ${sabor}`);
+          totalUnidadesSumadas += cant;
         }
       }
+
+      // Si no seleccionó nada, por defecto es 1 unidad
+      const cantidadAAgregar = totalUnidadesSumadas > 0 ? totalUnidadesSumadas : 1;
 
       const detalles = document.getElementById('sabores-detalles').value.trim();
       let especificacion = "";
@@ -1121,7 +1130,7 @@
 
       const tituloFinal = especificacion ? `${productoPendienteSabores.titulo} - ${especificacion}` : productoPendienteSabores.titulo;
 
-      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio);
+      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAAgregar);
       cerrarModal('modal-sabores');
       productoPendienteSabores = null;
     }
@@ -1155,7 +1164,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function agregarAlCarrito(id, titulo, precio) {
+    function agregarAlCarrito(id, titulo, precio, cantidadAAgregar = 1) {
       if (!comercioActivo) return;
 
       if (comercioCarrito && comercioCarrito.id !== comercioActivo.id && carrito.length > 0) {
@@ -1172,9 +1181,9 @@
 
       const existe = carrito.find(item => item.titulo === titulo);
       if (existe) {
-        existe.cantidad += 1;
+        existe.cantidad += cantidadAAgregar;
       } else {
-        carrito.push({ id, titulo, precio, cantidad: 1 });
+        carrito.push({ id, titulo, precio, cantidad: cantidadAAgregar });
       }
 
       actualizarCarrito();
@@ -1203,6 +1212,16 @@
       actualizarCarrito();
     }
 
+    function vaciarCarrito() {
+      if (carrito.length === 0) return;
+      if (confirm("¿Querés vaciar todos los productos de tu carrito?")) {
+        carrito = [];
+        comercioCarrito = null;
+        actualizarCarrito();
+        cerrarModal('modal-carrito');
+      }
+    }
+
     function toggleDireccionCarrito() {
       const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
       const boxDireccion = document.getElementById('box-cart-direccion');
@@ -1225,12 +1244,16 @@
       document.getElementById('cart-total-precio').innerText = `$${totalPrecio}`;
 
       const barraFlotante = document.getElementById('barra-flotante-carrito');
+      const btnVaciar = document.getElementById('btn-vaciar-carrito');
+
       if (totalItems > 0) {
         barraFlotante.classList.remove('hidden');
         document.getElementById('float-cart-count').innerText = totalItems;
         document.getElementById('float-cart-total').innerText = `$${totalPrecio}`;
+        if (btnVaciar) btnVaciar.classList.remove('hidden');
       } else {
         barraFlotante.classList.add('hidden');
+        if (btnVaciar) btnVaciar.classList.add('hidden');
       }
 
       const itemsContainer = document.getElementById('carrito-items');
@@ -1656,7 +1679,7 @@
       }
     }
 
-    // --- FORMULARIO PRODUCTO (OPCIONES SEGÚN RUBRO) ---
+    // --- FORMULARIO PRODUCTO ---
     function toggleBoxConfigSabores() {
       const checkSabores = document.getElementById('prod-requiere-sabores').checked;
       const subBox = document.getElementById('sub-box-config-sabores');
@@ -1694,7 +1717,6 @@
       document.getElementById('prod-max-sabores').value = '';
       document.getElementById('prod-sabores-especificos').value = '';
 
-      // Ocultar la opción de pedir cocción si NO es una empanadería
       const boxCheckCoccion = document.getElementById('box-check-coccion-prod');
       if (esEmpanadas) {
         boxCheckCoccion.classList.remove('hidden');
