@@ -17,18 +17,18 @@
   <style>
     body { 
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #0b1329;
-      color: #f1f5f9;
+      background-color: #fafaf9; /* Stone-50 Fresh Market */
+      color: #0f172a; /* Slate-900 */
     }
     
     .glass-nav {
-      background: rgba(11, 19, 41, 0.85);
+      background: rgba(255, 255, 255, 0.90);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
 
     .card-gradient {
-      background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+      background: #ffffff;
     }
 
     .custom-scrollbar::-webkit-scrollbar {
@@ -43,26 +43,26 @@
 <body class="antialiased pb-28 min-h-screen">
 
   <!-- Header / Navbar -->
-  <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/80 text-white">
+  <header class="glass-nav sticky top-0 z-40 border-b border-slate-200/80 text-slate-900">
     <div class="max-w-xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2.5 cursor-pointer group" onclick="mostrarInicio()">
-        <div class="w-10 h-10 bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 rounded-2xl flex items-center justify-center font-black text-slate-950 text-2xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition">
+        <div class="w-10 h-10 bg-gradient-to-tr from-orange-500 via-amber-500 to-emerald-400 rounded-2xl flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-orange-500/20 group-hover:scale-105 transition">
           N
         </div>
         <div>
-          <h1 class="text-lg font-black tracking-tight leading-none text-white">Neco<span class="text-emerald-400">Vende</span></h1>
-          <p class="text-[9px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">Necochea & Quequén</p>
+          <h1 class="text-lg font-black tracking-tight leading-none text-slate-900">Neco<span class="text-orange-500">Vende</span></h1>
+          <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase mt-0.5">Necochea & Quequén</p>
         </div>
       </div>
       
       <div class="flex items-center gap-2">
-        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
+        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-600 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Sumar Local</span>
           <span class="sm:hidden">Unirme</span>
         </button>
 
-        <button id="btn-login-google" onclick="iniciarSesionGoogle()" type="button" class="bg-white hover:bg-slate-100 text-slate-900 border border-slate-200 text-xs font-black px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95 shadow-sm">
+        <button id="btn-login-google" onclick="iniciarSesionGoogle()" type="button" class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-black px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95 shadow-sm">
           <svg class="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -72,14 +72,14 @@
           <span class="hidden sm:inline">Ingresar</span>
         </button>
 
-        <button id="user-profile-menu" onclick="abrirPanelControl()" type="button" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/80 p-1 pr-2.5 rounded-xl transition active:scale-95">
-          <img id="user-avatar" src="" class="w-7 h-7 rounded-lg object-cover border border-emerald-400" alt="Perfil">
-          <span class="text-xs font-bold text-slate-200 hidden sm:inline">Mi Cuenta</span>
+        <button id="user-profile-menu" onclick="abrirPanelControl()" type="button" class="hidden items-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 p-1 pr-2.5 rounded-xl transition active:scale-95">
+          <img id="user-avatar" src="" class="w-7 h-7 rounded-lg object-cover border border-orange-500" alt="Perfil">
+          <span class="text-xs font-bold text-slate-800 hidden sm:inline">Mi Cuenta</span>
         </button>
 
-        <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-2">
-          <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i>
-          <span id="cart-count" class="bg-emerald-500 text-slate-950 text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
+        <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-2">
+          <i data-lucide="shopping-bag" class="w-4 h-4 text-orange-500"></i>
+          <span id="cart-count" class="bg-orange-500 text-white text-[10px] font-black rounded-full px-1.5 py-0.2">0</span>
         </button>
       </div>
     </div>
@@ -88,10 +88,10 @@
   <!-- VISTA INICIO (MARKETPLACE) -->
   <main id="vista-inicio" class="max-w-xl mx-auto px-4 pt-4 space-y-5">
 
-    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
       <div>
-        <h2 class="text-lg font-black text-white tracking-tight">Comercio Local a un Clic</h2>
-        <p class="text-xs text-slate-400 font-medium">Pedí directamente a tus locales favoritos sin comisiones.</p>
+        <h2 class="text-lg font-black text-slate-900 tracking-tight">Comercio Local a un Clic</h2>
+        <p class="text-xs text-slate-500 font-medium">Pedí directamente a tus locales favoritos sin comisiones.</p>
       </div>
       <span class="flex h-2.5 w-2.5 relative">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -102,14 +102,14 @@
     <!-- Buscador -->
     <div class="relative">
       <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
-      <input type="text" id="input-buscar" placeholder="Buscar comercios, empanadas, helados, ropa..." class="w-full bg-slate-900/90 border border-slate-800/90 pl-11 pr-4 py-3 rounded-2xl text-xs font-semibold text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition placeholder:text-slate-500">
+      <input type="text" id="input-buscar" placeholder="Buscar comercios, empanadas, helados, ropa..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition placeholder:text-slate-400">
     </div>
 
     <!-- Rubros Dinámicos -->
     <section class="space-y-2">
       <div class="flex justify-between items-center">
         <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Explorar Categorías</h3>
-        <span id="categoria-activa" class="text-xs font-bold text-emerald-400">Todas</span>
+        <span id="categoria-activa" class="text-xs font-bold text-orange-600">Todas</span>
       </div>
       
       <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-semibold custom-scrollbar">
@@ -120,15 +120,15 @@
     <!-- Lista de Comercios -->
     <section class="space-y-3 pt-1">
       <div class="flex justify-between items-center">
-        <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i> Locales Destacados
+        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-4 h-4 text-orange-500"></i> Locales Destacados
         </h3>
-        <span class="text-[11px] font-bold text-slate-500" id="total-comercios">Cargando...</span>
+        <span class="text-[11px] font-bold text-slate-400" id="total-comercios">Cargando...</span>
       </div>
 
       <div id="comercios-container" class="grid grid-cols-1 gap-3.5">
-        <div class="p-8 card-gradient rounded-3xl border border-slate-800 text-center text-slate-400 space-y-2">
-          <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-emerald-400"></i>
+        <div class="p-8 card-gradient rounded-3xl border border-slate-200 text-center text-slate-500 space-y-2 shadow-sm">
+          <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-orange-500"></i>
           <p class="text-xs font-semibold">Cargando locales de la ciudad...</p>
         </div>
       </div>
@@ -140,23 +140,23 @@
   <main id="vista-comercio" class="max-w-xl mx-auto px-4 pt-4 space-y-5 hidden">
     
     <div class="flex items-center justify-between gap-2">
-      <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl transition">
+      <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm transition">
         <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver a comercios
       </button>
 
-      <button onclick="compartirOlinkComercio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-2 rounded-xl transition">
+      <button onclick="compartirOlinkComercio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 px-3.5 py-2 rounded-xl transition">
         <i data-lucide="share-2" class="w-4 h-4"></i> Compartir Local
       </button>
     </div>
 
-    <div id="detalle-comercio-header" class="card-gradient rounded-3xl p-5 border border-slate-800 shadow-xl space-y-4">
+    <div id="detalle-comercio-header" class="card-gradient rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
       <!-- Se llena dinámicamente -->
     </div>
 
     <section class="space-y-3">
       <div class="flex justify-between items-center">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Catálogo de Productos</h3>
-        <button id="btn-agregar-prod-vista" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-700">Catálogo de Productos</h3>
+        <button id="btn-agregar-prod-vista" class="text-xs font-bold text-orange-600 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 px-3 py-1.5 rounded-xl transition flex items-center gap-1">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i> Cargar Producto
         </button>
       </div>
@@ -171,13 +171,13 @@
   <!-- BARRA FLOTANTE CARRITO -->
   <div id="barra-flotante-carrito" class="fixed bottom-4 left-0 right-0 z-30 px-4 hidden">
     <div class="max-w-xl mx-auto">
-      <button onclick="abrirModal('modal-carrito')" class="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 px-5 rounded-2xl shadow-2xl shadow-emerald-500/40 border border-emerald-300/30 transition active:scale-[0.98] flex items-center justify-between">
+      <button onclick="abrirModal('modal-carrito')" class="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-3.5 px-5 rounded-2xl shadow-xl shadow-orange-500/20 border border-orange-400/30 transition active:scale-[0.98] flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <span id="float-cart-count" class="bg-slate-950 text-emerald-400 text-xs font-black px-2 py-0.5 rounded-lg">0</span>
+          <span id="float-cart-count" class="bg-white text-orange-600 text-xs font-black px-2 py-0.5 rounded-lg">0</span>
           <span class="text-xs tracking-tight uppercase">Ver mi pedido</span>
         </div>
         <div class="flex items-center gap-2">
-          <span id="float-cart-total" class="text-base font-black text-slate-950">$0</span>
+          <span id="float-cart-total" class="text-base font-black text-white">$0</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </div>
       </button>
@@ -185,28 +185,28 @@
   </div>
 
   <!-- MODAL: SELECCIONAR SABORES & COCCIÓN -->
-  <div id="modal-sabores" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+  <div id="modal-sabores" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
         <div>
-          <h3 class="text-lg font-black text-white" id="modal-sabores-titulo">Personalizar Pedido</h3>
-          <p class="text-xs text-slate-400" id="modal-sabores-sub">Elegí los gustos de tu preferencia.</p>
+          <h3 class="text-lg font-black text-slate-900" id="modal-sabores-titulo">Personalizar Pedido</h3>
+          <p class="text-xs text-slate-500" id="modal-sabores-sub">Elegí los gustos de tu preferencia.</p>
         </div>
-        <button onclick="cerrarModal('modal-sabores')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+        <button onclick="cerrarModal('modal-sabores')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <!-- Selector Tipo Cocción (Solo Empanadas) -->
       <div id="box-opcion-coccion" class="hidden space-y-1.5">
-        <label class="block text-xs font-bold text-slate-300">Tipo de Cocción</label>
+        <label class="block text-xs font-bold text-slate-700">Tipo de Cocción</label>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <label class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 cursor-pointer">
-            <input type="radio" name="coccion-elegida" value="Al Horno" checked class="text-emerald-500">
+          <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="coccion-elegida" value="Al Horno" checked class="text-orange-500 focus:ring-orange-500">
             <span>Al Horno</span>
           </label>
-          <label class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 cursor-pointer">
-            <input type="radio" name="coccion-elegida" value="Fritas" class="text-emerald-500">
+          <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="coccion-elegida" value="Fritas" class="text-orange-500 focus:ring-orange-500">
             <span>Fritas</span>
           </label>
         </div>
@@ -215,66 +215,66 @@
       <!-- Sabores Disponibles -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label class="block text-xs font-bold text-slate-300">Seleccionar Gustos</label>
-          <span id="sabores-count-badge" class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">0 Seleccionados</span>
+          <label class="block text-xs font-bold text-slate-700">Seleccionar Gustos</label>
+          <span id="sabores-count-badge" class="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">0 Seleccionados</span>
         </div>
-        <div id="grid-sabores-seleccion" class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 max-h-40 overflow-y-auto text-xs">
+        <div id="grid-sabores-seleccion" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-40 overflow-y-auto text-xs">
           <!-- Sabores del comercio -->
         </div>
       </div>
 
       <!-- Campo Detalles / Aclaraciones -->
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1">Aclaraciones o Cantidades Especiales</label>
-        <textarea id="sabores-detalles" placeholder="Ej: 2 de Dulce de Leche, 1 de Frutilla..." class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Aclaraciones o Cantidades Especiales</label>
+        <textarea id="sabores-detalles" placeholder="Ej: 2 de Dulce de Leche, 1 de Frutilla..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
       </div>
 
-      <button id="btn-confirmar-sabores" type="button" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3 rounded-xl text-xs shadow-md shadow-emerald-500/20 transition">
+      <button id="btn-confirmar-sabores" type="button" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-3 rounded-xl text-xs shadow-md shadow-orange-500/20 transition">
         Agregar al Carrito
       </button>
     </div>
   </div>
 
   <!-- MODAL: PANEL DE CONTROL DE USUARIO -->
-  <div id="modal-panel" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
+  <div id="modal-panel" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
-      <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
         <div>
-          <h3 class="text-lg font-black text-white">Panel de Control</h3>
-          <p class="text-xs text-slate-400">Gestión de tu cuenta y negocios.</p>
+          <h3 class="text-lg font-black text-slate-900">Panel de Control</h3>
+          <p class="text-xs text-slate-500">Gestión de tu cuenta y negocios.</p>
         </div>
-        <button onclick="cerrarModal('modal-panel')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+        <button onclick="cerrarModal('modal-panel')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center gap-3.5">
-        <img id="panel-avatar" src="" class="w-14 h-14 rounded-2xl object-cover border border-emerald-400/50 shadow-md">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center gap-3.5">
+        <img id="panel-avatar" src="" class="w-14 h-14 rounded-2xl object-cover border border-orange-400 shadow-md">
         <div class="truncate">
-          <h4 id="panel-nombre" class="font-black text-white text-sm truncate">Cargando...</h4>
-          <p id="panel-email" class="text-xs text-slate-400 truncate">...</p>
-          <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md mt-1">
-            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Usuario Autenticado
+          <h4 id="panel-nombre" class="font-black text-slate-900 text-sm truncate">Cargando...</h4>
+          <p id="panel-email" class="text-xs text-slate-500 truncate">...</p>
+          <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md mt-1">
+            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i> Usuario Autenticado
           </span>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 text-center">
-          <span id="panel-stat-comercios" class="text-2xl font-black text-emerald-400">0</span>
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Mis Comercios</p>
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
+          <span id="panel-stat-comercios" class="text-2xl font-black text-orange-600">0</span>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Mis Comercios</p>
         </div>
-        <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 text-center">
-          <span id="panel-stat-productos" class="text-2xl font-black text-teal-400">0</span>
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Productos Totales</p>
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
+          <span id="panel-stat-productos" class="text-2xl font-black text-emerald-600">0</span>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Productos Totales</p>
         </div>
       </div>
 
       <div class="space-y-3">
         <div class="flex items-center justify-between">
-          <h4 class="text-xs font-black text-white uppercase tracking-wider">Mis Comercios</h4>
-          <button onclick="cerrarModal('modal-panel'); prepararModalNuevoComercio();" class="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1">
+          <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">Mis Comercios</h4>
+          <button onclick="cerrarModal('modal-panel'); prepararModalNuevoComercio();" class="text-[11px] font-bold text-orange-600 hover:underline flex items-center gap-1">
             <i data-lucide="plus" class="w-3 h-3"></i> Crear nuevo
           </button>
         </div>
@@ -282,8 +282,8 @@
         <div id="panel-comercios-lista" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
       </div>
 
-      <div class="border-t border-slate-800 pt-4">
-        <button onclick="cerrarSesion()" type="button" class="w-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-2">
+      <div class="border-t border-slate-100 pt-4">
+        <button onclick="cerrarSesion()" type="button" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-black py-3 rounded-2xl text-xs transition flex items-center justify-center gap-2">
           <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
         </button>
       </div>
@@ -292,15 +292,15 @@
   </div>
 
   <!-- MODAL: Ver Producto Ampliado -->
-  <div id="modal-ver-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-800 relative">
-      <button onclick="cerrarModal('modal-ver-producto')" type="button" class="absolute top-3 right-3 bg-slate-950/70 hover:bg-slate-950 text-white p-2 rounded-full backdrop-blur-sm transition z-10">
+  <div id="modal-ver-producto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 relative text-slate-800">
+      <button onclick="cerrarModal('modal-ver-producto')" type="button" class="absolute top-3 right-3 bg-white/80 hover:bg-white text-slate-800 p-2 rounded-full backdrop-blur-sm transition z-10 shadow-md">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <div class="bg-slate-950 relative min-h-[260px] flex items-center justify-center">
+      <div class="bg-slate-100 relative min-h-[260px] flex items-center justify-center border-b border-slate-200">
         <img id="view-prod-img" src="" class="w-full h-72 object-cover hidden">
-        <div id="view-prod-no-img" class="text-slate-600 flex flex-col items-center gap-2">
+        <div id="view-prod-no-img" class="text-slate-400 flex flex-col items-center gap-2">
           <i data-lucide="image-off" class="w-10 h-10"></i>
           <span class="text-xs font-bold">Sin imagen para mostrar</span>
         </div>
@@ -308,13 +308,13 @@
 
       <div class="p-6 space-y-4">
         <div>
-          <h3 id="view-prod-titulo" class="text-xl font-black text-white leading-snug"></h3>
-          <p id="view-prod-precio" class="text-2xl font-black text-emerald-400 mt-1"></p>
+          <h3 id="view-prod-titulo" class="text-xl font-black text-slate-900 leading-snug"></h3>
+          <p id="view-prod-precio" class="text-2xl font-black text-orange-600 mt-1"></p>
         </div>
 
-        <p id="view-prod-descripcion" class="text-xs text-slate-400 leading-relaxed max-h-32 overflow-y-auto"></p>
+        <p id="view-prod-descripcion" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto"></p>
 
-        <button id="view-prod-btn-agregar" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+        <button id="view-prod-btn-agregar" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
       </div>
@@ -322,14 +322,14 @@
   </div>
 
   <!-- MODAL: Carrito con Opciones Modificadas -->
-  <div id="modal-carrito" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+  <div id="modal-carrito" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
         <div>
-          <h3 class="text-lg font-black text-white">Tu Carrito</h3>
-          <p class="text-xs text-slate-400 font-medium" id="cart-comercio-nombre">Resumen del pedido</p>
+          <h3 class="text-lg font-black text-slate-900">Tu Carrito</h3>
+          <p class="text-xs text-slate-500 font-medium" id="cart-comercio-nombre">Resumen del pedido</p>
         </div>
-        <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+        <button onclick="cerrarModal('modal-carrito')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -337,41 +337,37 @@
       <div id="carrito-items" class="space-y-3 max-h-52 overflow-y-auto pr-1"></div>
 
       <!-- Opciones Dinámicas de Pago y Entrega -->
-      <div id="carrito-opciones-extra" class="space-y-3 pt-2 border-t border-slate-800 hidden">
-        <!-- Método de Pago habilitado por el local -->
+      <div id="carrito-opciones-extra" class="space-y-3 pt-2 border-t border-slate-100 hidden">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">¿Cómo querías abonar?</label>
-          <select id="cart-medio-pago" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
-            <!-- Se completa dinámicamente según lo habilitado por el comercio -->
+          <label class="block text-xs font-bold text-slate-700 mb-1">¿Cómo querías abonar?</label>
+          <select id="cart-medio-pago" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40">
           </select>
         </div>
 
-        <!-- Tipo de entrega (Solo si el local ofrece envíos) -->
         <div id="box-cart-tipo-entrega" class="hidden">
-          <label class="block text-xs font-bold text-slate-300 mb-1">Forma de Entrega</label>
-          <select id="cart-tipo-entrega" onchange="toggleDireccionCarrito()" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Forma de Entrega</label>
+          <select id="cart-tipo-entrega" onchange="toggleDireccionCarrito()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40">
             <option value="retiro">Pasar a retirar por el local</option>
             <option value="envio">Envío a domicilio</option>
           </select>
         </div>
 
-        <!-- Dirección de entrega -->
         <div id="box-cart-direccion" class="hidden">
-          <label class="block text-xs font-bold text-slate-300 mb-1">Dirección de Entrega</label>
-          <input type="text" id="cart-input-direccion" placeholder="Ej: Calle 60 N° 2840, Depto 2" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Dirección de Entrega</label>
+          <input type="text" id="cart-input-direccion" placeholder="Ej: Calle 60 N° 2840, Depto 2" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40">
         </div>
       </div>
 
-      <div class="border-t border-slate-800 pt-3 space-y-3">
-        <div class="flex justify-between items-baseline text-sm font-black text-white">
+      <div class="border-t border-slate-100 pt-3 space-y-3">
+        <div class="flex justify-between items-baseline text-sm font-black text-slate-900">
           <span>Total estimado:</span>
           <div class="text-right">
-            <span id="cart-total-precio" class="text-emerald-400 text-xl font-black">$0</span>
-            <p id="cart-leyenda-envio" class="text-[10px] text-slate-400 font-normal hidden">+ envío (el local te confirma el total final)</p>
+            <span id="cart-total-precio" class="text-orange-600 text-xl font-black">$0</span>
+            <p id="cart-leyenda-envio" class="text-[10px] text-slate-500 font-normal hidden">+ envío (el local te confirma el total final)</p>
           </div>
         </div>
 
-        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2">
           <i data-lucide="send" class="w-4 h-4"></i> Enviar Pedido por WhatsApp
         </button>
       </div>
@@ -379,15 +375,15 @@
   </div>
 
   <!-- MODAL: Registrar / Editar Comercio -->
-  <div id="modal-registro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
+  <div id="modal-registro" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-black text-white" id="modal-comercio-head-title">Registrar mi Comercio</h3>
-          <p class="text-xs text-slate-400" id="modal-comercio-head-sub">Sumá tu negocio gratis a NecoVende.</p>
+          <h3 class="text-lg font-black text-slate-900" id="modal-comercio-head-title">Registrar mi Comercio</h3>
+          <p class="text-xs text-slate-500" id="modal-comercio-head-sub">Sumá tu negocio gratis a NecoVende.</p>
         </div>
-        <button onclick="cerrarModal('modal-registro')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+        <button onclick="cerrarModal('modal-registro')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -397,42 +393,42 @@
         <input type="hidden" id="comercio-logo-existente">
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Local / Emprendimiento</label>
-          <input type="text" id="nombre" placeholder="Ej: Heladería Saturno" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Local / Emprendimiento</label>
+          <input type="text" id="nombre" placeholder="Ej: Heladería Saturno" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">WhatsApp para recibir pedidos</label>
-          <input type="text" id="telefono" placeholder="Ej: 5492262123456" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-700 mb-1">WhatsApp para recibir pedidos</label>
+          <input type="text" id="telefono" placeholder="Ej: 5492262123456" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Dirección / Zona</label>
-          <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Dirección / Zona</label>
+          <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
         
         <!-- Categorías -->
         <div>
           <div class="flex justify-between items-center mb-1.5">
-            <label class="block text-xs font-bold text-slate-300">Categorías (Elegí hasta 3)</label>
-            <span id="cat-count-badge" class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">0 / 3</span>
+            <label class="block text-xs font-bold text-slate-700">Categorías (Elegí hasta 3)</label>
+            <span id="cat-count-badge" class="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">0 / 3</span>
           </div>
-          <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 max-h-36 overflow-y-auto">
+          <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto">
             <!-- Renderizado dinámico -->
           </div>
         </div>
 
         <!-- Sección Específica: Sabores/Gustos -->
-        <div id="seccion-sabores-config" class="hidden space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
-          <label class="block text-xs font-bold text-emerald-400 mb-1">Sabores / Gustos Disponibles</label>
-          <textarea id="sabores-input" placeholder="Ingresá los sabores separados por coma. Ej: Dulce de Leche, Tramontana, Chocolatada, Muzzarella, Carne..." class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition" rows="3"></textarea>
+        <div id="seccion-sabores-config" class="hidden space-y-1 bg-orange-50/50 p-3 rounded-xl border border-orange-100">
+          <label class="block text-xs font-bold text-orange-600 mb-1">Sabores / Gustos Disponibles</label>
+          <textarea id="sabores-input" placeholder="Ingresá los sabores separados por coma. Ej: Dulce de Leche, Tramontana, Chocolatada, Muzzarella, Carne..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition" rows="3"></textarea>
           <p class="text-[10px] text-slate-500">Separá cada gusto con una coma (,).</p>
         </div>
 
         <!-- Opción Cocción Empanadas -->
-        <div id="seccion-coccion-config" class="hidden space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
-          <label class="block text-xs font-bold text-emerald-400 mb-1">Tipo de Cocción de Empanadas</label>
-          <select id="tipo-coccion-select" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200">
+        <div id="seccion-coccion-config" class="hidden space-y-1 bg-orange-50/50 p-3 rounded-xl border border-orange-100">
+          <label class="block text-xs font-bold text-orange-600 mb-1">Tipo de Cocción de Empanadas</label>
+          <select id="tipo-coccion-select" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
             <option value="ambas">Ofrecemos Al Horno y Fritas</option>
             <option value="horno">Solo Al Horno</option>
             <option value="fritas">Solo Fritas</option>
@@ -441,68 +437,68 @@
 
         <!-- Checkbox Envíos -->
         <div class="flex items-center gap-2.5 py-1">
-          <input type="checkbox" id="envios" checked onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded text-emerald-500 border-slate-700 bg-slate-950 cursor-pointer">
-          <label for="envios" class="text-xs text-slate-300 font-semibold cursor-pointer">Ofrecemos envíos a domicilio</label>
+          <input type="checkbox" id="envios" checked onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
+          <label for="envios" class="text-xs text-slate-700 font-semibold cursor-pointer">Ofrecemos envíos a domicilio</label>
         </div>
 
         <!-- Costo de Envío (Dinámico) -->
         <div id="contenedor-costo-envio">
-          <label class="block text-xs font-bold text-slate-300 mb-1">Costo de Envío</label>
-          <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Costo de Envío</label>
+          <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <!-- Horarios -->
         <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-300">Horario Principal / Turno 1</label>
+          <label class="block text-xs font-bold text-slate-700">Horario Principal / Turno 1</label>
           <div class="grid grid-cols-2 gap-2.5">
-            <input type="text" id="hora-apertura" placeholder="Ej: 09:00" value="09:00" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-            <input type="text" id="hora-cierre" placeholder="Ej: 13:00" value="13:00" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+            <input type="text" id="hora-apertura" placeholder="Ej: 09:00" value="09:00" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+            <input type="text" id="hora-cierre" placeholder="Ej: 13:00" value="13:00" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
           </div>
         </div>
 
         <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-300">Turno 2 (Opcional - Horario Cortado)</label>
+          <label class="block text-xs font-bold text-slate-700">Turno 2 (Opcional - Horario Cortado)</label>
           <div class="grid grid-cols-2 gap-2.5">
-            <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
-            <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+            <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+            <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
           </div>
         </div>
 
         <!-- Medios de Pago -->
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Medios de Pago Aceptados</label>
-          <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Medios de Pago Aceptados</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-efectivo" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Efectivo
+              <input type="checkbox" id="pago-efectivo" checked class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"> Efectivo
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-transferencia" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Transferencia
+              <input type="checkbox" id="pago-transferencia" checked class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"> Transferencia
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-qr" class="rounded border-slate-700 bg-slate-900 text-emerald-500"> MercadoPago / QR
+              <input type="checkbox" id="pago-qr" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"> MercadoPago / QR
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="pago-cuenta-dni" class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Cuenta DNI
+              <input type="checkbox" id="pago-cuenta-dni" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"> Cuenta DNI
             </label>
             <label class="flex items-center gap-2 cursor-pointer col-span-2">
-              <input type="checkbox" id="pago-tarjeta" class="rounded border-slate-700 bg-slate-900 text-emerald-500"> Tarjeta Débito / Crédito
+              <input type="checkbox" id="pago-tarjeta" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"> Tarjeta Débito / Crédito
             </label>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Logo / Foto de Perfil (Máx. 2MB)</label>
-          <input type="file" id="logo-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Logo / Foto de Perfil (Máx. 2MB)</label>
+          <input type="file" id="logo-input" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100 cursor-pointer">
           <p class="text-[10px] text-slate-500 mt-1" id="help-logo-edit"></p>
         </div>
 
         <div class="flex gap-2.5 pt-3">
-          <button onclick="cerrarModal('modal-registro')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
-          <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-black text-xs shadow-md shadow-emerald-500/20 transition">Guardar Local</button>
+          <button onclick="cerrarModal('modal-registro')" type="button" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
+          <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-black text-xs shadow-md shadow-orange-500/20 transition">Guardar Local</button>
         </div>
 
-        <div id="contenedor-btn-eliminar-comercio" class="hidden pt-2 border-t border-slate-800/80">
-          <button type="button" onclick="eliminarComercioActual()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5">
+        <div id="contenedor-btn-eliminar-comercio" class="hidden pt-2 border-t border-slate-100">
+          <button type="button" onclick="eliminarComercioActual()" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5">
             <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar Comercio
           </button>
         </div>
@@ -511,15 +507,15 @@
   </div>
 
   <!-- MODAL: Cargar / Editar Producto -->
-  <div id="modal-producto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto">
+  <div id="modal-producto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-black text-white" id="modal-producto-titulo-head">Agregar Producto</h3>
-          <p class="text-xs text-slate-400" id="subtitulo-comercio-prod">Sumá un ítem a tu catálogo.</p>
+          <h3 class="text-lg font-black text-slate-900" id="modal-producto-titulo-head">Agregar Producto</h3>
+          <p class="text-xs text-slate-500" id="subtitulo-comercio-prod">Sumá un ítem a tu catálogo.</p>
         </div>
-        <button onclick="cerrarModal('modal-producto')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+        <button onclick="cerrarModal('modal-producto')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-700 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -530,36 +526,35 @@
         <input type="hidden" id="prod-imagen-existente">
         
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: 1 Kilo de Helado o Docena de Empanadas" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Producto</label>
+          <input type="text" id="prod-titulo" placeholder="Ej: 1 Kilo de Helado o Docena de Empanadas" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Precio ($)</label>
-          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Precio ($)</label>
+          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
-        <!-- Campo Configuración Cantidad de Sabores -->
-        <div id="box-prod-max-sabores" class="hidden">
-          <label class="block text-xs font-bold text-emerald-400 mb-1">Cantidad máxima de sabores/gustos a elegir</label>
-          <input type="number" min="1" max="50" id="prod-max-sabores" placeholder="Ej: 4 (para 1 kg) o 12 (para 1 docena)" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition">
+        <div id="box-prod-max-sabores" class="hidden bg-orange-50/50 p-3 rounded-xl border border-orange-100">
+          <label class="block text-xs font-bold text-orange-600 mb-1">Cantidad máxima de sabores/gustos a elegir</label>
+          <input type="number" min="1" max="50" id="prod-max-sabores" placeholder="Ej: 4 (para 1 kg) o 12 (para 1 docena)" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition">
           <p class="text-[10px] text-slate-500 mt-1">Límite máximo de gustos que el cliente podrá elegir en este producto.</p>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Elegí hasta 4 gustos. Incluye cucuruchos." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition" rows="2"></textarea>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Descripción corta</label>
+          <textarea id="prod-descripcion" placeholder="Ej: Elegí hasta 4 gustos. Incluye cucuruchos." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Foto del Producto (Máx. 2MB)</label>
-          <input type="file" id="prod-imagen" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Foto del Producto (Máx. 2MB)</label>
+          <input type="file" id="prod-imagen" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100 cursor-pointer">
           <p class="text-[10px] text-slate-500 mt-1" id="help-imagen-edit"></p>
         </div>
 
         <div class="flex gap-2.5 pt-3">
-          <button onclick="cerrarModal('modal-producto')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
-          <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-black text-xs shadow-md shadow-emerald-500/20 transition">Publicar Producto</button>
+          <button onclick="cerrarModal('modal-producto')" type="button" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold text-xs transition">Cancelar</button>
+          <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-black text-xs shadow-md shadow-orange-500/20 transition">Publicar Producto</button>
         </div>
       </form>
     </div>
@@ -582,7 +577,7 @@
     let comerciosGlobales = [];
     let categoriaSeleccionada = 'Todas';
     let comercioActivo = null;
-    let comercioCarrito = null; // Guarda el comercio al que pertenece el carrito actual
+    let comercioCarrito = null;
     let carrito = [];
     let usuarioActual = null;
     let productoPendienteSabores = null;
@@ -644,10 +639,26 @@
       return estaEnRango(c.hora_apertura, c.hora_cierre) || estaEnRango(c.hora_apertura_2, c.hora_cierre_2);
     }
 
+    function formatearHoraCorta(horaStr) {
+      if (!horaStr) return '';
+      const partes = horaStr.trim().split(':');
+      if (partes.length >= 2) {
+        return `${partes[0].padStart(2, '0')}:${partes[1].padStart(2, '0')}`;
+      }
+      return horaStr;
+    }
+
     function formatearHorarios(c) {
-      let texto = `${c.hora_apertura || '09:00'} a ${c.hora_cierre || '13:00'} hs`;
+      const h1Ap = formatearHoraCorta(c.hora_apertura) || '09:00';
+      const h1Ci = formatearHoraCorta(c.hora_cierre) || '13:00';
+      let texto = `${h1Ap} a ${h1Ci} hs`;
+
       if (c.hora_apertura_2 && c.hora_cierre_2) {
-        texto += ` y ${c.hora_apertura_2} a ${c.hora_cierre_2} hs`;
+        const h2Ap = formatearHoraCorta(c.hora_apertura_2);
+        const h2Ci = formatearHoraCorta(c.hora_cierre_2);
+        if (h2Ap && h2Ci) {
+          texto += ` y ${h2Ap} a ${h2Ci} hs`;
+        }
       }
       return texto;
     }
@@ -712,18 +723,18 @@
         misComercios.forEach(c => {
           const cats = c.categorias && c.categorias.length > 0 ? c.categorias.join(', ') : (c.categoria || 'Sin categoría');
           lista.innerHTML += `
-            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.slug || c.id}');">
                 ${c.logo_url 
                   ? `<img src="${c.logo_url}" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">` 
-                  : `<div class="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center font-bold text-emerald-400 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
+                  : `<div class="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center font-bold text-orange-600 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
                 <div class="min-w-0">
-                  <p class="font-bold text-xs text-white truncate">${c.nombre}</p>
-                  <p class="text-[10px] text-slate-400 truncate">${cats}</p>
+                  <p class="font-bold text-xs text-slate-800 truncate">${c.nombre}</p>
+                  <p class="text-[10px] text-slate-500 truncate">${cats}</p>
                 </div>
               </div>
-              <button onclick="cerrarModal('modal-panel'); prepararModalEditarComercio('${c.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition flex-shrink-0" title="Editar datos">
-                <i data-lucide="edit-3" class="w-4 h-4 text-emerald-400"></i>
+              <button onclick="cerrarModal('modal-panel'); prepararModalEditarComercio('${c.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition flex-shrink-0" title="Editar datos">
+                <i data-lucide="edit-3" class="w-4 h-4 text-orange-500"></i>
               </button>
             </div>
           `;
@@ -781,49 +792,49 @@
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3.5">
             ${comercioActivo.logo_url 
-              ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-700 shadow-md">`
-              : `<div class="w-16 h-16 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center font-black text-2xl text-emerald-400">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+              ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-sm">`
+              : `<div class="w-16 h-16 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center font-black text-2xl text-orange-500">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
             }
             <div>
               <div class="flex items-center gap-2">
-                <h2 class="text-xl font-black text-white leading-tight">${comercioActivo.nombre}</h2>
-                <span class="text-[10px] font-black px-2 py-0.5 rounded-full border ${abierto ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30'}">
+                <h2 class="text-xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full border ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200'}">
                   ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
                 </span>
               </div>
               <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">${cat}</span>`).join('')}
-                ${comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md">Envíos Disponibles</span>' : ''}
+                ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
+                ${comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md">Envíos Disponibles</span>' : ''}
               </div>
-              <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
+              <p class="text-xs text-slate-500 mt-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
             </div>
           </div>
           ${esDuenio ? `
-            <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 p-2 rounded-xl transition flex items-center gap-1 text-xs font-bold flex-shrink-0">
-              <i data-lucide="edit-3" class="w-4 h-4 text-emerald-400"></i> <span class="hidden sm:inline">Editar Local</span>
+            <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 p-2 rounded-xl transition flex items-center gap-1 text-xs font-bold flex-shrink-0">
+              <i data-lucide="edit-3" class="w-4 h-4 text-orange-500"></i> <span class="hidden sm:inline">Editar Local</span>
             </button>
           ` : ''}
         </div>
 
-        <div class="pt-3 border-t border-slate-800/80 space-y-2 text-xs text-slate-300">
+        <div class="pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-400 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i> Horario:</span>
+            <span class="font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Horario:</span>
             <span>${formatearHorarios(comercioActivo)}</span>
           </div>
 
           ${comercioActivo.hace_envios ? `
             <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-400 flex items-center gap-1.5"><i data-lucide="truck" class="w-3.5 h-3.5 text-emerald-400"></i> Costo Envío:</span>
+              <span class="font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="truck" class="w-3.5 h-3.5 text-orange-500"></i> Costo Envío:</span>
               <span>${comercioActivo.costo_envio || 'A convenir'}</span>
             </div>
           ` : ''}
 
           <div class="pt-1">
-            <span class="font-bold text-slate-400 flex items-center gap-1.5 mb-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-emerald-400"></i> Medios de pago:</span>
+            <span class="font-bold text-slate-500 flex items-center gap-1.5 mb-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-orange-500"></i> Medios de pago:</span>
             <div class="flex flex-wrap gap-1">
               ${pagos.length > 0 
-                ? pagos.map(p => `<span class="bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">${p}</span>`).join('')
-                : '<span class="text-slate-500">Efectivo</span>'
+                ? pagos.map(p => `<span class="bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded-md">${p}</span>`).join('')
+                : '<span class="text-slate-400">Efectivo</span>'
               }
             </div>
           </div>
@@ -853,8 +864,8 @@
 
       if (productos.length === 0) {
         container.innerHTML = `
-          <div class="p-8 card-gradient rounded-3xl border border-slate-800 text-center text-slate-500 space-y-2">
-            <i data-lucide="package-open" class="w-8 h-8 mx-auto text-slate-600"></i>
+          <div class="p-8 card-gradient rounded-3xl border border-slate-200 text-center text-slate-400 space-y-2 shadow-sm">
+            <i data-lucide="package-open" class="w-8 h-8 mx-auto text-slate-300"></i>
             <p class="text-xs font-semibold">Este local aún no ha publicado productos.</p>
           </div>
         `;
@@ -869,31 +880,31 @@
         const pMaxSabores = p.max_sabores || '';
 
         container.innerHTML += `
-          <div class="card-gradient rounded-2xl p-3.5 border border-slate-800/90 shadow-lg flex items-center justify-between gap-3 relative group hover:border-slate-700 transition">
+          <div class="card-gradient rounded-2xl p-3.5 border border-slate-200 shadow-sm flex items-center justify-between gap-3 relative group hover:border-slate-300 transition">
             <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')">
               ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-800 flex-shrink-0 group-hover:scale-105 transition">` 
-                : `<div class="w-16 h-16 bg-slate-950 rounded-xl flex items-center justify-center text-slate-600 flex-shrink-0 border border-slate-800"><i data-lucide="package" class="w-6 h-6"></i></div>`}
+                ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0 group-hover:scale-105 transition">` 
+                : `<div class="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="truncate">
-                <h4 class="font-bold text-sm text-white truncate group-hover:text-emerald-400 transition">${p.titulo}</h4>
-                <p class="text-xs text-slate-400 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
-                <p class="text-base font-black text-emerald-400 mt-1">$${p.precio}</p>
+                <h4 class="font-bold text-sm text-slate-900 truncate group-hover:text-orange-600 transition">${p.titulo}</h4>
+                <p class="text-xs text-slate-500 truncate">${p.descripcion || 'Tocar foto para ver más detalles'}</p>
+                <p class="text-base font-black text-orange-600 mt-1">$${p.precio}</p>
               </div>
             </div>
 
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               ${esDuenio ? `
                 <div class="flex items-center gap-1">
-                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition">
+                  <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                   </button>
                 </div>
               ` : ''}
 
-              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio}, ${pMaxSabores || 'null'})" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-emerald-500/20 transition flex items-center gap-1 active:scale-95">
+              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio}, ${pMaxSabores || 'null'})" class="bg-orange-500 hover:bg-orange-600 text-white font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1 active:scale-95">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
               </button>
             </div>
@@ -941,8 +952,8 @@
         grid.innerHTML = '';
         comercioActivo.sabores.forEach(sabor => {
           grid.innerHTML += `
-            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-              <input type="checkbox" name="sabor-item" value="${sabor.trim()}" onchange="validarLimiteSabores(this, ${maxSabores})" class="rounded border-slate-700 bg-slate-900 text-emerald-500">
+            <label class="flex items-center gap-2 cursor-pointer text-slate-700">
+              <input type="checkbox" name="sabor-item" value="${sabor.trim()}" onchange="validarLimiteSabores(this, ${maxSabores})" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500">
               <span class="truncate">${sabor.trim()}</span>
             </label>
           `;
@@ -1026,11 +1037,9 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // --- RESTRICCIÓN DE UN SOLO COMERCIO EN EL CARRITO ---
     function agregarAlCarrito(id, titulo, precio) {
       if (!comercioActivo) return;
 
-      // Verificar si ya hay ítems de otro comercio en el carrito
       if (comercioCarrito && comercioCarrito.id !== comercioActivo.id && carrito.length > 0) {
         const confirmar = confirm(`Tu carrito actual contiene productos de "${comercioCarrito.nombre}". Solo podés hacer pedidos a un local a la vez. ¿Querés vaciar el carrito e iniciar un nuevo pedido en "${comercioActivo.nombre}"?`);
         if (confirmar) {
@@ -1117,7 +1126,6 @@
       opcionesExtra.classList.remove('hidden');
       document.getElementById('cart-comercio-nombre').innerText = `Pedido para: ${comercioCarrito.nombre}`;
 
-      // Configurar Opciones de Pago del Comercio
       selectPago.innerHTML = '';
       if (comercioCarrito.pagos_efectivo) selectPago.innerHTML += `<option value="Efectivo">Efectivo</option>`;
       if (comercioCarrito.pagos_transferencia) selectPago.innerHTML += `<option value="Transferencia">Transferencia</option>`;
@@ -1128,7 +1136,6 @@
         selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
       }
 
-      // Configurar Envíos
       if (comercioCarrito.hace_envios) {
         boxEntrega.classList.remove('hidden');
       } else {
@@ -1140,15 +1147,15 @@
 
       carrito.forEach(item => {
         itemsContainer.innerHTML += `
-          <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
             <div class="pr-2 min-w-0 flex-1">
-              <p class="font-bold text-xs text-white leading-tight">${item.titulo}</p>
-              <p class="text-[11px] text-emerald-400 font-extrabold mt-0.5">$${item.precio * item.cantidad}</p>
+              <p class="font-bold text-xs text-slate-800 leading-tight">${item.titulo}</p>
+              <p class="text-[11px] text-orange-600 font-extrabold mt-0.5">$${item.precio * item.cantidad}</p>
             </div>
-            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 flex-shrink-0">
-              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-400 hover:text-white font-black text-xs">-</button>
-              <span class="text-xs font-bold text-white px-1">${item.cantidad}</span>
-              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-400 hover:text-white font-black text-xs">+</button>
+            <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1 flex-shrink-0 shadow-sm">
+              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-500 hover:text-slate-900 font-black text-xs">-</button>
+              <span class="text-xs font-bold text-slate-800 px-1">${item.cantidad}</span>
+              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-500 hover:text-slate-900 font-black text-xs">+</button>
             </div>
           </div>
         `;
@@ -1248,14 +1255,14 @@
     function renderizarBarraCategorias() {
       const bar = document.getElementById('bar-categorias-filtros');
       bar.innerHTML = `
-        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5">
+        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-orange-500 text-white font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1.5">
           <i data-lucide="grid" class="w-3.5 h-3.5"></i> Todas
         </button>
       `;
 
       CATEGORIAS_DISPONIBLES.forEach(cat => {
         bar.innerHTML += `
-          <button onclick="seleccionarCategoria('${cat}', this)" class="btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700">
+          <button onclick="seleccionarCategoria('${cat}', this)" class="btn-cat bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-300 shadow-sm">
             ${cat}
           </button>
         `;
@@ -1273,11 +1280,11 @@
 
       if (lista.length === 0) {
         container.innerHTML = `
-          <div class="p-8 card-gradient rounded-3xl border border-slate-800 text-center space-y-3">
-            <div class="w-10 h-10 bg-slate-900 text-slate-500 rounded-full flex items-center justify-center mx-auto border border-slate-800">
+          <div class="p-8 card-gradient rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
+            <div class="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto border border-slate-200">
               <i data-lucide="store-off" class="w-5 h-5"></i>
             </div>
-            <p class="text-xs font-semibold text-slate-400">No hay comercios registrados en esta categoría.</p>
+            <p class="text-xs font-semibold text-slate-500">No hay comercios registrados en esta categoría.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -1294,39 +1301,39 @@
           : [c.categoria || 'General'];
 
         container.innerHTML += `
-          <div onclick="abrirVistaComercio('${identificador}')" class="card-gradient rounded-3xl p-4 shadow-lg hover:shadow-2xl border border-slate-800/90 transition hover:border-slate-700 space-y-3 cursor-pointer group">
+          <div onclick="abrirVistaComercio('${identificador}')" class="card-gradient rounded-3xl p-4 shadow-sm hover:shadow-md border border-slate-200 transition hover:border-slate-300 space-y-3 cursor-pointer group">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-3.5 min-w-0 flex-1">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-20 h-20 rounded-2xl object-cover border border-slate-800 shadow-md flex-shrink-0">`
-                  : `<div class="w-20 h-20 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center text-emerald-400 font-black text-2xl group-hover:border-emerald-500/40 transition flex-shrink-0">
+                  ? `<img src="${c.logo_url}" class="w-20 h-20 rounded-2xl object-cover border border-slate-100 shadow-sm flex-shrink-0">`
+                  : `<div class="w-20 h-20 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center text-orange-500 font-black text-2xl group-hover:border-orange-300 transition flex-shrink-0">
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
-                    <h4 class="font-black text-white text-base tracking-tight leading-snug group-hover:text-emerald-400 transition truncate">${c.nombre}</h4>
-                    <span class="text-[9px] font-black px-1.5 py-0.2 rounded-full border ${abierto ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30'} flex-shrink-0">
+                    <h4 class="font-black text-slate-900 text-base tracking-tight leading-snug group-hover:text-orange-600 transition truncate">${c.nombre}</h4>
+                    <span class="text-[9px] font-black px-1.5 py-0.2 rounded-full border ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200'} flex-shrink-0">
                       ${abierto ? 'ABIERTO' : 'CERRADO'}
                     </span>
                   </div>
                   <div class="flex items-center gap-1 mt-1 flex-wrap">
-                    ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60">${cat}</span>`).join('')}
-                    ${c.hace_envios ? '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
+                    ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
+                    ${c.hace_envios ? '<span class="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
                   </div>
                 </div>
               </div>
 
-              <span class="text-xs font-black text-slate-300 bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 px-3 py-2 rounded-xl transition flex items-center gap-1 border border-slate-700 group-hover:border-emerald-500 shadow-sm flex-shrink-0">
+              <span class="text-xs font-black text-slate-700 bg-slate-100 group-hover:bg-orange-500 group-hover:text-white px-3 py-2 rounded-xl transition flex items-center gap-1 border border-slate-200 group-hover:border-orange-500 shadow-sm flex-shrink-0">
                 Ver <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
               </span>
             </div>
 
-            <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span class="flex items-center gap-1 truncate">
-                <i data-lucide="map-pin" class="w-3 h-3 text-slate-500 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea / Quequén'}</span>
+                <i data-lucide="map-pin" class="w-3 h-3 text-slate-400 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea / Quequén'}</span>
               </span>
-              <span class="font-bold text-emerald-400/90 flex-shrink-0">${cantidadProds} productos</span>
+              <span class="font-bold text-orange-600 flex-shrink-0">${cantidadProds} productos</span>
             </div>
           </div>
         `;
@@ -1340,9 +1347,9 @@
       document.getElementById('categoria-activa').innerText = cat;
 
       document.querySelectorAll('.btn-cat').forEach(b => {
-        b.className = 'btn-cat bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-700';
+        b.className = 'btn-cat bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 hover:border-slate-300 shadow-sm';
       });
-      elemento.className = 'btn-cat bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5';
+      elemento.className = 'btn-cat bg-orange-500 text-white font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1.5';
 
       aplicarFiltros();
     }
@@ -1380,8 +1387,8 @@
       CATEGORIAS_DISPONIBLES.forEach((cat) => {
         const isChecked = categoriasSeleccionadas.includes(cat);
         grid.innerHTML += `
-          <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-300">
-            <input type="checkbox" name="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="validarLimiteCategorias(this)" class="rounded border-slate-700 bg-slate-900 text-emerald-500">
+          <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-700">
+            <input type="checkbox" name="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="validarLimiteCategorias(this)" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500">
             <span class="truncate">${cat}</span>
           </label>
         `;
@@ -1472,10 +1479,10 @@
       document.getElementById('envios').checked = Boolean(c.hace_envios);
       toggleCampoCostoEnvio();
 
-      document.getElementById('hora-apertura').value = c.hora_apertura || "09:00";
-      document.getElementById('hora-cierre').value = c.hora_cierre || "13:00";
-      document.getElementById('hora-apertura-2').value = c.hora_apertura_2 || "";
-      document.getElementById('hora-cierre-2').value = c.hora_cierre_2 || "";
+      document.getElementById('hora-apertura').value = formatearHoraCorta(c.hora_apertura) || "09:00";
+      document.getElementById('hora-cierre').value = formatearHoraCorta(c.hora_cierre) || "13:00";
+      document.getElementById('hora-apertura-2').value = formatearHoraCorta(c.hora_apertura_2) || "";
+      document.getElementById('hora-cierre-2').value = formatearHoraCorta(c.hora_cierre_2) || "";
       document.getElementById('costo-envio').value = c.costo_envio || "";
 
       document.getElementById('sabores-input').value = c.sabores ? c.sabores.join(', ') : '';
@@ -1588,6 +1595,12 @@
       }
     }
 
+    // Auxiliar para obtener valor de hora o devolver null si está vacío (solución al bug TIME)
+    function obtenerHoraValida(idInput) {
+      const valor = document.getElementById(idInput).value.trim();
+      return valor !== '' ? valor : null;
+    }
+
     // --- SUBMIT COMERCIO ---
     document.getElementById('form-comercio').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1625,10 +1638,10 @@
         categoria: categorias[0],
         hace_envios: document.getElementById('envios').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
-        hora_apertura: document.getElementById('hora-apertura').value.trim(),
-        hora_cierre: document.getElementById('hora-cierre').value.trim(),
-        hora_apertura_2: document.getElementById('hora-apertura-2').value.trim(),
-        hora_cierre_2: document.getElementById('hora-cierre-2').value.trim(),
+        hora_apertura: obtenerHoraValida('hora-apertura'),
+        hora_cierre: obtenerHoraValida('hora-cierre'),
+        hora_apertura_2: obtenerHoraValida('hora-apertura-2'),
+        hora_cierre_2: obtenerHoraValida('hora-cierre-2'),
         pagos_efectivo: document.getElementById('pago-efectivo').checked,
         pagos_transferencia: document.getElementById('pago-transferencia').checked,
         pagos_qr: document.getElementById('pago-qr').checked,
@@ -1693,7 +1706,10 @@
         const res = await _supabase.from('productos').update(payload).eq('id', prodId);
         error = res.error;
       } else {
-        const res = await _supabase.from('productos').insert([payload]);
+        const res = await _supabase.from('productos').insert([{
+          ...payload,
+          user_id: usuarioActual.id
+        }]);
         error = res.error;
       }
 
