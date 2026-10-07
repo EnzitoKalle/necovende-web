@@ -39,7 +39,6 @@
       scrollbar-width: none;
     }
 
-    /* Animación de rebote para el carrito */
     @keyframes cartBump {
       0% { transform: scale(1); }
       50% { transform: scale(1.08); }
@@ -49,7 +48,6 @@
       animation: cartBump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Estilo Bottom Sheet para Modales en Móviles */
     @media (max-width: 640px) {
       .modal-bottom-sheet {
         align-items: flex-end !important;
@@ -216,7 +214,6 @@
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
-      <!-- Tirador visual para móviles -->
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
 
       <div class="flex justify-between items-start border-b border-slate-100 pb-3">
@@ -229,7 +226,7 @@
         </button>
       </div>
 
-      <!-- Selector Tipo Cocción (Solo Empanadas) -->
+      <!-- Selector Tipo Cocción (Solo si el producto lo requiere) -->
       <div id="box-opcion-coccion" class="hidden space-y-1.5">
         <label class="block text-xs font-bold text-slate-700">Tipo de Cocción</label>
         <div class="grid grid-cols-2 gap-2 text-xs">
@@ -252,14 +249,14 @@
         </div>
         
         <div id="grid-sabores-seleccion" class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 max-h-52 overflow-y-auto text-xs">
-          <!-- Renderizado dinámico de contadores o checkboxes -->
+          <!-- Renderizado dinámico -->
         </div>
       </div>
 
       <!-- Campo Detalles / Aclaraciones -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Aclaraciones o Nota Especial</label>
-        <textarea id="sabores-detalles" placeholder="Ej: Masa fina, sin aceitunas..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
+        <textarea id="sabores-detalles" placeholder="Ej: Masa fina, bien doradas..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
       </div>
 
       <button id="btn-confirmar-sabores" type="button" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-3 rounded-xl text-xs shadow-md shadow-orange-500/20 transition active:scale-95">
@@ -271,9 +268,7 @@
   <!-- MODAL: PANEL DE CONTROL DE USUARIO -->
   <div id="modal-panel" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
-      
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
-
       <div class="flex justify-between items-start border-b border-slate-100 pb-3">
         <div>
           <h3 class="text-lg font-black text-slate-900">Panel de Control</h3>
@@ -356,12 +351,10 @@
     </div>
   </div>
 
-  <!-- MODAL: Carrito con Opciones Modificadas -->
+  <!-- MODAL: Carrito -->
   <div id="modal-carrito" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
-      
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
-
       <div class="flex justify-between items-start border-b border-slate-100 pb-3">
         <div>
           <h3 class="text-lg font-black text-slate-900">Tu Carrito</h3>
@@ -374,7 +367,6 @@
 
       <div id="carrito-items" class="space-y-3 max-h-52 overflow-y-auto pr-1"></div>
 
-      <!-- Opciones Dinámicas de Pago y Entrega -->
       <div id="carrito-opciones-extra" class="space-y-3 pt-2 border-t border-slate-100 hidden">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">¿Cómo querías abonar?</label>
@@ -415,7 +407,6 @@
   <!-- MODAL: Registrar / Editar Comercio -->
   <div id="modal-registro" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
-      
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
 
       <div class="flex justify-between items-start">
@@ -447,25 +438,21 @@
           <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
         
-        <!-- Categorías -->
         <div>
           <div class="flex justify-between items-center mb-1.5">
             <label class="block text-xs font-bold text-slate-700">Categorías (Elegí hasta 3)</label>
             <span id="cat-count-badge" class="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">0 / 3</span>
           </div>
           <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto">
-            <!-- Renderizado dinámico -->
           </div>
         </div>
 
-        <!-- Sección Específica: Sabores/Gustos Generales del Local -->
         <div id="seccion-sabores-config" class="hidden space-y-1 bg-orange-50/50 p-3 rounded-xl border border-orange-100">
           <label class="block text-xs font-bold text-orange-600 mb-1">Lista General de Sabores del Comercio</label>
           <textarea id="sabores-input" placeholder="Ingresá los sabores generales separados por coma. Ej: Carne, J&Q, Dulce de Leche, Frutilla..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition" rows="3"></textarea>
           <p class="text-[10px] text-slate-500">Separá cada gusto con una coma (,).</p>
         </div>
 
-        <!-- Opción Cocción Empanadas -->
         <div id="seccion-coccion-config" class="hidden space-y-1 bg-orange-50/50 p-3 rounded-xl border border-orange-100">
           <label class="block text-xs font-bold text-orange-600 mb-1">Tipo de Cocción de Empanadas</label>
           <select id="tipo-coccion-select" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800">
@@ -475,19 +462,16 @@
           </select>
         </div>
 
-        <!-- Checkbox Envíos -->
         <div class="flex items-center gap-2.5 py-1">
           <input type="checkbox" id="envios" checked onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
           <label for="envios" class="text-xs text-slate-700 font-semibold cursor-pointer">Ofrecemos envíos a domicilio</label>
         </div>
 
-        <!-- Costo de Envío (Dinámico) -->
         <div id="contenedor-costo-envio">
           <label class="block text-xs font-bold text-slate-700 mb-1">Costo de Envío</label>
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
-        <!-- Horarios -->
         <div class="space-y-1">
           <label class="block text-xs font-bold text-slate-700">Horario Principal / Turno 1</label>
           <div class="grid grid-cols-2 gap-2.5">
@@ -504,7 +488,6 @@
           </div>
         </div>
 
-        <!-- Medios de Pago -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Medios de Pago Aceptados</label>
           <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700">
@@ -546,7 +529,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Cargar / Editar Producto -->
+  <!-- MODAL: Cargar / Editar Producto (CON SOLUCIÓN PRODUCTO POR PRODUCTO) -->
   <div id="modal-producto" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       
@@ -569,7 +552,7 @@
         
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Docena de Empanadas o Torta Helada" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+          <input type="text" id="prod-titulo" placeholder="Ej: Pizza Muzzarella o Docena de Empanadas" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <div>
@@ -577,23 +560,44 @@
           <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 8500" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
-        <!-- Nueva Opción: Sabores/Variantes Propias de este Producto -->
-        <div id="box-prod-max-sabores" class="hidden space-y-2 bg-orange-50/50 p-3.5 rounded-2xl border border-orange-100">
-          <div>
-            <label class="block text-xs font-bold text-orange-600 mb-1">Cantidad máxima de sabores a elegir</label>
-            <input type="number" min="1" max="50" id="prod-max-sabores" placeholder="Ej: 12 (para docena) o 4 (para 1kg)" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition">
+        <!-- CONFIGURACIÓN ESPECÍFICA DEL PRODUCTO -->
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+          <label class="block text-xs font-bold text-slate-800">Opciones Personalizadas del Producto</label>
+          
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="prod-requiere-sabores" onchange="toggleBoxConfigSabores()" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
+            <label for="prod-requiere-sabores" class="text-xs font-semibold text-slate-700 cursor-pointer">Permitir elegir sabores / gustos en este producto</label>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Sabores Específicos para este Producto (Opcional)</label>
-            <textarea id="prod-sabores-especificos" placeholder="Dejá vacío si usa los sabores generales del local. O ingresá específicos: Vainilla, Chocolate, Dulce de Leche..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition" rows="2"></textarea>
-            <p class="text-[10px] text-slate-500 mt-1">Si este producto tiene sabores únicos (ej. Torta helada), escribilos acá separados por coma.</p>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="prod-requiere-coccion" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
+            <label for="prod-requiere-coccion" class="text-xs font-semibold text-slate-700 cursor-pointer">Pedir tipo de cocción (Al Horno / Fritas)</label>
+          </div>
+
+          <!-- SUB-BOX SABORES -->
+          <div id="sub-box-config-sabores" class="hidden pt-2 border-t border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="prod-sin-limite-sabores" onchange="toggleInputMaxSabores()" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
+                <label for="prod-sin-limite-sabores" class="text-xs font-bold text-orange-600 cursor-pointer">Sin límite de cantidad (Ilimitado)</label>
+              </div>
+            </div>
+
+            <div id="box-input-max-sabores">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Cantidad máxima de sabores a elegir</label>
+              <input type="number" min="1" max="100" id="prod-max-sabores" placeholder="Ej: 12 (para docena) o 4 (para 1kg)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Sabores Específicos (Opcional)</label>
+              <textarea id="prod-sabores-especificos" placeholder="Si este producto usa sabores distintos a los del local, escribilos acá separados por coma." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition" rows="2"></textarea>
+            </div>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Elegí los gustos de tu preferida." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
+          <textarea id="prod-descripcion" placeholder="Ej: Muzzarella, salsa de tomate y orégano." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition" rows="2"></textarea>
         </div>
 
         <div>
@@ -631,7 +635,7 @@
     let carrito = [];
     let usuarioActual = null;
     let productoPendienteSabores = null;
-    let contadoresSaboresActuales = {}; // Estado local de contadores en modal sabores
+    let contadoresSaboresActuales = {};
 
     function crearSlug(texto) {
       if (!texto) return '';
@@ -928,12 +932,14 @@
         const pEscapedTitulo = p.titulo.replace(/'/g, "\\'");
         const pEscapedDesc = (p.descripcion || '').replace(/'/g, "\\'");
         const pImagen = p.imagen_url || '';
-        const pMaxSabores = p.max_sabores || '';
+        const pMaxSabores = p.max_sabores ?? '';
         const pSaboresEspec = (p.sabores_especificos || []).join(',');
+        const pReqSabores = Boolean(p.requiere_sabores);
+        const pReqCoccion = Boolean(p.requiere_coccion);
 
         container.innerHTML += `
           <div class="card-gradient rounded-2xl p-3.5 border border-slate-200 shadow-sm flex items-center justify-between gap-3 relative group hover:border-slate-300 hover:shadow-md transition">
-            <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}', '${pEscapedTitulo}', ${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}', '${pSaboresEspec}')">
+            <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
               ${p.imagen_url 
                 ? `<img src="${p.imagen_url}" class="w-16 h-16 rounded-xl object-cover border border-slate-100 flex-shrink-0 group-hover:scale-105 transition">` 
                 : `<div class="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="package" class="w-6 h-6"></i></div>`}
@@ -947,7 +953,7 @@
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               ${esDuenio ? `
                 <div class="flex items-center gap-1">
-                  <button onclick="prepararEditarProducto('${p.id}', '${pEscapedTitulo}',${p.precio}, '${pEscapedDesc}', '${pImagen}', '${pMaxSabores}', '${pSaboresEspec}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition">
+                  <button onclick="prepararEditarProducto('${p.id}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
                   <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition">
@@ -956,7 +962,7 @@
                 </div>
               ` : ''}
 
-              <button onclick="intentarAgregarProductoConSabores('${p.id}', '${pEscapedTitulo}', ${p.precio}, ${pMaxSabores || 'null'}, '${pSaboresEspec}')" class="bg-orange-500 hover:bg-orange-600 text-white font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1 active:scale-95">
+              <button onclick="intentarAgregarProducto('${p.id}')" class="bg-orange-500 hover:bg-orange-600 text-white font-black px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-md shadow-orange-500/20 transition flex items-center gap-1 active:scale-95">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
               </button>
             </div>
@@ -967,46 +973,53 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function obtenerMaxSaboresSegunTitulo(titulo) {
-      const t = titulo.toLowerCase();
-      if (t.includes('kilo') || t.includes('1 kg') || t.includes('1kg')) return 4;
-      if (t.includes('medio') || t.includes('1/2')) return 3;
-      if (t.includes('cuarto') || t.includes('1/4')) return 2;
-      if (t.includes('docena')) return 12;
-      if (t.includes('media docena') || t.includes('1/2 docena')) return 6;
-      return 4;
-    }
+    function intentarAgregarProducto(prodId) {
+      const p = comercioActivo?.productos?.find(item => item.id === prodId);
+      if (!p) return;
 
-    function intentarAgregarProductoConSabores(id, titulo, precio, maxSaboresCustom = null, saboresEspecStr = '') {
       const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
-      const esHeladeria = categoriasLocal.includes('Heladerías');
-      const esEmpanadas = categoriasLocal.includes('Empanadas');
+      
+      // Lógica de compatibilidad previa o nueva configuración
+      const requiereSabores = (p.requiere_sabores !== undefined) 
+        ? Boolean(p.requiere_sabores) 
+        : (categoriasLocal.includes('Heladerías') || categoriasLocal.includes('Empanadas'));
 
-      // Obtener la lista de sabores a usar (del producto o generales del comercio)
+      const requiereCoccion = (p.requiere_coccion !== undefined)
+        ? Boolean(p.requiere_coccion)
+        : (categoriasLocal.includes('Empanadas') && p.titulo.toLowerCase().includes('empanada'));
+
       let listaSaboresUsar = [];
-      if (saboresEspecStr) {
-        listaSaboresUsar = saboresEspecStr.split(',').map(s => s.trim()).filter(Boolean);
+      if (p.sabores_especificos && p.sabores_especificos.length > 0) {
+        listaSaboresUsar = p.sabores_especificos;
       } else if (comercioActivo.sabores && comercioActivo.sabores.length > 0) {
         listaSaboresUsar = comercioActivo.sabores;
       }
 
-      if (listaSaboresUsar.length > 0) {
-        const maxSabores = (maxSaboresCustom && parseInt(maxSaboresCustom) > 0) 
-          ? parseInt(maxSaboresCustom) 
-          : obtenerMaxSaboresSegunTitulo(titulo);
+      if (requiereSabores && listaSaboresUsar.length > 0) {
+        // Determinamos el máximo de sabores: si es null o 0 se considera SIN LÍMITE (999)
+        const maxSabores = (p.max_sabores && parseInt(p.max_sabores) > 0) 
+          ? parseInt(p.max_sabores) 
+          : (p.max_sabores === 0 ? 999 : 4);
 
-        // Si es empanadas o el límite es de selección por cantidad (ej: docena=12, media=6) -> Usar Contadores (-/+)
-        const esPorCantidadNum = esEmpanadas || maxSabores > 4;
+        const esIlimitado = p.max_sabores === 0 || maxSabores === 999;
 
-        productoPendienteSabores = { id, titulo, precio, esEmpanadas, maxSabores, esPorCantidadNum, listaSaboresUsar };
-        
-        document.getElementById('modal-sabores-titulo').innerText = titulo;
-        document.getElementById('modal-sabores-sub').innerText = esPorCantidadNum 
-          ? `Elegí la cantidad de cada sabor (Límite: ${maxSabores} un).`
-          : `Podés elegir hasta ${maxSabores} gustos.`;
+        productoPendienteSabores = { 
+          id: p.id, 
+          titulo: p.titulo, 
+          precio: p.precio, 
+          requiereCoccion, 
+          maxSabores: esIlimitado ? 999 : maxSabores,
+          esIlimitado,
+          listaSaboresUsar 
+        };
+
+        document.getElementById('modal-sabores-titulo').innerText = p.titulo;
+        document.getElementById('modal-sabores-sub').innerText = esIlimitado 
+          ? 'Podés agregar la cantidad que quieras de cada gusto.'
+          : `Elegí hasta ${maxSabores} unidades/gustos en total.`;
 
         const boxCoccion = document.getElementById('box-opcion-coccion');
-        if (esEmpanadas && comercioActivo.tipo_coccion_empanadas === 'ambas') {
+        if (requiereCoccion && comercioActivo.tipo_coccion_empanadas === 'ambas') {
           boxCoccion.classList.remove('hidden');
         } else {
           boxCoccion.classList.add('hidden');
@@ -1016,44 +1029,28 @@
         const grid = document.getElementById('grid-sabores-seleccion');
         grid.innerHTML = '';
 
-        if (esPorCantidadNum) {
-          // RENDERIZADO CON CONTADORES (- / +)
-          listaSaboresUsar.forEach(sabor => {
-            const saborClean = sabor.trim();
-            contadoresSaboresActuales[saborClean] = 0;
-            grid.innerHTML += `
-              <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-                <span class="font-bold text-xs text-slate-800 truncate pr-2">${saborClean}</span>
-                <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0">
-                  <button type="button" onclick="modificarContadorSabor('${saborClean}', -1)" class="w-5 h-5 flex items-center justify-center bg-white rounded text-slate-700 font-black text-xs shadow-sm border border-slate-200 hover:bg-slate-50">-</button>
-                  <span id="cant-sabor-${saborClean}" class="text-xs font-black text-slate-800 w-4 text-center">0</span>
-                  <button type="button" onclick="modificarContadorSabor('${saborClean}', 1)" class="w-5 h-5 flex items-center justify-center bg-orange-500 rounded text-white font-black text-xs shadow-sm hover:bg-orange-600">+</button>
-                </div>
+        listaSaboresUsar.forEach(sabor => {
+          const saborClean = sabor.trim();
+          contadoresSaboresActuales[saborClean] = 0;
+          grid.innerHTML += `
+            <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+              <span class="font-bold text-xs text-slate-800 truncate pr-2">${saborClean}</span>
+              <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0">
+                <button type="button" onclick="modificarContadorSabor('${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-white rounded-md text-slate-700 font-black text-xs shadow-sm border border-slate-200 active:bg-slate-100">-</button>
+                <span id="cant-sabor-${saborClean}" class="text-xs font-black text-slate-800 w-5 text-center">0</span>
+                <button type="button" onclick="modificarContadorSabor('${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-orange-500 rounded-md text-white font-black text-xs shadow-sm active:bg-orange-600">+</button>
               </div>
-            `;
-          });
-          actualizarBadgeContadorSaboresNum();
-        } else {
-          // RENDERIZADO TIPO CHECKBOX (Para Potes de Helado)
-          grid.innerHTML = `<div class="grid grid-cols-2 gap-2">`;
-          listaSaboresUsar.forEach(sabor => {
-            grid.innerHTML += `
-              <label class="flex items-center gap-2 cursor-pointer text-slate-700 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                <input type="checkbox" name="sabor-item" value="${sabor.trim()}" onchange="validarLimiteSaboresCheck(this, ${maxSabores})" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500">
-                <span class="truncate text-xs font-medium">${sabor.trim()}</span>
-              </label>
-            `;
-          });
-          grid.innerHTML += `</div>`;
-          document.getElementById('sabores-count-badge').innerText = `0 / ${maxSabores}`;
-        }
+            </div>
+          `;
+        });
 
+        actualizarBadgeContadorSaboresNum();
         document.getElementById('sabores-detalles').value = '';
         document.getElementById('btn-confirmar-sabores').onclick = confirmarAgregarConSabores;
 
         abrirModal('modal-sabores');
       } else {
-        agregarAlCarrito(id, titulo, precio);
+        agregarAlCarrito(p.id, p.titulo, p.precio);
       }
     }
 
@@ -1063,8 +1060,8 @@
       const sumaTotalActual = Object.values(contadoresSaboresActuales).reduce((a, b) => a + b, 0);
       const valActual = contadoresSaboresActuales[sabor] || 0;
 
-      if (cambio > 0 && sumaTotalActual >= productoPendienteSabores.maxSabores) {
-        alert(`Ya alcanzaste el máximo de ${productoPendienteSabores.maxSabores} unidades para este producto.`);
+      if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaTotalActual >= productoPendienteSabores.maxSabores) {
+        alert(`Alcanzaste el máximo de ${productoPendienteSabores.maxSabores} unidades para este pedido.`);
         return;
       }
 
@@ -1079,41 +1076,28 @@
 
     function actualizarBadgeContadorSaboresNum() {
       const sumaTotalActual = Object.values(contadoresSaboresActuales).reduce((a, b) => a + b, 0);
-      const max = productoPendienteSabores ? productoPendienteSabores.maxSabores : 0;
-      document.getElementById('sabores-count-badge').innerText = `${sumaTotalActual} / ${max} unidades`;
-    }
-
-    function validarLimiteSaboresCheck(checkbox, max) {
-      const elegidos = document.querySelectorAll('input[name="sabor-item"]:checked');
-      if (elegidos.length > max) {
-        checkbox.checked = false;
-        alert(`Podés seleccionar un máximo de ${max} sabores para esta opción.`);
+      if (productoPendienteSabores && productoPendienteSabores.esIlimitado) {
+        document.getElementById('sabores-count-badge').innerText = `${sumaTotalActual} seleccionados (Sin límite)`;
+      } else {
+        const max = productoPendienteSabores ? productoPendienteSabores.maxSabores : 0;
+        document.getElementById('sabores-count-badge').innerText = `${sumaTotalActual} / ${max} elegidos`;
       }
-      const total = document.querySelectorAll('input[name="sabor-item"]:checked').length;
-      document.getElementById('sabores-count-badge').innerText = `${total} / ${max}`;
     }
 
     function confirmarAgregarConSabores() {
       if (!productoPendienteSabores) return;
 
-      let resumenSabores = [];
-
-      if (productoPendienteSabores.esPorCantidadNum) {
-        // Extraer de contadores
-        for (const [sabor, cant] of Object.entries(contadoresSaboresActuales)) {
-          if (cant > 0) {
-            resumenSabores.push(`${cant}x ${sabor}`);
-          }
+      const resumenSabores = [];
+      for (const [sabor, cant] of Object.entries(contadoresSaboresActuales)) {
+        if (cant > 0) {
+          resumenSabores.push(`${cant}x ${sabor}`);
         }
-      } else {
-        // Extraer de checkboxes
-        resumenSabores = Array.from(document.querySelectorAll('input[name="sabor-item"]:checked')).map(cb => cb.value);
       }
 
       const detalles = document.getElementById('sabores-detalles').value.trim();
       let especificacion = "";
 
-      if (productoPendienteSabores.esEmpanadas) {
+      if (productoPendienteSabores.requiereCoccion) {
         if (comercioActivo.tipo_coccion_empanadas === 'ambas') {
           const coccion = document.querySelector('input[name="coccion-elegida"]:checked')?.value || 'Al Horno';
           especificacion += `[${coccion}] `;
@@ -1137,16 +1121,19 @@
       productoPendienteSabores = null;
     }
 
-    function abrirVerProducto(id, titulo, precio, descripcion, imagenUrl, maxSabores = null, saboresEspecStr = '') {
-      document.getElementById('view-prod-titulo').innerText = titulo;
-      document.getElementById('view-prod-precio').innerText = `$${precio}`;
-      document.getElementById('view-prod-descripcion').innerText = descripcion || 'Sin descripción adicional.';
+    function abrirVerProducto(prodId) {
+      const p = comercioActivo?.productos?.find(item => item.id === prodId);
+      if (!p) return;
+
+      document.getElementById('view-prod-titulo').innerText = p.titulo;
+      document.getElementById('view-prod-precio').innerText = `$${p.precio}`;
+      document.getElementById('view-prod-descripcion').innerText = p.descripcion || 'Sin descripción adicional.';
 
       const imgElem = document.getElementById('view-prod-img');
       const noImgElem = document.getElementById('view-prod-no-img');
 
-      if (imagenUrl) {
-        imgElem.src = imagenUrl;
+      if (p.imagen_url) {
+        imgElem.src = p.imagen_url;
         imgElem.classList.remove('hidden');
         noImgElem.classList.add('hidden');
       } else {
@@ -1155,7 +1142,7 @@
       }
 
       document.getElementById('view-prod-btn-agregar').onclick = () => {
-        intentarAgregarProductoConSabores(id, titulo, precio, maxSabores, saboresEspecStr);
+        intentarAgregarProducto(p.id);
         cerrarModal('modal-ver-producto');
       };
 
@@ -1187,11 +1174,10 @@
 
       actualizarCarrito();
 
-      // Disparar microanimación de rebote en el carrito
       const btnFloatCart = document.getElementById('btn-float-cart-action');
       if (btnFloatCart) {
         btnFloatCart.classList.remove('cart-animate');
-        void btnFloatCart.offsetWidth; // Trigger reflow
+        void btnFloatCart.offsetWidth;
         btnFloatCart.classList.add('cart-animate');
       }
     }
@@ -1665,58 +1651,91 @@
       }
     }
 
-    // --- FORMULARIO PRODUCTO Y MANEJO DE SABORES ---
+    // --- FORMULARIO PRODUCTO (NUEVA LÓGICA DE TOGGLES) ---
+    function toggleBoxConfigSabores() {
+      const checkSabores = document.getElementById('prod-requiere-sabores').checked;
+      const subBox = document.getElementById('sub-box-config-sabores');
+      if (checkSabores) {
+        subBox.classList.remove('hidden');
+      } else {
+        subBox.classList.add('hidden');
+      }
+    }
+
+    function toggleInputMaxSabores() {
+      const sinLimite = document.getElementById('prod-sin-limite-sabores').checked;
+      const boxMax = document.getElementById('box-input-max-sabores');
+      if (sinLimite) {
+        boxMax.classList.add('hidden');
+      } else {
+        boxMax.classList.remove('hidden');
+      }
+    }
+
     function prepararModalProducto(comercioId, nombreComercio) {
       document.getElementById('form-producto').reset();
       document.getElementById('prod-comercio-id').value = comercioId;
       document.getElementById('prod-edit-id').value = '';
       document.getElementById('prod-imagen-existente').value = '';
+
+      // Por defecto activar sabores si es Heladería o Empanadas
+      const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
+      const sugerirSabores = cats.includes('Heladerías') || cats.includes('Empanadas');
+      
+      document.getElementById('prod-requiere-sabores').checked = sugerirSabores;
+      document.getElementById('prod-requiere-coccion').checked = cats.includes('Empanadas');
+      document.getElementById('prod-sin-limite-sabores').checked = false;
       document.getElementById('prod-max-sabores').value = '';
       document.getElementById('prod-sabores-especificos').value = '';
-      
+
+      toggleBoxConfigSabores();
+      toggleInputMaxSabores();
+
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio}`;
       document.getElementById('btn-guardar-producto').innerText = 'Publicar Producto';
       document.getElementById('help-imagen-edit').innerText = '';
 
-      evaluarVisibilidadSaboresProducto();
       abrirModal('modal-producto');
     }
 
-    function prepararEditarProducto(id, titulo, precio, descripcion, imagenUrl, maxSabores, saboresEspecStr = '') {
-      document.getElementById('form-producto').reset();
-      document.getElementById('prod-edit-id').value = id;
-      document.getElementById('prod-comercio-id').value = comercioActivo.id;
-      document.getElementById('prod-titulo').value = titulo;
-      document.getElementById('prod-precio').value = precio;
-      document.getElementById('prod-descripcion').value = descripcion || '';
-      document.getElementById('prod-imagen-existente').value = imagenUrl || '';
-      document.getElementById('prod-max-sabores').value = maxSabores || '';
+    function prepararEditarProducto(prodId) {
+      const p = comercioActivo?.productos?.find(item => item.id === prodId);
+      if (!p) return;
 
-      const arraySabores = saboresEspecStr ? saboresEspecStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+      document.getElementById('form-producto').reset();
+      document.getElementById('prod-edit-id').value = p.id;
+      document.getElementById('prod-comercio-id').value = comercioActivo.id;
+      document.getElementById('prod-titulo').value = p.titulo;
+      document.getElementById('prod-precio').value = p.precio;
+      document.getElementById('prod-descripcion').value = p.descripcion || '';
+      document.getElementById('prod-imagen-existente').value = p.imagen_url || '';
+
+      const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
+      const reqSab = (p.requiere_sabores !== undefined) ? Boolean(p.requiere_sabores) : (cats.includes('Heladerías') || cats.includes('Empanadas'));
+      const reqCoc = (p.requiere_coccion !== undefined) ? Boolean(p.requiere_coccion) : (cats.includes('Empanadas') && p.titulo.toLowerCase().includes('empanada'));
+
+      document.getElementById('prod-requiere-sabores').checked = reqSab;
+      document.getElementById('prod-requiere-coccion').checked = reqCoc;
+
+      const esSinLimite = p.max_sabores === 0 || p.max_sabores === 999;
+      document.getElementById('prod-sin-limite-sabores').checked = esSinLimite;
+      document.getElementById('prod-max-sabores').value = (esSinLimite || !p.max_sabores) ? '' : p.max_sabores;
+
+      const arraySabores = p.sabores_especificos ? p.sabores_especificos : [];
       document.getElementById('prod-sabores-especificos').value = arraySabores.join(', ');
+
+      toggleBoxConfigSabores();
+      toggleInputMaxSabores();
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Modificando en: ${comercioActivo.nombre}`;
       document.getElementById('btn-guardar-producto').innerText = 'Guardar Cambios';
 
       const help = document.getElementById('help-imagen-edit');
-      help.innerText = imagenUrl ? 'Dejá el campo vacío si querés conservar la foto actual.' : '';
+      help.innerText = p.imagen_url ? 'Dejá el campo vacío si querés conservar la foto actual.' : '';
 
-      evaluarVisibilidadSaboresProducto();
       abrirModal('modal-producto');
-    }
-
-    function evaluarVisibilidadSaboresProducto() {
-      const boxSabores = document.getElementById('box-prod-max-sabores');
-      const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
-      const aplicaSabores = cats.includes('Heladerías') || cats.includes('Empanadas');
-
-      if (aplicaSabores) {
-        boxSabores.classList.remove('hidden');
-      } else {
-        boxSabores.classList.add('hidden');
-      }
     }
 
     async function eliminarProducto(prodId) {
@@ -1827,7 +1846,16 @@
         if (subida) imagenUrl = subida;
       }
 
+      const reqSabores = document.getElementById('prod-requiere-sabores').checked;
+      const reqCoccion = document.getElementById('prod-requiere-coccion').checked;
+      const esSinLimite = document.getElementById('prod-sin-limite-sabores').checked;
       const maxSaboresVal = document.getElementById('prod-max-sabores').value;
+
+      let maxSaboresFinal = null;
+      if (reqSabores) {
+        maxSaboresFinal = esSinLimite ? 0 : (maxSaboresVal ? parseInt(maxSaboresVal, 10) : null);
+      }
+
       const saboresEspecTxt = document.getElementById('prod-sabores-especificos').value.trim();
       const arraySaboresEspec = saboresEspecTxt ? saboresEspecTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
@@ -1837,7 +1865,9 @@
         precio: parseFloat(document.getElementById('prod-precio').value),
         descripcion: document.getElementById('prod-descripcion').value.trim(),
         imagen_url: imagenUrl,
-        max_sabores: maxSaboresVal ? parseInt(maxSaboresVal, 10) : null,
+        requiere_sabores: reqSabores,
+        requiere_coccion: reqCoccion,
+        max_sabores: maxSaboresFinal,
         sabores_especificos: arraySaboresEspec
       };
 
