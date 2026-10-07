@@ -351,7 +351,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Carrito (CON BOTÓN VACIAR CARRITO) -->
+  <!-- MODAL: Carrito -->
   <div id="modal-carrito" class="modal-bottom-sheet fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto text-slate-800">
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
@@ -558,7 +558,7 @@
         
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Cubatones (Cubanitos) o Pizza Muzzarella" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
+          <input type="text" id="prod-titulo" placeholder="Ej: Cubatones (Cubanitos) o Docena de Empanadas" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition">
         </div>
 
         <div>
@@ -585,13 +585,14 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="prod-sin-limite-sabores" onchange="toggleInputMaxSabores()" class="w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500 cursor-pointer">
-                <label for="prod-sin-limite-sabores" class="text-xs font-bold text-orange-600 cursor-pointer">Sin límite de cantidad (Ilimitado)</label>
+                <label for="prod-sin-limite-sabores" class="text-xs font-bold text-orange-600 cursor-pointer">Venta por unidad / sin límite de gustos (ej: Cubatones)</label>
               </div>
             </div>
 
             <div id="box-input-max-sabores">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Cantidad máxima de sabores a elegir</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Cantidad fija de sabores/unidades por combo</label>
               <input type="number" min="1" max="100" id="prod-max-sabores" placeholder="Ej: 12 (para docena) o 4 (para 1kg)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition">
+              <p class="text-[10px] text-slate-500 mt-1">El precio cobrado será por el pack/combo completo.</p>
             </div>
 
             <div>
@@ -994,26 +995,23 @@
       }
 
       if (requiereSabores && listaSaboresUsar.length > 0) {
-        const maxSabores = (p.max_sabores && parseInt(p.max_sabores) > 0) 
-          ? parseInt(p.max_sabores) 
-          : (p.max_sabores === 0 ? 999 : 4);
-
-        const esIlimitado = p.max_sabores === 0 || maxSabores === 999;
+        const esIlimitado = p.max_sabores === 0 || p.max_sabores === 999 || p.max_sabores === null;
+        const maxSabores = esIlimitado ? 999 : parseInt(p.max_sabores);
 
         productoPendienteSabores = { 
           id: p.id, 
           titulo: p.titulo, 
           precio: p.precio, 
           requiereCoccion, 
-          maxSabores: esIlimitado ? 999 : maxSabores,
-          esIlimitado,
+          maxSabores: maxSabores,
+          esIlimitado: esIlimitado,
           listaSaboresUsar 
         };
 
         document.getElementById('modal-sabores-titulo').innerText = p.titulo;
         document.getElementById('modal-sabores-sub').innerText = esIlimitado 
-          ? 'Podés agregar la cantidad que quieras de cada gusto.'
-          : `Elegí hasta ${maxSabores} unidades/gustos en total.`;
+          ? 'Podés sumar la cantidad que quieras de cada gusto.'
+          : `Elegí los ${maxSabores} gustos de tu pack / combo.`;
 
         const txtAreaDetalles = document.getElementById('sabores-detalles');
         if (esHeladeria) {
@@ -1069,7 +1067,7 @@
       const valActual = contadoresSaboresActuales[sabor] || 0;
 
       if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaTotalActual >= productoPendienteSabores.maxSabores) {
-        alert(`Alcanzaste el máximo de ${productoPendienteSabores.maxSabores} unidades para este pedido.`);
+        alert(`Alcanzaste el máximo de ${productoPendienteSabores.maxSabores} gustos para este pack.`);
         return;
       }
 
@@ -1095,18 +1093,29 @@
     function confirmarAgregarConSabores() {
       if (!productoPendienteSabores) return;
 
-      const resumenSabores = [];
-      let totalUnidadesSumadas = 0;
+      const sumaTotalActual = Object.values(contadoresSaboresActuales).reduce((a, b) => a + b, 0);
 
-      for (const [sabor, cant] of Object.entries(contadoresSaboresActuales)) {
-        if (cant > 0) {
-          resumenSabores.push(`${cant}x ${sabor}`);
-          totalUnidadesSumadas += cant;
+      // Si es un combo fijo (ej. docena = 12), exigir seleccionar los 12
+      if (!productoPendienteSabores.esIlimitado && sumaTotalActual < productoPendienteSabores.maxSabores) {
+        if (!confirm(`Seleccionaste ${sumaTotalActual} de ${productoPendienteSabores.maxSabores} gustos. ¿Querés agregar el pedido igual?`)) {
+          return;
         }
       }
 
-      // Si no seleccionó nada, por defecto es 1 unidad
-      const cantidadAAgregar = totalUnidadesSumadas > 0 ? totalUnidadesSumadas : 1;
+      const resumenSabores = [];
+      for (const [sabor, cant] of Object.entries(contadoresSaboresActuales)) {
+        if (cant > 0) {
+          resumenSabores.push(`${cant}x ${sabor}`);
+        }
+      }
+
+      // LÓGICA DE CANTIDAD PARA EL CARRITO:
+      // Si es "ilimitado", la cantidad del carrito es la suma de los gustos (ej: 6 cubatones = 6 x precio unitario)
+      // Si es "combo/fijo", la cantidad del carrito es 1 pack (ej: 1 docena = 1 x $21.000)
+      let cantidadAAgregar = 1;
+      if (productoPendienteSabores.esIlimitado) {
+        cantidadAAgregar = sumaTotalActual > 0 ? sumaTotalActual : 1;
+      }
 
       const detalles = document.getElementById('sabores-detalles').value.trim();
       let especificacion = "";
