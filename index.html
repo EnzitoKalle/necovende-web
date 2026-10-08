@@ -51,18 +51,7 @@
       overflow-x: hidden;
     }
     
-    /* Renders GPU optimizados */
-    .bg-glow-1, .bg-glow-2 {
-      position: fixed;
-      width: 50vw;
-      height: 50vw;
-      pointer-events: none;
-      z-index: 0;
-      /* quitamos radial-gradient pesado en móviles */
-      opacity: 0.15;
-    }
-
-    /* Remplazamos backdrop-filter de las tarjetas por un fondo plano mate */
+    /* OPTIMIZACIÓN 120Hz: Eliminamos filtros de blur pesado en tiempo real */
     .glass-nav {
       background: rgba(15, 23, 42, 0.95);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -72,7 +61,6 @@
       background: rgba(30, 41, 59, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
-      /* Aceleración por Hardware */
       transform: translateZ(0);
       will-change: transform;
     }
@@ -123,10 +111,6 @@
 </head>
 <body class="antialiased pb-28 min-h-screen text-slate-100 selection:bg-brand-500 selection:text-white">
 
-  <!-- Background Glows -->
-  <div class="bg-glow-1"></div>
-  <div class="bg-glow-2"></div>
-
   <!-- Header / Navbar -->
   <header class="glass-nav sticky top-0 z-40 text-white shadow-2xl">
     <div class="max-w-2xl mx-auto px-4 py-3.5 flex justify-between items-center gap-2">
@@ -146,7 +130,7 @@
       
       <!-- Navigation Controls -->
       <div class="flex items-center gap-2.5">
-        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/40 text-brand-400 hover:text-brand-300 text-xs font-bold px-3.5 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 active:scale-95 shadow-sm backdrop-blur-md">
+        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/40 text-brand-400 hover:text-brand-300 text-xs font-bold px-3.5 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 active:scale-95 shadow-sm">
           <i data-lucide="plus-circle" class="w-4 h-4 text-brand-400"></i>
           <span class="hidden sm:inline">Sumar Local</span>
           <span class="sm:hidden">Unirme</span>
@@ -178,7 +162,6 @@
   <!-- VISTA INICIO (MARKETPLACE) -->
   <main id="vista-inicio" class="max-w-2xl mx-auto px-4 pt-6 space-y-6 relative z-10">
     <div class="glass-card rounded-3xl p-5 border border-white/10 shadow-2xl relative overflow-hidden">
-      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-2xl"></div>
       <div class="flex items-center justify-between relative z-10">
         <div>
           <span class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest text-brand-400 uppercase bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-full mb-2">
@@ -214,7 +197,7 @@
         <span class="text-[11px] font-bold text-slate-400" id="total-comercios">Cargando...</span>
       </div>
 
-      <div id="productos-container" class="grid grid-cols-1 gap-3.5 will-change-transform">
+      <div id="comercios-container" class="grid grid-cols-1 gap-4">
         <div class="p-10 glass-card rounded-3xl text-center text-slate-400 space-y-3">
           <i data-lucide="loader-2" class="w-7 h-7 animate-spin mx-auto text-brand-400"></i>
           <p class="text-xs font-semibold">Cargando comercios de la ciudad...</p>
@@ -1011,10 +994,9 @@
       document.getElementById('panel-email').innerText = usuarioActual.email;
 
       const misComercios = comerciosGlobales.filter(c => c.user_id === usuarioActual.id);
-      const totalProductos = misComercios.reduce((acc, c) => acc + (c.productos ? c.productos.length : 0), 0);
 
       document.getElementById('panel-stat-comercios').innerText = misComercios.length;
-      document.getElementById('panel-stat-productos').innerText = totalProductos;
+      document.getElementById('panel-stat-productos').innerText = "-";
 
       const lista = document.getElementById('panel-comercios-lista');
       lista.innerHTML = '';
@@ -1066,7 +1048,7 @@
       window.scrollTo(0, 0);
     }
 
-    /* 🚀 OPTIMIZACIÓN: Cargar productos en Supabase SOLAMENTE del local activo */
+    /* 🚀 CARGA DE COMERCIO ULTRA RÁPIDA */
     async function abrirVistaComercio(identificador, cambiarUrl = true) {
       comercioActivo = comerciosGlobales.find(c => c.slug === identificador || c.id === identificador);
       if (!comercioActivo) return;
@@ -1074,7 +1056,7 @@
       const slugOId = comercioActivo.slug || comercioActivo.id;
       if (cambiarUrl) window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
 
-      // Pedir sólo los productos de este local para mayor velocidad
+      // Pedir sólo los productos de este local
       const { data: prods } = await _supabase
         .from('productos')
         .select('*')
@@ -1188,7 +1170,7 @@
       }
     }
 
-    // FUNCION PARA REORDENAR PRODUCTOS (SUBIR / BAJAR)
+    // FUNCION PARA REORDENAR PRODUCTOS
     async function cambiarOrdenProducto(prodId, direccion) {
       if (!comercioActivo || !comercioActivo.productos) return;
       const prods = [...comercioActivo.productos].sort((a, b) => (a.orden || 0) - (b.orden || 0));
@@ -1228,7 +1210,7 @@
       return 0;
     }
 
-    /* 🚀 OPTIMIZACIÓN: Renderizado Ultra Fluido (htmlAcc) */
+    /* 🚀 RENDERIZADO FLUIDO */
     function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
       
@@ -1992,7 +1974,7 @@
       return publicData.publicUrl;
     }
 
-    /* 🚀 OPTIMIZACIÓN: Carga liviana inicial */
+    /* 🚀 CARGA DE LISTA GENERAL DE COMERCIOS CORREGIDA */
     async function cargarComercios() {
       const { data: comercios, error } = await _supabase.from('comercios').select('*');
 
