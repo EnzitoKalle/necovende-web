@@ -2183,20 +2183,20 @@
       const coloresTxt = document.getElementById('prod-colores-input').value.trim();
       const coloresArr = (tieneVariantes && coloresTxt) ? coloresTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
-      const datosProducto = {
-        comercio_id: comercioId,
-        titulo: document.getElementById('prod-titulo').value.trim(),
-        precio: parseFloat(document.getElementById('prod-precio').value),
-        descripcion: document.getElementById('prod-descripcion').value.trim(),
-        requiere_sabores: requiereSabores,
-        requiere_coccion: document.getElementById('prod-requiere-coccion').checked,
-        max_sabores: maxSaboresFinal,
-        sabores_especificos: saboresEspArr,
-        talles_disponibles: tallesArr,
-        colores_disponibles: coloresArr,
-        disponibles: true,
-        imagen_url
-      };
+  const datosProducto = {
+  comercio_id: comercioId,
+  titulo: document.getElementById('prod-titulo').value.trim(),
+  precio: parseFloat(document.getElementById('prod-precio').value),
+  descripcion: document.getElementById('prod-descripcion').value.trim(),
+  requiere_sabores: requiereSabores,
+  requiere_coccion: document.getElementById('prod-requiere-coccion').checked,
+  max_sabores: maxSaboresFinal,
+  sabores_especificos: saboresEspArr,
+  talles_disponibles: tallesArr,
+  colores_disponibles: coloresArr,
+  disponible: true, // <-- Corregido a singular "disponible"
+  imagen_url
+};
 
       let res;
       if (prodEditId) {
