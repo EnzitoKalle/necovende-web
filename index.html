@@ -326,7 +326,7 @@
         </div>
       </div>
 
-      <!-- CONTENEDOR DINÁMICO DE UNIDADES Y GUSTOS -->
+      <!-- CONTENEDOR DINÁMICO DE UNIDADES Y GUSTOS / PROMOS -->
       <div id="contenedor-bloques-unidades" class="space-y-4"></div>
 
       <!-- Campo Detalles / Aclaraciones -->
@@ -645,8 +645,8 @@
         <input type="hidden" id="prod-imagen-existente">
         
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Producto</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Zapatillas Urbanas o Docena de Empanadas" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Producto / Promoción</label>
+          <input type="text" id="prod-titulo" placeholder="Ej: Zapatillas Urbanas, 1 Kg + 1/4 Kg o Promo Pizza + 6 Empanadas" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
         </div>
 
         <div>
@@ -668,24 +668,26 @@
             <label for="prod-requiere-coccion" class="text-xs font-semibold text-slate-300 cursor-pointer">Pedir tipo de cocción (Al Horno / Fritas)</label>
           </div>
 
-          <!-- VARIANTES (TALLES Y COLORES) -->
-          <div class="flex items-center gap-2.5 pt-1">
-            <input type="checkbox" id="prod-tiene-variantes" onchange="toggleBoxVariantes()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
-            <label for="prod-tiene-variantes" class="text-xs font-semibold text-brand-400 cursor-pointer">Tiene variantes (Talles, Colores, Medidas)</label>
+          <!-- VARIANTES SOLO PARA INDUMENTARIA / CALZADO / MODA -->
+          <div id="box-check-variantes-prod" class="hidden">
+            <div class="flex items-center gap-2.5 pt-1">
+              <input type="checkbox" id="prod-tiene-variantes" onchange="toggleBoxVariantes()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
+              <label for="prod-tiene-variantes" class="text-xs font-semibold text-brand-400 cursor-pointer">Tiene variantes (Talles, Colores, Medidas)</label>
+            </div>
+
+            <div id="sub-box-config-variantes" class="hidden pt-3 border-t border-white/10 space-y-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-300 mb-1">Talles / Medidas (Separados por coma)</label>
+                <input type="text" id="prod-talles-input" placeholder="Ej: S, M, L, XL o 38, 39, 40, 41" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-300 mb-1">Colores / Modelos (Separados por coma)</label>
+                <input type="text" id="prod-colores-input" placeholder="Ej: Negro, Blanco, Azul, Rojo" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+              </div>
+            </div>
           </div>
 
-          <div id="sub-box-config-variantes" class="hidden pt-3 border-t border-white/10 space-y-3">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-1">Talles / Medidas (Separados por coma)</label>
-              <input type="text" id="prod-talles-input" placeholder="Ej: S, M, L, XL o 38, 39, 40, 41" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-300 mb-1">Colores / Modelos (Separados por coma)</label>
-              <input type="text" id="prod-colores-input" placeholder="Ej: Negro, Blanco, Azul, Rojo" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
-            </div>
-          </div>
-
-          <!-- SUB-BOX SABORES -->
+          <!-- SUB-BOX SABORES Y PROMOS MODULARES -->
           <div id="sub-box-config-sabores" class="hidden pt-3 border-t border-white/10 space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2.5">
@@ -700,6 +702,13 @@
               <p class="text-[10px] text-slate-400 mt-1">El precio cobrado será por el pack/combo completo.</p>
             </div>
 
+            <!-- PROMOS MODULARES / SUB-BLOQUES -->
+            <div class="pt-2 border-t border-white/10">
+              <label class="block text-[11px] font-bold text-brand-400 mb-1">Sub-bloques para Promos Combinadas (Opcional)</label>
+              <input type="text" id="prod-bloques-promo-input" placeholder="Ej: Pote 1 Kg [4], Pote 1/4 Kg [2]  ó  Pizza [1], 6 Empanadas [6]" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+              <p class="text-[10px] text-slate-400 mt-1">Sintaxis: Nombre [Cantidad]. Para la promo 1 Kg + 1/4 Kg usá: <code class="text-amber-400">Pote 1 Kg [4], Pote 1/4 Kg [2]</code></p>
+            </div>
+
             <div>
               <label class="block text-[11px] font-bold text-slate-400 mb-1">Sabores Específicos (Opcional)</label>
               <textarea id="prod-sabores-especificos" placeholder="Si este producto usa sabores distintos a los del local, escribilos acá separados por coma." class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
@@ -709,7 +718,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Zapatillas de lona urbana suela de goma." class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
+          <textarea id="prod-descripcion" placeholder="Ej: Incluye 1 pote de 1kg y 1 pote de 1/4kg con gustos a elección." class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
         </div>
 
         <div>
@@ -740,6 +749,10 @@
       "Cosmética & Belleza", "Mascotas", "Tecnología & Celulares"
     ];
 
+    const CATEGORIAS_INDUMENTARIA = [
+      "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", "Bazar & Hogar", "Regalería & Regalos"
+    ];
+
     let comerciosGlobales = [];
     let categoriaSeleccionada = 'Todas';
     let comercioActivo = null;
@@ -751,9 +764,7 @@
     let cantidadesProductosPrevias = {};
     let estadoSaboresPorUnidad = {};
 
-    /* ============================================================
-       SCRIPT DE COMPRESIÓN AUTOMÁTICA DE IMÁGENES (CANVAS CLIENTE)
-       ============================================================ */
+    /* COMPRESIÓN AUTOMÁTICA DE IMÁGENES (CANVAS) */
     async function comprimirImagenCliente(file, maxAncho = 800, maxAlto = 800, calidad = 0.8) {
       return new Promise((resolve, reject) => {
         if (!file || !file.type.startsWith('image/')) {
@@ -1087,7 +1098,6 @@
       if (elem) elem.innerText = cantidadesProductosPrevias[prodId];
     }
 
-    /* CONTROL DE STOCK EXPRESS (DISPONIBLE / AGOTADO) */
     async function toggleStockExpress(prodId, estadoActual) {
       const nuevoEstado = !estadoActual;
       const { error } = await _supabase.from('productos').update({ disponible: nuevoEstado }).eq('id', prodId);
@@ -1117,7 +1127,8 @@
       productos.forEach(p => {
         if (!cantidadesProductosPrevias[p.id]) cantidadesProductosPrevias[p.id] = 1;
 
-        const estaDisponible = p.disponible !== false; // por defecto true
+        const estaDisponible = p.disponible !== false;
+        const esIlimitado = (p.max_sabores === 0 || p.max_sabores === 999) && Boolean(p.requiere_sabores);
 
         container.innerHTML += `
           <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''}">
@@ -1151,14 +1162,16 @@
               ` : ''}
 
               ${estaDisponible ? `
-                <div class="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10">
-                  <button type="button" onclick="cambiarCantidadPrevia('${p.id}', -1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">-</button>
-                  <span id="cant-previa-${p.id}" class="w-6 text-center font-black text-xs text-white">${cantidadesProductosPrevias[p.id]}</span>
-                  <button type="button" onclick="cambiarCantidadPrevia('${p.id}', 1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">+</button>
-                </div>
+                ${!esIlimitado ? `
+                  <div class="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10">
+                    <button type="button" onclick="cambiarCantidadPrevia('${p.id}', -1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">-</button>
+                    <span id="cant-previa-${p.id}" class="w-6 text-center font-black text-xs text-white">${cantidadesProductosPrevias[p.id]}</span>
+                    <button type="button" onclick="cambiarCantidadPrevia('${p.id}', 1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">+</button>
+                  </div>
+                ` : ''}
 
                 <button onclick="intentarAgregarProducto('${p.id}')" class="bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-lg shadow-brand-500/20 transition flex items-center gap-1.5 active:scale-95">
-                  <i data-lucide="plus" class="w-4 h-4"></i> Agregar
+                  <i data-lucide="plus" class="w-4 h-4"></i> ${esIlimitado ? 'Elegir sabores' : 'Agregar'}
                 </button>
               ` : `
                 <span class="text-xs font-bold text-slate-500 bg-slate-800 px-3 py-2 rounded-xl">No disponible</span>
@@ -1169,6 +1182,19 @@
       });
 
       if (window.lucide) lucide.createIcons();
+    }
+
+    function parsearBloquesPromo(str) {
+      if (!str) return [];
+      const bloques = [];
+      const partes = str.split(',');
+      partes.forEach(p => {
+        const match = p.trim().match(/^(.*?)\s*\[(\d+)\]$/);
+        if (match) {
+          bloques.push({ nombre: match[1].trim(), cantidad: parseInt(match[2]) });
+        }
+      });
+      return bloques;
     }
 
     function intentarAgregarProducto(prodId) {
@@ -1195,7 +1221,9 @@
         listaSaboresUsar = comercioActivo.sabores;
       }
 
-      if ((requiereSabores && listaSaboresUsar.length > 0) || tieneVariantes) {
+      const bloquesPromo = parsearBloquesPromo(p.bloques_promo_str);
+
+      if ((requiereSabores && listaSaboresUsar.length > 0) || tieneVariantes || bloquesPromo.length > 0) {
         const esIlimitado = p.max_sabores === 0 || p.max_sabores === 999 || p.max_sabores === null;
         const maxSabores = esIlimitado ? 999 : parseInt(p.max_sabores);
 
@@ -1203,26 +1231,27 @@
           id: p.id, 
           titulo: p.titulo, 
           precio: p.precio, 
-          cantidadUnidades: cantidadPedida,
+          cantidadUnidades: esIlimitado ? 1 : cantidadPedida,
           requiereCoccion, 
           maxSabores: maxSabores,
           esIlimitado: esIlimitado,
           listaSaboresUsar,
+          bloquesPromo,
           talles: p.talles_disponibles || [],
           colores: p.colores_disponibles || []
         };
 
-        document.getElementById('modal-sabores-titulo').innerText = `${p.titulo} (x${cantidadPedida})`;
+        document.getElementById('modal-sabores-titulo').innerText = esIlimitado ? p.titulo : `${p.titulo} (x${cantidadPedida})`;
         document.getElementById('modal-sabores-sub').innerText = esIlimitado 
-          ? 'Elegí las opciones o gustos deseados.'
-          : `Configurá las opciones de cada una de las ${cantidadPedida} unidades (${maxSabores} gustos c/u).`;
+          ? 'Sumá la cantidad deseada para cada sabor.'
+          : `Configurá los gustos de tu pedido.`;
 
         const txtAreaDetalles = document.getElementById('sabores-detalles');
         if (esHeladeria) txtAreaDetalles.placeholder = "Ej: Cucuruchos extra, enviar cucharitas...";
         else if (esEmpanadas) txtAreaDetalles.placeholder = "Ej: Bien doraditas, repulgue marcado...";
         else txtAreaDetalles.placeholder = "Aclaraciones o notas especiales sobre tu pedido...";
 
-        // Config Variantes (Talles / Colores)
+        // Variantes
         const boxVariantes = document.getElementById('box-variantes-indumentaria');
         const boxTalles = document.getElementById('box-select-talles');
         const boxColores = document.getElementById('box-select-colores');
@@ -1259,15 +1288,57 @@
         const contenedor = document.getElementById('contenedor-bloques-unidades');
         contenedor.innerHTML = '';
 
-        if (requiereSabores && listaSaboresUsar.length > 0) {
-          for (let numUnidad = 1; numUnidad <= cantidadPedida; numUnidad++) {
-            estadoSaboresPorUnidad[numUnidad] = {};
+        if (bloquesPromo.length > 0) {
+          // GENERACIÓN DE PROMOS MODULARES
+          bloquesPromo.forEach((bloque, bIdx) => {
+            const numUnidad = bIdx + 1;
+            estadoSaboresPorUnidad[numUnidad] = { _max: bloque.cantidad, _nombre: bloque.nombre };
+
+            let htmlBloque = `
+              <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
+                <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                  <span class="text-xs font-black text-amber-400 uppercase tracking-wide">
+                    📦 ${bloque.nombre} (${bloque.cantidad} gustos)
+                  </span>
+                  <span id="badge-unidad-${numUnidad}" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
+                    0 / ${bloque.cantidad}
+                  </span>
+                </div>
+
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            `;
+
+            listaSaboresUsar.forEach(sabor => {
+              const saborClean = sabor.trim();
+              estadoSaboresPorUnidad[numUnidad][saborClean] = 0;
+
+              htmlBloque += `
+                <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 shadow-sm text-xs">
+                  <span class="font-bold text-slate-200 truncate pr-2">${saborClean}</span>
+                  <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
+                    <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-slate-800 rounded-md text-white font-black text-xs hover:bg-slate-700">-</button>
+                    <span id="cant-sabor-u${numUnidad}-${saborClean}" class="text-xs font-black text-white w-4 text-center">0</span>
+                    <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-brand-500 rounded-md text-white font-black text-xs hover:bg-brand-600">+</button>
+                  </div>
+                </div>
+              `;
+            });
+
+            htmlBloque += `</div></div>`;
+            contenedor.innerHTML += htmlBloque;
+          });
+        } else if (requiereSabores && listaSaboresUsar.length > 0) {
+          // ESTÁNDAR
+          const totalIteraciones = esIlimitado ? 1 : cantidadPedida;
+
+          for (let numUnidad = 1; numUnidad <= totalIteraciones; numUnidad++) {
+            estadoSaboresPorUnidad[numUnidad] = { _max: maxSabores };
 
             let htmlBloque = `
               <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
                 <div class="flex justify-between items-center border-b border-white/10 pb-2">
                   <span class="text-xs font-black text-slate-200 uppercase tracking-wide">
-                    ${cantidadPedida > 1 ? `Unidad #${numUnidad} de ${cantidadPedida}` : 'Seleccionar Gustos'}
+                    ${totalIteraciones > 1 ? `Unidad #${numUnidad} de ${totalIteraciones}` : 'Seleccionar Gustos'}
                   </span>
                   <span id="badge-unidad-${numUnidad}" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
                     0 / ${esIlimitado ? '∞' : maxSabores}
@@ -1313,11 +1384,18 @@
       const saboresUnidad = estadoSaboresPorUnidad[numUnidad];
       if (!saboresUnidad) return;
 
-      const sumaActualUnidad = Object.values(saboresUnidad).reduce((a, b) => a + b, 0);
+      const maximoPermitido = saboresUnidad._max || productoPendienteSabores.maxSabores;
+
+      // Calcular suma omitiendo propiedades internas
+      let sumaActualUnidad = 0;
+      for (const [k, v] of Object.entries(saboresUnidad)) {
+        if (!k.startsWith('_')) sumaActualUnidad += v;
+      }
+
       const valActual = saboresUnidad[sabor] || 0;
 
-      if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaActualUnidad >= productoPendienteSabores.maxSabores) {
-        alert(`Alcanzaste el máximo de ${productoPendienteSabores.maxSabores} gustos para esta unidad.`);
+      if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaActualUnidad >= maximoPermitido) {
+        alert(`Alcanzaste el máximo de ${maximoPermitido} gustos para esta sección.`);
         return;
       }
 
@@ -1327,10 +1405,14 @@
         const elemCant = document.getElementById(`cant-sabor-u${numUnidad}-${sabor}`);
         if (elemCant) elemCant.innerText = nuevoVal;
 
-        const totalU = Object.values(saboresUnidad).reduce((a, b) => a + b, 0);
+        let totalU = 0;
+        for (const [k, v] of Object.entries(saboresUnidad)) {
+          if (!k.startsWith('_')) totalU += v;
+        }
+
         const badge = document.getElementById(`badge-unidad-${numUnidad}`);
         if (badge) {
-          badge.innerText = productoPendienteSabores.esIlimitado ? `${totalU} selec.` : `${totalU} / ${productoPendienteSabores.maxSabores}`;
+          badge.innerText = productoPendienteSabores.esIlimitado ? `${totalU} selec.` : `${totalU} / ${maximoPermitido}`;
         }
       }
     }
@@ -1338,7 +1420,7 @@
     function confirmarAgregarConSabores() {
       if (!productoPendienteSabores) return;
 
-      const totalUnidades = productoPendienteSabores.cantidadUnidades;
+      const totalBloques = Object.keys(estadoSaboresPorUnidad).length;
       let resumenUnidadesTexto = [];
 
       // Chequeo de variantes (Talles / Colores)
@@ -1352,23 +1434,31 @@
         varianteTexto += `[Color: ${valColor}] `;
       }
 
-      for (let u = 1; u <= totalUnidades; u++) {
+      for (let u = 1; u <= totalBloques; u++) {
         const saboresU = estadoSaboresPorUnidad[u] || {};
-        const sumaU = Object.values(saboresU).reduce((a, b) => a + b, 0);
+        const maxPermitido = saboresU._max || productoPendienteSabores.maxSabores;
+        const nombreBloque = saboresU._nombre || `Unidad #${u}`;
 
-        if (Object.keys(saboresU).length > 0 && !productoPendienteSabores.esIlimitado && sumaU < productoPendienteSabores.maxSabores) {
-          if (!confirm(`La unidad #${u} tiene ${sumaU} de ${productoPendienteSabores.maxSabores} gustos elegidos. ¿Deseás continuar igual?`)) {
+        let sumaU = 0;
+        const gustosArr = [];
+
+        for (const [sabor, cant] of Object.entries(saboresU)) {
+          if (!sabor.startsWith('_') && cant > 0) {
+            sumaU += cant;
+            gustosArr.push(`${cant}x ${sabor}`);
+          }
+        }
+
+        if (Object.keys(saboresU).length > 1 && !productoPendienteSabores.esIlimitado && sumaU < maxPermitido) {
+          if (!confirm(`La sección "${nombreBloque}" tiene ${sumaU} de ${maxPermitido} gustos elegidos. ¿Deseás continuar igual?`)) {
             return;
           }
         }
 
-        const gustosArr = [];
-        for (const [sabor, cant] of Object.entries(saboresU)) {
-          if (cant > 0) gustosArr.push(`${cant}x ${sabor}`);
-        }
-
         if (gustosArr.length > 0) {
-          if (totalUnidades > 1) {
+          if (saboresU._nombre) {
+            resumenUnidadesTexto.push(`[${saboresU._nombre}: ${gustosArr.join(', ')}]`);
+          } else if (totalBloques > 1) {
             resumenUnidadesTexto.push(`[Pack ${u}: ${gustosArr.join(', ')}]`);
           } else {
             resumenUnidadesTexto.push(`Sabores: ${gustosArr.join(', ')}`);
@@ -1376,7 +1466,7 @@
         }
       }
 
-      let cantidadAAgregarAlCarrito = totalUnidades;
+      let cantidadAAgregarAlCarrito = productoPendienteSabores.cantidadUnidades;
 
       const detalles = document.getElementById('sabores-detalles').value.trim();
       let especificacion = varianteTexto;
@@ -1635,12 +1725,10 @@
       window.open(url, '_blank');
     }
 
-    /* UPLOAD CON COMPRESIÓN AUTOMÁTICA */
     async function subirImagen(fileInput) {
       const originalFile = fileInput.files[0];
       if (!originalFile) return null;
 
-      // Comprimir imagen usando Canvas en el navegador
       const compressedFile = await comprimirImagenCliente(originalFile, 800, 800, 0.8);
 
       const fileExt = compressedFile.name.split('.').pop();
@@ -1983,11 +2071,21 @@
       const esHeladeria = cats.includes('Heladerías');
       const sugerirSabores = esHeladeria || esEmpanadas;
       
+      const esIndumentaria = cats.some(c => CATEGORIAS_INDUMENTARIA.includes(c));
+      const boxVariantes = document.getElementById('box-check-variantes-prod');
+
+      if (esIndumentaria) {
+        boxVariantes.classList.remove('hidden');
+      } else {
+        boxVariantes.classList.add('hidden');
+      }
+
       document.getElementById('prod-requiere-sabores').checked = sugerirSabores;
       document.getElementById('prod-requiere-coccion').checked = esEmpanadas;
       document.getElementById('prod-tiene-variantes').checked = false;
       document.getElementById('prod-sin-limite-sabores').checked = false;
       document.getElementById('prod-max-sabores').value = '';
+      document.getElementById('prod-bloques-promo-input').value = '';
       document.getElementById('prod-sabores-especificos').value = '';
       document.getElementById('prod-talles-input').value = '';
       document.getElementById('prod-colores-input').value = '';
@@ -2026,6 +2124,14 @@
 
       const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esEmpanadas = cats.includes('Empanadas');
+      const esIndumentaria = cats.some(c => CATEGORIAS_INDUMENTARIA.includes(c));
+
+      const boxVariantes = document.getElementById('box-check-variantes-prod');
+      if (esIndumentaria) {
+        boxVariantes.classList.remove('hidden');
+      } else {
+        boxVariantes.classList.add('hidden');
+      }
 
       document.getElementById('prod-requiere-sabores').checked = Boolean(p.requiere_sabores);
       document.getElementById('prod-requiere-coccion').checked = Boolean(p.requiere_coccion);
@@ -2038,6 +2144,7 @@
       const esIlimitado = (p.max_sabores === 0 || p.max_sabores === 999);
       document.getElementById('prod-sin-limite-sabores').checked = esIlimitado;
       document.getElementById('prod-max-sabores').value = esIlimitado ? '' : (p.max_sabores || '');
+      document.getElementById('prod-bloques-promo-input').value = p.bloques_promo_str || '';
       document.getElementById('prod-sabores-especificos').value = p.sabores_especificos ? p.sabores_especificos.join(', ') : '';
 
       const boxCheckCoccion = document.getElementById('box-check-coccion-prod');
@@ -2183,20 +2290,23 @@
       const coloresTxt = document.getElementById('prod-colores-input').value.trim();
       const coloresArr = (tieneVariantes && coloresTxt) ? coloresTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
-  const datosProducto = {
-  comercio_id: comercioId,
-  titulo: document.getElementById('prod-titulo').value.trim(),
-  precio: parseFloat(document.getElementById('prod-precio').value),
-  descripcion: document.getElementById('prod-descripcion').value.trim(),
-  requiere_sabores: requiereSabores,
-  requiere_coccion: document.getElementById('prod-requiere-coccion').checked,
-  max_sabores: maxSaboresFinal,
-  sabores_especificos: saboresEspArr,
-  talles_disponibles: tallesArr,
-  colores_disponibles: coloresArr,
-  disponible: true, // <-- Corregido a singular "disponible"
-  imagen_url
-};
+      const bloquesPromoStr = document.getElementById('prod-bloques-promo-input').value.trim();
+
+      const datosProducto = {
+        comercio_id: comercioId,
+        titulo: document.getElementById('prod-titulo').value.trim(),
+        precio: parseFloat(document.getElementById('prod-precio').value),
+        descripcion: document.getElementById('prod-descripcion').value.trim(),
+        requiere_sabores: requiereSabores,
+        requiere_coccion: document.getElementById('prod-requiere-coccion').checked,
+        max_sabores: maxSaboresFinal,
+        bloques_promo_str: bloquesPromoStr || null,
+        sabores_especificos: saboresEspArr,
+        talles_disponibles: tallesArr,
+        colores_disponibles: coloresArr,
+        disponible: true,
+        imagen_url
+      };
 
       let res;
       if (prodEditId) {
