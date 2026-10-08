@@ -256,11 +256,16 @@
     <div id="detalle-comercio-header" class="glass-card rounded-3xl p-6 border border-white/10 shadow-2xl space-y-5"></div>
 
     <section class="space-y-4">
-      <div class="flex justify-between items-center px-1">
+      <div class="flex justify-between items-center px-1 flex-wrap gap-2">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Catálogo de Productos</h3>
-        <button id="btn-agregar-prod-vista" class="text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
-          <i data-lucide="plus" class="w-4 h-4"></i> Cargar Producto
-        </button>
+        <div id="acciones-duenio-prod" class="flex items-center gap-2 hidden">
+          <button id="btn-agregar-prod-vista" class="text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i> Cargar Producto
+          </button>
+          <button id="btn-agregar-promo-vista" onclick="prepararModalPromo()" class="text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+            <i data-lucide="tag" class="w-4 h-4"></i> Armar Promoción
+          </button>
+        </div>
       </div>
 
       <div id="productos-container" class="grid grid-cols-1 gap-3.5"></div>
@@ -286,7 +291,6 @@
   <!-- MODAL: SELECCIONAR SABORES Y VARIANTES -->
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="glass-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto text-slate-100">
-      
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
 
       <div class="flex justify-between items-start border-b border-white/10 pb-4">
@@ -299,7 +303,6 @@
         </button>
       </div>
 
-      <!-- Selector Tipo Cocción -->
       <div id="box-opcion-coccion" class="hidden space-y-2">
         <label class="block text-xs font-bold text-slate-300">Tipo de Cocción</label>
         <div class="grid grid-cols-2 gap-2 text-xs">
@@ -314,7 +317,6 @@
         </div>
       </div>
 
-      <!-- VARIANTES: TALLES Y COLORES (SI APLICA) -->
       <div id="box-variantes-indumentaria" class="hidden space-y-3 bg-slate-800/50 p-4 rounded-2xl border border-white/10">
         <div id="box-select-talles" class="hidden space-y-1">
           <label class="block text-xs font-bold text-slate-300">Seleccionar Talle / Medida *</label>
@@ -326,10 +328,8 @@
         </div>
       </div>
 
-      <!-- CONTENEDOR DINÁMICO DE UNIDADES Y GUSTOS / PROMOS -->
       <div id="contenedor-bloques-unidades" class="space-y-4"></div>
 
-      <!-- Campo Detalles / Aclaraciones -->
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1.5">Aclaraciones o Nota Especial</label>
         <textarea id="sabores-detalles" placeholder="Aclaraciones sobre tu pedido..." class="w-full glass-input px-4 py-2.5 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
@@ -393,7 +393,6 @@
           <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
         </button>
       </div>
-
     </div>
   </div>
 
@@ -623,7 +622,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Cargar / Editar Producto -->
+  <!-- MODAL: Cargar / Editar Producto Simples -->
   <div id="modal-producto" class="modal-bottom-sheet fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="glass-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto text-slate-100">
       
@@ -645,22 +644,21 @@
         <input type="hidden" id="prod-imagen-existente">
         
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Producto / Promoción</label>
-          <input type="text" id="prod-titulo" placeholder="Ej: Zapatillas Urbanas, 1 Kg + 1/4 Kg o Promo Pizza + 6 Empanadas" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Producto</label>
+          <input type="text" id="prod-titulo" placeholder="Ej: Pote 1 Kg de Helado o Cubatones" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Precio ($)</label>
-          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 21000" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
+          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 12000" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
         </div>
 
-        <!-- CONFIGURACIÓN ESPECÍFICA DEL PRODUCTO -->
         <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
-          <label class="block text-xs font-bold text-slate-200">Opciones Personalizadas del Producto</label>
+          <label class="block text-xs font-bold text-slate-200">Opciones del Producto</label>
           
           <div class="flex items-center gap-2.5">
             <input type="checkbox" id="prod-requiere-sabores" onchange="toggleBoxConfigSabores()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
-            <label for="prod-requiere-sabores" class="text-xs font-semibold text-slate-300 cursor-pointer">Permitir elegir sabores / gustos en este producto</label>
+            <label for="prod-requiere-sabores" class="text-xs font-semibold text-slate-300 cursor-pointer">Permitir elegir sabores / gustos</label>
           </div>
 
           <div id="box-check-coccion-prod" class="flex items-center gap-2.5">
@@ -668,61 +666,56 @@
             <label for="prod-requiere-coccion" class="text-xs font-semibold text-slate-300 cursor-pointer">Pedir tipo de cocción (Al Horno / Fritas)</label>
           </div>
 
-          <!-- VARIANTES SOLO PARA INDUMENTARIA / CALZADO / MODA -->
           <div id="box-check-variantes-prod" class="hidden">
             <div class="flex items-center gap-2.5 pt-1">
               <input type="checkbox" id="prod-tiene-variantes" onchange="toggleBoxVariantes()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
-              <label for="prod-tiene-variantes" class="text-xs font-semibold text-brand-400 cursor-pointer">Tiene variantes (Talles, Colores, Medidas)</label>
+              <label for="prod-tiene-variantes" class="text-xs font-semibold text-brand-400 cursor-pointer">Tiene variantes (Talles / Colores)</label>
             </div>
 
             <div id="sub-box-config-variantes" class="hidden pt-3 border-t border-white/10 space-y-3">
               <div>
-                <label class="block text-[11px] font-bold text-slate-300 mb-1">Talles / Medidas (Separados por coma)</label>
-                <input type="text" id="prod-talles-input" placeholder="Ej: S, M, L, XL o 38, 39, 40, 41" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+                <label class="block text-[11px] font-bold text-slate-300 mb-1">Talles (Separados por coma)</label>
+                <input type="text" id="prod-talles-input" placeholder="Ej: S, M, L, XL" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-300 mb-1">Colores / Modelos (Separados por coma)</label>
-                <input type="text" id="prod-colores-input" placeholder="Ej: Negro, Blanco, Azul, Rojo" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+                <label class="block text-[11px] font-bold text-slate-300 mb-1">Colores (Separados por coma)</label>
+                <input type="text" id="prod-colores-input" placeholder="Ej: Negro, Blanco, Azul" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
               </div>
             </div>
           </div>
 
-          <!-- SUB-BOX SABORES Y PROMOS MODULARES -->
+          <!-- SUB-BOX SABORES -->
           <div id="sub-box-config-sabores" class="hidden pt-3 border-t border-white/10 space-y-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <input type="checkbox" id="prod-sin-limite-sabores" onchange="toggleInputMaxSabores()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
-                <label for="prod-sin-limite-sabores" class="text-xs font-bold text-brand-400 cursor-pointer">Venta por unidad / sin límite de gustos</label>
-              </div>
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" id="prod-sin-limite-sabores" onchange="toggleInputMaxSabores()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
+              <label for="prod-sin-limite-sabores" class="text-xs font-bold text-brand-400 cursor-pointer">Sabores libres / sin límite de gustos</label>
             </div>
 
             <div id="box-input-max-sabores">
-              <label class="block text-[11px] font-bold text-slate-400 mb-1">Cantidad fija de sabores/unidades por combo</label>
-              <input type="number" min="1" max="100" id="prod-max-sabores" placeholder="Ej: 12 (para docena) o 4 (para 1kg)" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
-              <p class="text-[10px] text-slate-400 mt-1">El precio cobrado será por el pack/combo completo.</p>
+              <label class="block text-[11px] font-bold text-slate-400 mb-1">Cantidad fija de gustos por unidad</label>
+              <input type="number" min="1" max="100" id="prod-max-sabores" placeholder="Ej: 4 (para 1kg) o 12 (docena)" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
             </div>
-
-           <!-- PROMOS MODULARES / SUB-BLOQUES CON PARENTESIS -->
-<div class="pt-2 border-t border-white/10">
-  <label class="block text-[11px] font-bold text-brand-400 mb-1">Sub-bloques para Promos Combinadas (Opcional)</label>
-  <input type="text" id="prod-bloques-promo-input" placeholder="Ej: Pote 1 Kg (4), Pote 1/4 Kg (2)  ó  Pizza (1), 6 Empanadas (6)" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
-  <p class="text-[10px] text-slate-400 mt-1">Sintaxis: Nombre (Cantidad). Ejemplo: <code class="text-amber-400">Pote 1 Kg (4), Pote 1/4 Kg (2)</code></p>
-</div>
 
             <div>
               <label class="block text-[11px] font-bold text-slate-400 mb-1">Sabores Específicos (Opcional)</label>
-              <textarea id="prod-sabores-especificos" placeholder="Si este producto usa sabores distintos a los del local, escribilos acá separados por coma." class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
+              <textarea id="prod-sabores-especificos" placeholder="Si este producto usa sabores distintos a los del local, escribilos acá separados por coma." class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold" rows="2"></textarea>
             </div>
+          </div>
+
+          <!-- CHECKBOX PRODUCTO EXCLUSIVO DE COMBO -->
+          <div class="pt-2 border-t border-white/10 flex items-center gap-2.5">
+            <input type="checkbox" id="prod-solo-promo" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500 cursor-pointer">
+            <label for="prod-solo-promo" class="text-xs font-bold text-amber-400 cursor-pointer">Exclusivo para promociones (ocultar en menú individual)</label>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Descripción corta</label>
-          <textarea id="prod-descripcion" placeholder="Ej: Incluye 1 pote de 1kg y 1 pote de 1/4kg con gustos a elección." class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
+          <textarea id="prod-descripcion" placeholder="Ej: Pote de telgopor térmico con hasta 4 sabores." class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold" rows="2"></textarea>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Foto del Producto (Compresión ultraligera automática)</label>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Foto del Producto</label>
           <input type="file" id="prod-imagen" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 cursor-pointer">
           <p class="text-[10px] text-slate-400 mt-1" id="help-imagen-edit"></p>
         </div>
@@ -730,6 +723,73 @@
         <div class="flex gap-3 pt-3">
           <button onclick="cerrarModal('modal-producto')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3.5 rounded-xl font-bold text-xs transition">Cancelar</button>
           <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white py-3.5 rounded-xl font-black text-xs shadow-lg shadow-brand-500/30 transition">Publicar Producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ARMADOR DE PROMOCIONES / COMBOS -->
+  <div id="modal-promo" class="modal-bottom-sheet fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+    <div class="glass-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto text-slate-100">
+      
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+
+      <div class="flex justify-between items-start border-b border-white/10 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-amber-400 flex items-center gap-2">
+            <i data-lucide="tag" class="w-5 h-5"></i> Armar Promoción / Combo
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Fusioná productos existentes y ofrecé un descuento.</p>
+        </div>
+        <button onclick="cerrarModal('modal-promo')" type="button" class="p-1 rounded-full text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-promo" class="space-y-4">
+        <input type="hidden" id="promo-edit-id">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Combo / Promo</label>
+          <input type="text" id="promo-titulo" placeholder="Ej: Combo Fiesta 1 Kg + 2 Cubatones" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+        </div>
+
+        <!-- SELECCIONADOR DE PRODUCTOS COMPONENTES -->
+        <div class="bg-slate-800/60 p-4 rounded-2xl border border-amber-500/30 space-y-3">
+          <label class="block text-xs font-bold text-amber-400">Elegir productos que integran la promo</label>
+          
+          <div id="lista-productos-promo-picker" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+
+          <div class="pt-2 border-t border-white/10 flex justify-between items-center text-xs">
+            <span class="text-slate-400 font-semibold">Suma de precios individuales:</span>
+            <span id="promo-precio-original-suma" class="font-black text-slate-300 text-sm">$0</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Precio Promocional ($)</label>
+            <input type="number" step="0.01" id="promo-precio-final" oninput="calcularDescuentoPromo()" placeholder="Ej: 15000" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-black text-emerald-400">
+          </div>
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-emerald-500/30 flex flex-col items-center justify-center text-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Descuento</span>
+            <span id="badge-promo-descuento-calc" class="text-sm font-black text-emerald-400">0% OFF</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Descripción de la Promo</label>
+          <textarea id="promo-descripcion" placeholder="Ej: Incluye 1kg de helado con gustos a elección y 2 cubatones bañados." class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold" rows="2"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Foto de la Promo (Opcional)</label>
+          <input type="file" id="promo-imagen" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500/20 file:text-amber-400 cursor-pointer">
+        </div>
+
+        <div class="flex gap-3 pt-3">
+          <button onclick="cerrarModal('modal-promo')" type="button" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3.5 rounded-xl font-bold text-xs transition">Cancelar</button>
+          <button type="submit" class="w-1/2 bg-gradient-to-r from-amber-500 to-brand-500 hover:from-amber-600 hover:to-brand-600 text-white py-3.5 rounded-xl font-black text-xs shadow-lg shadow-amber-500/30 transition">Guardar Promo</button>
         </div>
       </form>
     </div>
@@ -763,6 +823,8 @@
     let productoPendienteSabores = null;
     let cantidadesProductosPrevias = {};
     let estadoSaboresPorUnidad = {};
+
+    let promoItemsSeleccionados = {}; // { prodId: cantidad }
 
     /* COMPRESIÓN AUTOMÁTICA DE IMÁGENES (CANVAS) */
     async function comprimirImagenCliente(file, maxAncho = 800, maxAlto = 800, calidad = 0.8) {
@@ -1074,12 +1136,12 @@
         </div>
       `;
 
-      const btnCargarProd = document.getElementById('btn-agregar-prod-vista');
+      const boxAccionesDuenio = document.getElementById('acciones-duenio-prod');
       if (esDuenio) {
-        btnCargarProd.classList.remove('hidden');
-        btnCargarProd.onclick = () => prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
+        boxAccionesDuenio.classList.remove('hidden');
+        document.getElementById('btn-agregar-prod-vista').onclick = () => prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
       } else {
-        btnCargarProd.classList.add('hidden');
+        boxAccionesDuenio.classList.add('hidden');
       }
 
       renderizarProductosComercio(comercioActivo.productos || [], esDuenio);
@@ -1113,32 +1175,40 @@
       const container = document.getElementById('productos-container');
       container.innerHTML = '';
 
-      if (productos.length === 0) {
+      // Ocultar productos que son "solo para promos" a los clientes finales
+      const productosVisibles = esDuenio 
+        ? productos 
+        : productos.filter(p => !p.es_solo_promo);
+
+      if (productosVisibles.length === 0) {
         container.innerHTML = `
           <div class="p-10 glass-card rounded-3xl text-center text-slate-400 space-y-3 shadow-lg">
             <i data-lucide="package-open" class="w-10 h-10 mx-auto text-slate-500"></i>
-            <p class="text-xs font-semibold">Este local aún no ha publicado productos.</p>
+            <p class="text-xs font-semibold">Este local aún no ha publicado productos visibles.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
         return;
       }
 
-      productos.forEach(p => {
+      productosVisibles.forEach(p => {
         if (!cantidadesProductosPrevias[p.id]) cantidadesProductosPrevias[p.id] = 1;
 
         const estaDisponible = p.disponible !== false;
         const esIlimitado = (p.max_sabores === 0 || p.max_sabores === 999) && Boolean(p.requiere_sabores);
+        const esCombo = Boolean(p.es_combo);
 
         container.innerHTML += `
-          <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''}">
+          <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-500/40 bg-amber-500/5' : ''}">
             <div class="flex items-center gap-4 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
               ${p.imagen_url 
                 ? `<img src="${p.imagen_url}" class="w-20 h-20 rounded-xl object-cover border border-white/10 flex-shrink-0 group-hover:scale-105 transition duration-300">` 
-                : `<div class="w-20 h-20 bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 flex-shrink-0 border border-white/10"><i data-lucide="package" class="w-7 h-7"></i></div>`}
+                : `<div class="w-20 h-20 bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 flex-shrink-0 border border-white/10"><i data-lucide="${esCombo ? 'tag' : 'package'}" class="w-7 h-7"></i></div>`}
               <div class="truncate">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-bold text-base text-white truncate group-hover:text-brand-400 transition">${p.titulo}</h4>
+                  ${esCombo ? '<span class="text-[9px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
+                  ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
                   ${!estaDisponible ? '<span class="text-[9px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
                 </div>
                 <p class="text-xs text-slate-400 truncate mt-0.5">${p.descripcion || 'Tocar para ver detalles'}</p>
@@ -1152,17 +1222,17 @@
                   <button onclick="toggleStockExpress('${p.id}', ${estaDisponible})" title="Cambiar Disponibilidad" class="text-[10px] font-black px-2.5 py-1.5 rounded-lg border transition ${estaDisponible ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-rose-500/20 hover:text-rose-400' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-emerald-500/20 hover:text-emerald-400'}">
                     ${estaDisponible ? 'Pausar' : 'Activar'}
                   </button>
-                  <button onclick="prepararEditarProducto('${p.id}')" title="Editar producto" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition">
+                  <button onclick="${esCombo ? `prepararEditarPromo('${p.id}')` : `prepararEditarProducto('${p.id}')`}" title="Editar" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="eliminarProducto('${p.id}')" title="Eliminar producto" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition">
+                  <button onclick="eliminarProducto('${p.id}')" title="Eliminar" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                   </button>
                 </div>
               ` : ''}
 
               ${estaDisponible ? `
-                ${!esIlimitado ? `
+                ${(!esIlimitado && !esCombo) ? `
                   <div class="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10">
                     <button type="button" onclick="cambiarCantidadPrevia('${p.id}', -1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">-</button>
                     <span id="cant-previa-${p.id}" class="w-6 text-center font-black text-xs text-white">${cantidadesProductosPrevias[p.id]}</span>
@@ -1171,7 +1241,7 @@
                 ` : ''}
 
                 <button onclick="intentarAgregarProducto('${p.id}')" class="bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-lg shadow-brand-500/20 transition flex items-center gap-1.5 active:scale-95">
-                  <i data-lucide="plus" class="w-4 h-4"></i> ${esIlimitado ? 'Elegir sabores' : 'Agregar'}
+                  <i data-lucide="plus" class="w-4 h-4"></i> ${esCombo ? 'Elegir opciones de promo' : (esIlimitado ? 'Elegir sabores' : 'Agregar')}
                 </button>
               ` : `
                 <span class="text-xs font-bold text-slate-500 bg-slate-800 px-3 py-2 rounded-xl">No disponible</span>
@@ -1184,26 +1254,103 @@
       if (window.lucide) lucide.createIcons();
     }
 
-   function parsearBloquesPromo(str) {
-  if (!str) return [];
-  const bloques = [];
-  const partes = str.split(',');
-  partes.forEach(p => {
-    // Expresión regular ajustada para paréntesis ( )
-    const match = p.trim().match(/^(.*?)\s*\((\d+)\)$/);
-    if (match) {
-      bloques.push({ nombre: match[1].trim(), cantidad: parseInt(match[2]) });
-    }
-  });
-  return bloques;
-}
-
     function intentarAgregarProducto(prodId) {
       const p = comercioActivo?.productos?.find(item => item.id === prodId);
       if (!p) return;
 
       const cantidadPedida = cantidadesProductosPrevias[p.id] || 1;
 
+      // SI ES UN COMBO
+      if (p.es_combo && p.items_combo) {
+        let componentesPromo = [];
+        try {
+          componentesPromo = typeof p.items_combo === 'string' ? JSON.parse(p.items_combo) : p.items_combo;
+        } catch(e) { console.error(e); }
+
+        productoPendienteSabores = {
+          id: p.id,
+          titulo: p.titulo,
+          precio: p.precio,
+          cantidadUnidades: 1,
+          esCombo: true,
+          componentesPromo
+        };
+
+        document.getElementById('modal-sabores-titulo').innerText = p.titulo;
+        document.getElementById('modal-sabores-sub').innerText = 'Personalizá los ítems que componen tu promoción.';
+
+        const contenedor = document.getElementById('contenedor-bloques-unidades');
+        contenedor.innerHTML = '';
+        estadoSaboresPorUnidad = {};
+
+        let numBloque = 1;
+        componentesPromo.forEach(itemInfo => {
+          const prodOriginal = comercioActivo.productos.find(x => x.id === itemInfo.prodId);
+          if (!prodOriginal) return;
+
+          for (let qty = 1; qty <= itemInfo.cantidad; qty++) {
+            const numUnidadActual = numBloque;
+            numBloque++;
+
+            const esIlimitado = prodOriginal.max_sabores === 0 || prodOriginal.max_sabores === 999;
+            const maxG = esIlimitado ? 999 : (prodOriginal.max_sabores || 0);
+
+            estadoSaboresPorUnidad[numUnidadActual] = { 
+              _max: maxG, 
+              _nombre: `${prodOriginal.titulo} (${qty}/${itemInfo.cantidad})`,
+              _esIlimitado: esIlimitado
+            };
+
+            let listSab = (prodOriginal.sabores_especificos && prodOriginal.sabores_especificos.length > 0)
+              ? prodOriginal.sabores_especificos
+              : (comercioActivo.sabores || []);
+
+            let htmlBloque = `
+              <div class="bg-slate-800/50 p-4 rounded-2xl border border-amber-500/30 space-y-3">
+                <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                  <span class="text-xs font-black text-amber-400 uppercase tracking-wide">
+                    📦 ${prodOriginal.titulo} ${itemInfo.cantidad > 1 ? `#${qty}` : ''}
+                  </span>
+                  <span id="badge-unidad-${numUnidadActual}" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
+                    0 / ${esIlimitado ? '∞' : maxG}
+                  </span>
+                </div>
+
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            `;
+
+            if (listSab.length > 0 && prodOriginal.requiere_sabores) {
+              listSab.forEach(sabor => {
+                const saborClean = sabor.trim();
+                estadoSaboresPorUnidad[numUnidadActual][saborClean] = 0;
+
+                htmlBloque += `
+                  <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 shadow-sm text-xs">
+                    <span class="font-bold text-slate-200 truncate pr-2">${saborClean}</span>
+                    <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
+                      <button type="button" onclick="modificarSaborUnidad(${numUnidadActual}, '${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-slate-800 rounded-md text-white font-black text-xs hover:bg-slate-700">-</button>
+                      <span id="cant-sabor-u${numUnidadActual}-${saborClean}" class="text-xs font-black text-white w-4 text-center">0</span>
+                      <button type="button" onclick="modificarSaborUnidad(${numUnidadActual}, '${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-brand-500 rounded-md text-white font-black text-xs hover:bg-brand-600">+</button>
+                    </div>
+                  </div>
+                `;
+              });
+            } else {
+              htmlBloque += `<p class="text-xs text-slate-400 font-semibold py-1">Sin opciones adicionales requeridas para este producto.</p>`;
+            }
+
+            htmlBloque += `</div></div>`;
+            contenedor.innerHTML += htmlBloque;
+          }
+        });
+
+        document.getElementById('sabores-detalles').value = '';
+        document.getElementById('btn-confirmar-sabores').onclick = confirmarAgregarConSabores;
+        abrirModal('modal-sabores');
+        return;
+      }
+
+      // PRODUCTO INDIVIDUAL NORMAL
       const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esHeladeria = categoriasLocal.includes('Heladerías');
       const esEmpanadas = categoriasLocal.includes('Empanadas');
@@ -1222,9 +1369,7 @@
         listaSaboresUsar = comercioActivo.sabores;
       }
 
-      const bloquesPromo = parsearBloquesPromo(p.bloques_promo_str);
-
-      if ((requiereSabores && listaSaboresUsar.length > 0) || tieneVariantes || bloquesPromo.length > 0) {
+      if ((requiereSabores && listaSaboresUsar.length > 0) || tieneVariantes) {
         const esIlimitado = p.max_sabores === 0 || p.max_sabores === 999 || p.max_sabores === null;
         const maxSabores = esIlimitado ? 999 : parseInt(p.max_sabores);
 
@@ -1237,7 +1382,6 @@
           maxSabores: maxSabores,
           esIlimitado: esIlimitado,
           listaSaboresUsar,
-          bloquesPromo,
           talles: p.talles_disponibles || [],
           colores: p.colores_disponibles || []
         };
@@ -1289,85 +1433,43 @@
         const contenedor = document.getElementById('contenedor-bloques-unidades');
         contenedor.innerHTML = '';
 
-        if (bloquesPromo.length > 0) {
-          // GENERACIÓN DE PROMOS MODULARES
-          bloquesPromo.forEach((bloque, bIdx) => {
-            const numUnidad = bIdx + 1;
-            estadoSaboresPorUnidad[numUnidad] = { _max: bloque.cantidad, _nombre: bloque.nombre };
+        const totalIteraciones = esIlimitado ? 1 : cantidadPedida;
 
-            let htmlBloque = `
-              <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
-                <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                  <span class="text-xs font-black text-amber-400 uppercase tracking-wide">
-                    📦 ${bloque.nombre} (${bloque.cantidad} gustos)
-                  </span>
-                  <span id="badge-unidad-${numUnidad}" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
-                    0 / ${bloque.cantidad}
-                  </span>
+        for (let numUnidad = 1; numUnidad <= totalIteraciones; numUnidad++) {
+          estadoSaboresPorUnidad[numUnidad] = { _max: maxSabores };
+
+          let htmlBloque = `
+            <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <span class="text-xs font-black text-slate-200 uppercase tracking-wide">
+                  ${totalIteraciones > 1 ? `Unidad #${numUnidad} de ${totalIteraciones}` : 'Seleccionar Gustos'}
+                </span>
+                <span id="badge-unidad-${numUnidad}" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
+                  0 / ${esIlimitado ? '∞' : maxSabores}
+                </span>
+              </div>
+
+              <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          `;
+
+          listaSaboresUsar.forEach(sabor => {
+            const saborClean = sabor.trim();
+            estadoSaboresPorUnidad[numUnidad][saborClean] = 0;
+
+            htmlBloque += `
+              <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 shadow-sm text-xs">
+                <span class="font-bold text-slate-200 truncate pr-2">${saborClean}</span>
+                <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
+                  <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-slate-800 rounded-md text-white font-black text-xs hover:bg-slate-700">-</button>
+                  <span id="cant-sabor-u${numUnidad}-${saborClean}" class="text-xs font-black text-white w-4 text-center">0</span>
+                  <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-brand-500 rounded-md text-white font-black text-xs hover:bg-brand-600">+</button>
                 </div>
-
-                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              </div>
             `;
-
-            listaSaboresUsar.forEach(sabor => {
-              const saborClean = sabor.trim();
-              estadoSaboresPorUnidad[numUnidad][saborClean] = 0;
-
-              htmlBloque += `
-                <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 shadow-sm text-xs">
-                  <span class="font-bold text-slate-200 truncate pr-2">${saborClean}</span>
-                  <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
-                    <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-slate-800 rounded-md text-white font-black text-xs hover:bg-slate-700">-</button>
-                    <span id="cant-sabor-u${numUnidad}-${saborClean}" class="text-xs font-black text-white w-4 text-center">0</span>
-                    <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-brand-500 rounded-md text-white font-black text-xs hover:bg-brand-600">+</button>
-                  </div>
-                </div>
-              `;
-            });
-
-            htmlBloque += `</div></div>`;
-            contenedor.innerHTML += htmlBloque;
           });
-        } else if (requiereSabores && listaSaboresUsar.length > 0) {
-          // ESTÁNDAR
-          const totalIteraciones = esIlimitado ? 1 : cantidadPedida;
 
-          for (let numUnidad = 1; numUnidad <= totalIteraciones; numUnidad++) {
-            estadoSaboresPorUnidad[numUnidad] = { _max: maxSabores };
-
-            let htmlBloque = `
-              <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
-                <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                  <span class="text-xs font-black text-slate-200 uppercase tracking-wide">
-                    ${totalIteraciones > 1 ? `Unidad #${numUnidad} de ${totalIteraciones}` : 'Seleccionar Gustos'}
-                  </span>
-                  <span id="badge-unidad-${numUnidad}" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
-                    0 / ${esIlimitado ? '∞' : maxSabores}
-                  </span>
-                </div>
-
-                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-            `;
-
-            listaSaboresUsar.forEach(sabor => {
-              const saborClean = sabor.trim();
-              estadoSaboresPorUnidad[numUnidad][saborClean] = 0;
-
-              htmlBloque += `
-                <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 shadow-sm text-xs">
-                  <span class="font-bold text-slate-200 truncate pr-2">${saborClean}</span>
-                  <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
-                    <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', -1)" class="w-6 h-6 flex items-center justify-center bg-slate-800 rounded-md text-white font-black text-xs hover:bg-slate-700">-</button>
-                    <span id="cant-sabor-u${numUnidad}-${saborClean}" class="text-xs font-black text-white w-4 text-center">0</span>
-                    <button type="button" onclick="modificarSaborUnidad(${numUnidad}, '${saborClean}', 1)" class="w-6 h-6 flex items-center justify-center bg-brand-500 rounded-md text-white font-black text-xs hover:bg-brand-600">+</button>
-                  </div>
-                </div>
-              `;
-            });
-
-            htmlBloque += `</div></div>`;
-            contenedor.innerHTML += htmlBloque;
-          }
+          htmlBloque += `</div></div>`;
+          contenedor.innerHTML += htmlBloque;
         }
 
         txtAreaDetalles.value = '';
@@ -1387,7 +1489,6 @@
 
       const maximoPermitido = saboresUnidad._max || productoPendienteSabores.maxSabores;
 
-      // Calcular suma omitiendo propiedades internas
       let sumaActualUnidad = 0;
       for (const [k, v] of Object.entries(saboresUnidad)) {
         if (!k.startsWith('_')) sumaActualUnidad += v;
@@ -1395,8 +1496,8 @@
 
       const valActual = saboresUnidad[sabor] || 0;
 
-      if (cambio > 0 && !productoPendienteSabores.esIlimitado && sumaActualUnidad >= maximoPermitido) {
-        alert(`Alcanzaste el máximo de ${maximoPermitido} gustos para esta sección.`);
+      if (cambio > 0 && !saboresUnidad._esIlimitado && !productoPendienteSabores.esIlimitado && sumaActualUnidad >= maximoPermitido) {
+        alert(`Alcanzaste el máximo de ${maximoPermitido} gustos para este ítem.`);
         return;
       }
 
@@ -1413,7 +1514,9 @@
 
         const badge = document.getElementById(`badge-unidad-${numUnidad}`);
         if (badge) {
-          badge.innerText = productoPendienteSabores.esIlimitado ? `${totalU} selec.` : `${totalU} / ${maximoPermitido}`;
+          badge.innerText = (saboresUnidad._esIlimitado || productoPendienteSabores.esIlimitado) 
+            ? `${totalU} selec.` 
+            : `${totalU} / ${maximoPermitido}`;
         }
       }
     }
@@ -1424,7 +1527,6 @@
       const totalBloques = Object.keys(estadoSaboresPorUnidad).length;
       let resumenUnidadesTexto = [];
 
-      // Chequeo de variantes (Talles / Colores)
       let varianteTexto = "";
       if (productoPendienteSabores.talles && productoPendienteSabores.talles.length > 0) {
         const valTalle = document.getElementById('select-talle-opcion').value;
@@ -1450,7 +1552,7 @@
           }
         }
 
-        if (Object.keys(saboresU).length > 1 && !productoPendienteSabores.esIlimitado && sumaU < maxPermitido) {
+        if (Object.keys(saboresU).length > 3 && !saboresU._esIlimitado && !productoPendienteSabores.esIlimitado && sumaU < maxPermitido) {
           if (!confirm(`La sección "${nombreBloque}" tiene ${sumaU} de ${maxPermitido} gustos elegidos. ¿Deseás continuar igual?`)) {
             return;
           }
@@ -1804,7 +1906,7 @@
       }
 
       lista.forEach(c => {
-        const cantidadProds = c.productos ? c.productos.length : 0;
+        const cantidadProds = c.productos ? c.productos.filter(p => !p.es_solo_promo).length : 0;
         const abierto = estaAbierto(c);
         const identificador = c.slug || c.id;
 
@@ -2085,8 +2187,8 @@
       document.getElementById('prod-requiere-coccion').checked = esEmpanadas;
       document.getElementById('prod-tiene-variantes').checked = false;
       document.getElementById('prod-sin-limite-sabores').checked = false;
+      document.getElementById('prod-solo-promo').checked = false;
       document.getElementById('prod-max-sabores').value = '';
-      document.getElementById('prod-bloques-promo-input').value = '';
       document.getElementById('prod-sabores-especificos').value = '';
       document.getElementById('prod-talles-input').value = '';
       document.getElementById('prod-colores-input').value = '';
@@ -2136,6 +2238,7 @@
 
       document.getElementById('prod-requiere-sabores').checked = Boolean(p.requiere_sabores);
       document.getElementById('prod-requiere-coccion').checked = Boolean(p.requiere_coccion);
+      document.getElementById('prod-solo-promo').checked = Boolean(p.es_solo_promo);
 
       const tieneVar = Boolean((p.talles_disponibles && p.talles_disponibles.length > 0) || (p.colores_disponibles && p.colores_disponibles.length > 0));
       document.getElementById('prod-tiene-variantes').checked = tieneVar;
@@ -2145,7 +2248,6 @@
       const esIlimitado = (p.max_sabores === 0 || p.max_sabores === 999);
       document.getElementById('prod-sin-limite-sabores').checked = esIlimitado;
       document.getElementById('prod-max-sabores').value = esIlimitado ? '' : (p.max_sabores || '');
-      document.getElementById('prod-bloques-promo-input').value = p.bloques_promo_str || '';
       document.getElementById('prod-sabores-especificos').value = p.sabores_especificos ? p.sabores_especificos.join(', ') : '';
 
       const boxCheckCoccion = document.getElementById('box-check-coccion-prod');
@@ -2169,12 +2271,110 @@
       abrirModal('modal-producto');
     }
 
+    /* FUNCIONES ARMADOR DE PROMOS */
+    function prepararModalPromo() {
+      if (!comercioActivo) return;
+      document.getElementById('form-promo').reset();
+      document.getElementById('promo-edit-id').value = '';
+      promoItemsSeleccionados = {};
+
+      renderizarPickerProductosPromo();
+      calcularDescuentoPromo();
+      abrirModal('modal-promo');
+    }
+
+    function renderizarPickerProductosPromo() {
+      const picker = document.getElementById('lista-productos-promo-picker');
+      picker.innerHTML = '';
+
+      const prodsDisponibles = (comercioActivo.productos || []).filter(p => !p.es_combo);
+
+      if (prodsDisponibles.length === 0) {
+        picker.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Primero cargá al menos 1 producto individual para poder armar un combo.</p>`;
+        return;
+      }
+
+      prodsDisponibles.forEach(p => {
+        const cant = promoItemsSeleccionados[p.id] || 0;
+        picker.innerHTML += `
+          <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 text-xs">
+            <div class="truncate pr-2">
+              <span class="font-bold text-slate-200 block truncate">${p.titulo}</span>
+              <span class="text-[10px] text-amber-400 font-extrabold">$${p.precio}</span>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
+              <button type="button" onclick="modificarCantidadItemPromo('${p.id}', -1)" class="w-6 h-6 flex items-center justify-center bg-slate-800 rounded-md text-white font-black text-xs hover:bg-slate-700">-</button>
+              <span id="cant-promo-item-${p.id}" class="text-xs font-black text-white w-4 text-center">${cant}</span>
+              <button type="button" onclick="modificarCantidadItemPromo('${p.id}', 1)" class="w-6 h-6 flex items-center justify-center bg-amber-500 rounded-md text-white font-black text-xs hover:bg-amber-600">+</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function modificarCantidadItemPromo(prodId, cambio) {
+      const actual = promoItemsSeleccionados[prodId] || 0;
+      const nuevo = actual + cambio;
+
+      if (nuevo >= 0) {
+        promoItemsSeleccionados[prodId] = nuevo;
+        if (nuevo === 0) delete promoItemsSeleccionados[prodId];
+        const elem = document.getElementById(`cant-promo-item-${prodId}`);
+        if (elem) elem.innerText = nuevo;
+        calcularDescuentoPromo();
+      }
+    }
+
+    function calcularDescuentoPromo() {
+      let sumaOriginal = 0;
+      for (const [pId, cant] of Object.entries(promoItemsSeleccionados)) {
+        const p = comercioActivo?.productos?.find(x => x.id === pId);
+        if (p) sumaOriginal += (p.precio * cant);
+      }
+
+      document.getElementById('promo-precio-original-suma').innerText = `$${sumaOriginal}`;
+
+      const precioFinalVal = parseFloat(document.getElementById('promo-precio-final').value) || 0;
+      const badgeDesc = document.getElementById('badge-promo-descuento-calc');
+
+      if (sumaOriginal > 0 && precioFinalVal > 0 && precioFinalVal < sumaOriginal) {
+        const ahorro = sumaOriginal - precioFinalVal;
+        const porc = Math.round((ahorro / sumaOriginal) * 100);
+        badgeDesc.innerText = `🔥 ${porc}% OFF`;
+      } else {
+        badgeDesc.innerText = `0% OFF`;
+      }
+    }
+
+    function prepararEditarPromo(promoId) {
+      const p = comercioActivo?.productos?.find(item => item.id === promoId);
+      if (!p) return;
+
+      document.getElementById('form-promo').reset();
+      document.getElementById('promo-edit-id').value = p.id;
+      document.getElementById('promo-titulo').value = p.titulo;
+      document.getElementById('promo-precio-final').value = p.precio;
+      document.getElementById('promo-descripcion').value = p.descripcion || '';
+
+      promoItemsSeleccionados = {};
+      if (p.items_combo) {
+        try {
+          const items = typeof p.items_combo === 'string' ? JSON.parse(p.items_combo) : p.items_combo;
+          items.forEach(it => { promoItemsSeleccionados[it.prodId] = it.cantidad; });
+        } catch(e) { console.error(e); }
+      }
+
+      renderizarPickerProductosPromo();
+      calcularDescuentoPromo();
+      abrirModal('modal-promo');
+    }
+
     async function eliminarProducto(prodId) {
-      if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+      if (!confirm("¿Estás seguro de eliminar este ítem/promoción?")) return;
 
       const { error } = await _supabase.from('productos').delete().eq('id', prodId);
       if (error) {
-        alert("Error al eliminar producto: " + error.message);
+        alert("Error al eliminar: " + error.message);
       } else {
         await cargarComercios();
         if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
@@ -2255,7 +2455,7 @@
       }
     });
 
-    // SUBMIT PRODUCTO
+    // SUBMIT PRODUCTO INDIVIDUAL
     document.getElementById('form-producto').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -2291,8 +2491,6 @@
       const coloresTxt = document.getElementById('prod-colores-input').value.trim();
       const coloresArr = (tieneVariantes && coloresTxt) ? coloresTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
-      const bloquesPromoStr = document.getElementById('prod-bloques-promo-input').value.trim();
-
       const datosProducto = {
         comercio_id: comercioId,
         titulo: document.getElementById('prod-titulo').value.trim(),
@@ -2301,10 +2499,11 @@
         requiere_sabores: requiereSabores,
         requiere_coccion: document.getElementById('prod-requiere-coccion').checked,
         max_sabores: maxSaboresFinal,
-        bloques_promo_str: bloquesPromoStr || null,
         sabores_especificos: saboresEspArr,
         talles_disponibles: tallesArr,
         colores_disponibles: coloresArr,
+        es_solo_promo: document.getElementById('prod-solo-promo').checked,
+        es_combo: false,
         disponible: true,
         imagen_url
       };
@@ -2320,6 +2519,57 @@
         alert("Error al guardar producto: " + res.error.message);
       } else {
         cerrarModal('modal-producto');
+        await cargarComercios();
+        if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+      }
+    });
+
+    // SUBMIT PROMO / COMBO
+    document.getElementById('form-promo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const itemsArray = [];
+      for (const [prodId, cant] of Object.entries(promoItemsSeleccionados)) {
+        if (cant > 0) itemsArray.push({ prodId, cantidad: cant });
+      }
+
+      if (itemsArray.length === 0) {
+        alert("Debés seleccionar al menos 1 producto para armar el combo.");
+        return;
+      }
+
+      const promoEditId = document.getElementById('promo-edit-id').value;
+      const fileInput = document.getElementById('promo-imagen');
+
+      let imagen_url = null;
+      if (fileInput.files.length > 0) {
+        const subida = await subirImagen(fileInput);
+        if (subida === false) return;
+        if (subida) imagen_url = subida;
+      }
+
+      const datosPromo = {
+        comercio_id: comercioActivo.id,
+        titulo: document.getElementById('promo-titulo').value.trim(),
+        precio: parseFloat(document.getElementById('promo-precio-final').value),
+        descripcion: document.getElementById('promo-descripcion').value.trim(),
+        es_combo: true,
+        items_combo: itemsArray,
+        disponible: true,
+        imagen_url
+      };
+
+      let res;
+      if (promoEditId) {
+        res = await _supabase.from('productos').update(datosPromo).eq('id', promoEditId);
+      } else {
+        res = await _supabase.from('productos').insert([datosPromo]);
+      }
+
+      if (res.error) {
+        alert("Error al guardar promo: " + res.error.message);
+      } else {
+        cerrarModal('modal-promo');
         await cargarComercios();
         if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
