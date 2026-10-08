@@ -560,9 +560,16 @@
           </select>
         </div>
 
-        <div class="flex items-center gap-2.5 py-1">
-          <input type="checkbox" id="envios" checked onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
-          <label for="envios" class="text-xs text-slate-300 font-semibold cursor-pointer">Ofrecemos envíos a domicilio</label>
+        <div class="bg-slate-800/50 p-3.5 rounded-xl border border-white/10 space-y-2.5">
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" id="envios" checked onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
+            <label for="envios" class="text-xs text-slate-300 font-semibold cursor-pointer">Ofrecemos envíos a domicilio</label>
+          </div>
+
+          <div class="flex items-center gap-2.5 pt-1 border-t border-white/10">
+            <input type="checkbox" id="envio-gratis" onchange="toggleCampoCostoEnvio()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500 cursor-pointer">
+            <label for="envio-gratis" class="text-xs text-emerald-400 font-bold cursor-pointer">¡Ofrecemos ENVÍO GRATIS!</label>
+          </div>
         </div>
 
         <div id="contenedor-costo-envio">
@@ -919,9 +926,14 @@
 
     function toggleCampoCostoEnvio() {
       const tieneEnvios = document.getElementById('envios').checked;
+      const esGratis = document.getElementById('envio-gratis').checked;
       const contenedor = document.getElementById('contenedor-costo-envio');
-      if (tieneEnvios) contenedor.classList.remove('hidden');
-      else contenedor.classList.add('hidden');
+
+      if (tieneEnvios && !esGratis) {
+        contenedor.classList.remove('hidden');
+      } else {
+        contenedor.classList.add('hidden');
+      }
     }
 
     function toggleInputHorarioProgramado() {
@@ -1072,12 +1084,22 @@
       window.scrollTo(0, 0);
     }
 
+    /* 🚀 OPTIMIZACIÓN: Cargar productos en Supabase SOLAMENTE del local activo */
     async function abrirVistaComercio(identificador, cambiarUrl = true) {
       comercioActivo = comerciosGlobales.find(c => c.slug === identificador || c.id === identificador);
       if (!comercioActivo) return;
 
       const slugOId = comercioActivo.slug || comercioActivo.id;
       if (cambiarUrl) window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
+
+      // Pedir sólo los productos de este local para mayor velocidad
+      const { data: prods } = await _supabase
+        .from('productos')
+        .select('*')
+        .eq('comercio_id', comercioActivo.id)
+        .order('orden', { ascending: true });
+
+      comercioActivo.productos = prods || [];
 
       const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
       const abierto = estaAbierto(comercioActivo);
@@ -1110,7 +1132,10 @@
               </div>
               <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                 ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800/80 text-slate-300 px-2.5 py-1 rounded-lg border border-white/10">${cat}</span>`).join('')}
-                ${comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
+                ${comercioActivo.envio_gratis 
+                  ? '<span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
+                  : (comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
+                }
               </div>
               <p class="text-xs text-slate-400 mt-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-400"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
             </div>
@@ -1131,7 +1156,7 @@
           ${comercioActivo.hace_envios ? `
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-400"></i> Costo Envío:</span>
-              <span>${comercioActivo.costo_envio || 'A convenir'}</span>
+              <span class="${comercioActivo.envio_gratis ? 'text-emerald-400 font-bold' : ''}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
             </div>
           ` : ''}
 
@@ -1155,10 +1180,7 @@
         boxAccionesDuenio.classList.add('hidden');
       }
 
-      // ORDENAR PRODUCTOS SEGUN CAMPO 'orden' (ascendente, o por ID)
-      const prodsOrdenados = [...(comercioActivo.productos || [])].sort((a, b) => (a.orden || 0) - (b.orden || 0));
-
-      renderizarProductosComercio(prodsOrdenados, esDuenio);
+      renderizarProductosComercio(comercioActivo.productos, esDuenio);
 
       document.getElementById('vista-inicio').classList.add('hidden');
       document.getElementById('vista-comercio').classList.remove('hidden');
@@ -1180,7 +1202,6 @@
       if (error) {
         alert("Error al actualizar el stock: " + error.message);
       } else {
-        await cargarComercios();
         if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     }
@@ -1195,7 +1216,6 @@
       const targetIdx = direccion === 'arriba' ? idx - 1 : idx + 1;
       if (targetIdx < 0 || targetIdx >= prods.length) return;
 
-      // Intercambiar órdenes
       const actual = prods[idx];
       const objetivo = prods[targetIdx];
 
@@ -1203,11 +1223,9 @@
       actual.orden = objetivo.orden || targetIdx;
       objetivo.orden = tempOrden;
 
-      // Guardar en DB
       await _supabase.from('productos').update({ orden: actual.orden }).eq('id', actual.id);
       await _supabase.from('productos').update({ orden: objetivo.orden }).eq('id', objetivo.id);
 
-      await cargarComercios();
       if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
     }
 
@@ -1228,10 +1246,10 @@
       return 0;
     }
 
+    /* 🚀 OPTIMIZACIÓN: Renderizado Ultra Fluido (htmlAcc) */
     function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
-      container.innerHTML = '';
-
+      
       const productosVisibles = esDuenio 
         ? productos 
         : productos.filter(p => !p.es_solo_promo);
@@ -1247,16 +1265,17 @@
         return;
       }
 
+      let htmlAcc = '';
+
       productosVisibles.forEach((p, idx) => {
         if (!cantidadesProductosPrevias[p.id]) cantidadesProductosPrevias[p.id] = 1;
 
         const estaDisponible = p.disponible !== false;
         const esIlimitado = (p.max_sabores === 0 || p.max_sabores === 999) && Boolean(p.requiere_sabores);
         const esCombo = Boolean(p.es_combo);
-
         const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
 
-        container.innerHTML += `
+        htmlAcc += `
           <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-500/40 bg-amber-500/5' : ''}">
             <div class="flex items-center gap-4 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
               ${p.imagen_url 
@@ -1319,6 +1338,7 @@
         `;
       });
 
+      container.innerHTML = htmlAcc;
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1328,7 +1348,6 @@
 
       const cantidadPedida = cantidadesProductosPrevias[p.id] || 1;
 
-      // SI ES UN COMBO / PROMO
       if (p.es_combo && p.items_combo) {
         let componentesPromo = [];
         try {
@@ -1363,18 +1382,16 @@
             ? prodOriginal.sabores_especificos
             : (comercioActivo.sabores || []);
 
-          // SI ES UN PRODUCTO DE SABORES ILIMITADOS DENTRO DE UNA PROMO:
-          // EN LUGAR DE ABRIR N BOXES LIBRES, CREAMOS 1 SOLO BOX AGRUPADO LIMITADO A LA CANTIDAD DE LA PROMO (itemInfo.cantidad)
           if (esIlimitado && prodOriginal.requiere_sabores) {
             const numUnidadActual = numBloque;
             numBloque++;
 
-            const limiteTotalComboItem = itemInfo.cantidad; // Ej: 4 Cubatones
+            const limiteTotalComboItem = itemInfo.cantidad;
 
             estadoSaboresPorUnidad[numUnidadActual] = { 
               _max: limiteTotalComboItem, 
               _nombre: `${prodOriginal.titulo} (Total: ${limiteTotalComboItem})`,
-              _esIlimitado: false // En promo pasa a ser limitado por la promo
+              _esIlimitado: false
             };
 
             let htmlBloque = `
@@ -1411,7 +1428,6 @@
             contenedor.innerHTML += htmlBloque;
 
           } else {
-            // PRODUCTO CON LIMITE FIJO DE SABORES DENTRO DE LA PROMO (Ej: 1 Kg Helado = 4 gustos)
             for (let qty = 1; qty <= itemInfo.cantidad; qty++) {
               const numUnidadActual = numBloque;
               numBloque++;
@@ -1470,7 +1486,6 @@
         return;
       }
 
-      // PRODUCTO INDIVIDUAL NORMAL
       const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esHeladeria = categoriasLocal.includes('Heladerías');
       const esEmpanadas = categoriasLocal.includes('Empanadas');
@@ -1516,7 +1531,6 @@
         else if (esEmpanadas) txtAreaDetalles.placeholder = "Ej: Bien doraditas, repulgue marcado...";
         else txtAreaDetalles.placeholder = "Aclaraciones o notas especiales sobre tu pedido...";
 
-        // Variantes
         const boxVariantes = document.getElementById('box-variantes-indumentaria');
         const boxTalles = document.getElementById('box-select-talles');
         const boxColores = document.getElementById('box-select-colores');
@@ -1696,8 +1710,6 @@
         return;
       }
 
-      // CORRECCIÓN MULTIPLICADOR DE PRECIO PARA SABORES ILIMITADOS:
-      // Si es un producto individual con sabores ilimitados, la cantidad que va al carrito es la suma real de unidades elegidas.
       let cantidadAAgregarAlCarrito = productoPendienteSabores.esIlimitado 
         ? totalUnidadesElegidasGlobal 
         : productoPendienteSabores.cantidadUnidades;
@@ -1830,7 +1842,11 @@
 
       if (tipoEntrega === 'envio') {
         boxDireccion.classList.remove('hidden');
-        leyendaEnvio.classList.remove('hidden');
+        if (comercioCarrito && !comercioCarrito.envio_gratis) {
+          leyendaEnvio.classList.remove('hidden');
+        } else {
+          leyendaEnvio.classList.add('hidden');
+        }
       } else {
         boxDireccion.classList.add('hidden');
         leyendaEnvio.classList.add('hidden');
@@ -1957,7 +1973,11 @@
       if (comercioCarrito.hace_envios && tipoEntrega === 'envio') {
         mensaje += `• *Entrega:* Envío a domicilio\n`;
         mensaje += `• *Dirección:* ${direccion}\n`;
-        mensaje += `\n*Total Productos:* $${total} (+ Costo de Envío)\n`;
+        if (comercioCarrito.envio_gratis) {
+          mensaje += `\n*Total a pagar:* $${total} (¡ENVÍO GRATIS!)\n`;
+        } else {
+          mensaje += `\n*Total Productos:* $${total} (+ Costo de Envío)\n`;
+        }
       } else {
         mensaje += `• *Entrega:* Retiro en el local\n`;
         mensaje += `\n*Total a pagar:* $${total}\n`;
@@ -1990,8 +2010,9 @@
       return publicData.publicUrl;
     }
 
+    /* 🚀 OPTIMIZACIÓN: Carga liviana inicial */
     async function cargarComercios() {
-      const { data: comercios, error } = await _supabase.from('comercios').select('*, productos(*)');
+      const { data: comercios, error } = await _supabase.from('comercios').select('*');
 
       if (error) {
         console.error("Error al cargar comercios:", error);
@@ -2047,7 +2068,6 @@
       }
 
       lista.forEach(c => {
-        const cantidadProds = c.productos ? c.productos.filter(p => !p.es_solo_promo).length : 0;
         const abierto = estaAbierto(c);
         const identificador = c.slug || c.id;
 
@@ -2074,7 +2094,10 @@
                   </div>
                   <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                     ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-md border border-white/10">${cat}</span>`).join('')}
-                    ${c.hace_envios ? '<span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : ''}
+                    ${c.envio_gratis 
+                      ? '<span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
+                      : (c.hace_envios ? '<span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
+                    }
                   </div>
                 </div>
               </div>
@@ -2088,7 +2111,7 @@
               <span class="flex items-center gap-1.5 truncate">
                 <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-400 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea / Quequén'}</span>
               </span>
-              <span class="font-bold text-brand-400 flex-shrink-0 bg-brand-500/10 px-2.5 py-0.5 rounded-full border border-brand-500/20">${cantidadProds} productos</span>
+              <span class="font-bold text-brand-400 flex-shrink-0 bg-brand-500/10 px-2.5 py-0.5 rounded-full border border-brand-500/20">Ingresar al Menú</span>
             </div>
           </div>
         `;
@@ -2197,6 +2220,7 @@
       document.getElementById('contenedor-btn-eliminar-comercio').classList.add('hidden');
 
       document.getElementById('envios').checked = true;
+      document.getElementById('envio-gratis').checked = false;
       toggleCampoCostoEnvio();
 
       document.getElementById('hora-apertura').value = "09:00";
@@ -2229,6 +2253,7 @@
       document.getElementById('direccion').value = c.direccion || '';
       
       document.getElementById('envios').checked = Boolean(c.hace_envios);
+      document.getElementById('envio-gratis').checked = Boolean(c.envio_gratis);
       toggleCampoCostoEnvio();
 
       document.getElementById('hora-apertura').value = formatearHoraCorta(c.hora_apertura) || "09:00";
@@ -2529,7 +2554,6 @@
       if (error) {
         alert("Error al eliminar: " + error.message);
       } else {
-        await cargarComercios();
         if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     }
@@ -2577,6 +2601,7 @@
         categoria: categorias[0],
         categorias: categorias,
         hace_envios: document.getElementById('envios').checked,
+        envio_gratis: document.getElementById('envio-gratis').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
         hora_apertura: document.getElementById('hora-apertura').value.trim(),
         hora_cierre: document.getElementById('hora-cierre').value.trim(),
@@ -2673,7 +2698,6 @@
         alert("Error al guardar producto: " + res.error.message);
       } else {
         cerrarModal('modal-producto');
-        await cargarComercios();
 
         if (esOrigenPromo && res.data && res.data[0]) {
           const nuevoId = res.data[0].id;
@@ -2719,7 +2743,7 @@
         es_combo: true,
         items_combo: itemsArray,
         disponible: true,
-        orden: 0, // Las promos nuevas van arriba por defecto
+        orden: 0,
         imagen_url
       };
 
@@ -2734,7 +2758,6 @@
         alert("Error al guardar promo: " + res.error.message);
       } else {
         cerrarModal('modal-promo');
-        await cargarComercios();
         if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
     });
