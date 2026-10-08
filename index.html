@@ -702,12 +702,12 @@
               <p class="text-[10px] text-slate-400 mt-1">El precio cobrado será por el pack/combo completo.</p>
             </div>
 
-            <!-- PROMOS MODULARES / SUB-BLOQUES -->
-            <div class="pt-2 border-t border-white/10">
-              <label class="block text-[11px] font-bold text-brand-400 mb-1">Sub-bloques para Promos Combinadas (Opcional)</label>
-              <input type="text" id="prod-bloques-promo-input" placeholder="Ej: Pote 1 Kg [4], Pote 1/4 Kg [2]  ó  Pizza [1], 6 Empanadas [6]" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
-              <p class="text-[10px] text-slate-400 mt-1">Sintaxis: Nombre [Cantidad]. Para la promo 1 Kg + 1/4 Kg usá: <code class="text-amber-400">Pote 1 Kg [4], Pote 1/4 Kg [2]</code></p>
-            </div>
+           <!-- PROMOS MODULARES / SUB-BLOQUES CON PARENTESIS -->
+<div class="pt-2 border-t border-white/10">
+  <label class="block text-[11px] font-bold text-brand-400 mb-1">Sub-bloques para Promos Combinadas (Opcional)</label>
+  <input type="text" id="prod-bloques-promo-input" placeholder="Ej: Pote 1 Kg (4), Pote 1/4 Kg (2)  ó  Pizza (1), 6 Empanadas (6)" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+  <p class="text-[10px] text-slate-400 mt-1">Sintaxis: Nombre (Cantidad). Ejemplo: <code class="text-amber-400">Pote 1 Kg (4), Pote 1/4 Kg (2)</code></p>
+</div>
 
             <div>
               <label class="block text-[11px] font-bold text-slate-400 mb-1">Sabores Específicos (Opcional)</label>
@@ -1184,18 +1184,19 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function parsearBloquesPromo(str) {
-      if (!str) return [];
-      const bloques = [];
-      const partes = str.split(',');
-      partes.forEach(p => {
-        const match = p.trim().match(/^(.*?)\s*\[(\d+)\]$/);
-        if (match) {
-          bloques.push({ nombre: match[1].trim(), cantidad: parseInt(match[2]) });
-        }
-      });
-      return bloques;
+   function parsearBloquesPromo(str) {
+  if (!str) return [];
+  const bloques = [];
+  const partes = str.split(',');
+  partes.forEach(p => {
+    // Expresión regular ajustada para paréntesis ( )
+    const match = p.trim().match(/^(.*?)\s*\((\d+)\)$/);
+    if (match) {
+      bloques.push({ nombre: match[1].trim(), cantidad: parseInt(match[2]) });
     }
+  });
+  return bloques;
+}
 
     function intentarAgregarProducto(prodId) {
       const p = comercioActivo?.productos?.find(item => item.id === prodId);
