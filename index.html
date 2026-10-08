@@ -51,63 +51,50 @@
       overflow-x: hidden;
     }
     
-    .bg-glow-1 {
+    /* Renders GPU optimizados */
+    .bg-glow-1, .bg-glow-2 {
       position: fixed;
-      top: -10%;
-      left: -10%;
       width: 50vw;
       height: 50vw;
-      background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, rgba(0,0,0,0) 70%);
       pointer-events: none;
       z-index: 0;
-    }
-    .bg-glow-2 {
-      position: fixed;
-      bottom: -10%;
-      right: -10%;
-      width: 60vw;
-      height: 60vw;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(0,0,0,0) 70%);
-      pointer-events: none;
-      z-index: 0;
+      /* quitamos radial-gradient pesado en móviles */
+      opacity: 0.15;
     }
 
+    /* Remplazamos backdrop-filter de las tarjetas por un fondo plano mate */
     .glass-nav {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(15, 23, 42, 0.95);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .glass-card {
-      background: rgba(30, 41, 59, 0.45);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(30, 41, 59, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
+      /* Aceleración por Hardware */
+      transform: translateZ(0);
+      will-change: transform;
     }
 
     .glass-card:hover {
       border-color: rgba(249, 115, 22, 0.4);
-      box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15);
     }
 
     .glass-modal {
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(15, 23, 42, 0.98);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .glass-input {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
 
     .glass-input:focus {
       border-color: #f97316;
-      box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
       outline: none;
     }
 
@@ -116,10 +103,10 @@
 
     @keyframes cartBump {
       0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
+      50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
-    .cart-animate { animation: cartBump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .cart-animate { animation: cartBump 0.2s ease-out; }
 
     @media (max-width: 640px) {
       .modal-bottom-sheet {
@@ -130,12 +117,7 @@
         border-bottom-left-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
         max-height: 88vh !important;
-        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
     }
   </style>
 </head>
@@ -232,7 +214,7 @@
         <span class="text-[11px] font-bold text-slate-400" id="total-comercios">Cargando...</span>
       </div>
 
-      <div id="comercios-container" class="grid grid-cols-1 gap-4">
+      <div id="productos-container" class="grid grid-cols-1 gap-3.5 will-change-transform">
         <div class="p-10 glass-card rounded-3xl text-center text-slate-400 space-y-3">
           <i data-lucide="loader-2" class="w-7 h-7 animate-spin mx-auto text-brand-400"></i>
           <p class="text-xs font-semibold">Cargando comercios de la ciudad...</p>
