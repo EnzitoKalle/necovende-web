@@ -412,9 +412,14 @@
       </div>
 
       <div class="p-6 space-y-4">
-        <div>
-          <h3 id="view-prod-titulo" class="text-xl font-black text-white leading-snug"></h3>
-          <p id="view-prod-precio" class="text-2xl font-black text-brand-400 mt-1"></p>
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h3 id="view-prod-titulo" class="text-xl font-black text-white leading-snug"></h3>
+            <div class="flex items-center gap-2 mt-1">
+              <p id="view-prod-precio" class="text-2xl font-black text-brand-400"></p>
+              <span id="view-prod-badge-off" class="hidden text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg"></span>
+            </div>
+          </div>
         </div>
 
         <p id="view-prod-descripcion" class="text-xs text-slate-300 leading-relaxed max-h-32 overflow-y-auto"></p>
@@ -642,6 +647,7 @@
         <input type="hidden" id="prod-comercio-id">
         <input type="hidden" id="prod-edit-id">
         <input type="hidden" id="prod-imagen-existente">
+        <input type="hidden" id="prod-es-origen-promo" value="false">
         
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Producto</label>
@@ -756,7 +762,12 @@
 
         <!-- SELECCIONADOR DE PRODUCTOS COMPONENTES -->
         <div class="bg-slate-800/60 p-4 rounded-2xl border border-amber-500/30 space-y-3">
-          <label class="block text-xs font-bold text-amber-400">Elegir productos que integran la promo</label>
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-bold text-amber-400">Elegir productos del combo</label>
+            <button type="button" onclick="crearProductoDesdePromo()" class="text-[10px] font-black text-brand-400 bg-brand-500/10 border border-brand-500/30 px-2 py-1 rounded-lg hover:bg-brand-500/20 transition flex items-center gap-1">
+              <i data-lucide="plus-circle" class="w-3 h-3"></i> Crear producto exclusivo
+            </button>
+          </div>
           
           <div id="lista-productos-promo-picker" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
 
@@ -824,7 +835,7 @@
     let cantidadesProductosPrevias = {};
     let estadoSaboresPorUnidad = {};
 
-    let promoItemsSeleccionados = {}; // { prodId: cantidad }
+    let promoItemsSeleccionados = {};
 
     /* COMPRESIÓN AUTOMÁTICA DE IMÁGENES (CANVAS) */
     async function comprimirImagenCliente(file, maxAncho = 800, maxAlto = 800, calidad = 0.8) {
@@ -1171,11 +1182,27 @@
       }
     }
 
+    function calcularAhorroPorcentualCombo(p) {
+      if (!p.es_combo || !p.items_combo || !comercioActivo) return 0;
+      let sumaOriginal = 0;
+      try {
+        const items = typeof p.items_combo === 'string' ? JSON.parse(p.items_combo) : p.items_combo;
+        items.forEach(it => {
+          const prodOrig = comercioActivo.productos.find(x => x.id === it.prodId);
+          if (prodOrig) sumaOriginal += (prodOrig.precio * it.cantidad);
+        });
+      } catch(e) { return 0; }
+
+      if (sumaOriginal > p.precio) {
+        return Math.round(((sumaOriginal - p.precio) / sumaOriginal) * 100);
+      }
+      return 0;
+    }
+
     function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
       container.innerHTML = '';
 
-      // Ocultar productos que son "solo para promos" a los clientes finales
       const productosVisibles = esDuenio 
         ? productos 
         : productos.filter(p => !p.es_solo_promo);
@@ -1198,6 +1225,8 @@
         const esIlimitado = (p.max_sabores === 0 || p.max_sabores === 999) && Boolean(p.requiere_sabores);
         const esCombo = Boolean(p.es_combo);
 
+        const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
+
         container.innerHTML += `
           <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-500/40 bg-amber-500/5' : ''}">
             <div class="flex items-center gap-4 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
@@ -1212,7 +1241,11 @@
                   ${!estaDisponible ? '<span class="text-[9px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
                 </div>
                 <p class="text-xs text-slate-400 truncate mt-0.5">${p.descripcion || 'Tocar para ver detalles'}</p>
-                <p class="text-lg font-black text-brand-400 mt-1.5">$${p.precio}</p>
+                
+                <div class="flex items-center gap-2 mt-1.5">
+                  <p class="text-lg font-black text-brand-400">$${p.precio}</p>
+                  ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-md">🔥 ${porcOff}% OFF</span>` : ''}
+                </div>
               </div>
             </div>
 
@@ -1605,6 +1638,16 @@
       document.getElementById('view-prod-titulo').innerText = p.titulo;
       document.getElementById('view-prod-precio').innerText = `$${p.precio}`;
       document.getElementById('view-prod-descripcion').innerText = p.descripcion || 'Sin descripción adicional.';
+
+      const porcOff = p.es_combo ? calcularAhorroPorcentualCombo(p) : 0;
+      const badgeOff = document.getElementById('view-prod-badge-off');
+
+      if (porcOff > 0) {
+        badgeOff.innerText = `🔥 ${porcOff}% OFF`;
+        badgeOff.classList.remove('hidden');
+      } else {
+        badgeOff.classList.add('hidden');
+      }
 
       const imgElem = document.getElementById('view-prod-img');
       const noImgElem = document.getElementById('view-prod-no-img');
@@ -2168,6 +2211,7 @@
       document.getElementById('prod-comercio-id').value = comercioId;
       document.getElementById('prod-edit-id').value = '';
       document.getElementById('prod-imagen-existente').value = '';
+      document.getElementById('prod-es-origen-promo').value = 'false';
 
       const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esEmpanadas = cats.includes('Empanadas');
@@ -2213,6 +2257,13 @@
       abrirModal('modal-producto');
     }
 
+    function crearProductoDesdePromo() {
+      cerrarModal('modal-promo');
+      prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
+      document.getElementById('prod-solo-promo').checked = true;
+      document.getElementById('prod-es-origen-promo').value = 'true';
+    }
+
     function prepararEditarProducto(prodId) {
       const p = comercioActivo?.productos?.find(item => item.id === prodId);
       if (!p) return;
@@ -2224,6 +2275,7 @@
       document.getElementById('prod-precio').value = p.precio;
       document.getElementById('prod-descripcion').value = p.descripcion || '';
       document.getElementById('prod-imagen-existente').value = p.imagen_url || '';
+      document.getElementById('prod-es-origen-promo').value = 'false';
 
       const cats = comercioActivo?.categorias || [comercioActivo?.categoria];
       const esEmpanadas = cats.includes('Empanadas');
@@ -2290,7 +2342,7 @@
       const prodsDisponibles = (comercioActivo.productos || []).filter(p => !p.es_combo);
 
       if (prodsDisponibles.length === 0) {
-        picker.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Primero cargá al menos 1 producto individual para poder armar un combo.</p>`;
+        picker.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">No hay productos cargados aún.</p>`;
         return;
       }
 
@@ -2298,8 +2350,11 @@
         const cant = promoItemsSeleccionados[p.id] || 0;
         picker.innerHTML += `
           <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-white/10 text-xs">
-            <div class="truncate pr-2">
-              <span class="font-bold text-slate-200 block truncate">${p.titulo}</span>
+            <div class="truncate pr-2 min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="font-bold text-slate-200 truncate">${p.titulo}</span>
+                ${p.es_solo_promo ? '<span class="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded">Exclusivo</span>' : ''}
+              </div>
               <span class="text-[10px] text-amber-400 font-extrabold">$${p.precio}</span>
             </div>
             <div class="flex items-center gap-2 bg-slate-900 rounded-lg px-2 py-1 flex-shrink-0 border border-white/10">
@@ -2463,6 +2518,7 @@
       const prodEditId = document.getElementById('prod-edit-id').value;
       const imgExistente = document.getElementById('prod-imagen-existente').value;
       const fileInput = document.getElementById('prod-imagen');
+      const esOrigenPromo = document.getElementById('prod-es-origen-promo').value === 'true';
 
       let imagen_url = imgExistente;
       if (fileInput.files.length > 0) {
@@ -2512,7 +2568,7 @@
       if (prodEditId) {
         res = await _supabase.from('productos').update(datosProducto).eq('id', prodEditId);
       } else {
-        res = await _supabase.from('productos').insert([datosProducto]);
+        res = await _supabase.from('productos').insert([datosProducto]).select();
       }
 
       if (res.error) {
@@ -2520,7 +2576,17 @@
       } else {
         cerrarModal('modal-producto');
         await cargarComercios();
-        if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+
+        // Si se creó viniendo desde el modal de promos, lo seleccionamos automáticamente
+        if (esOrigenPromo && res.data && res.data[0]) {
+          const nuevoId = res.data[0].id;
+          promoItemsSeleccionados[nuevoId] = 1;
+          renderizarPickerProductosPromo();
+          calcularDescuentoPromo();
+          abrirModal('modal-promo');
+        } else if (comercioActivo) {
+          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+        }
       }
     });
 
