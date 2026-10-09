@@ -51,7 +51,6 @@
       overflow-x: hidden;
     }
     
-    /* OPTIMIZACIÓN 120Hz: Eliminamos filtros de blur pesado en tiempo real */
     .glass-nav {
       background: rgba(15, 23, 42, 0.95);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -63,10 +62,6 @@
       box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
       transform: translateZ(0);
       will-change: transform;
-    }
-
-    .glass-card:hover {
-      border-color: rgba(249, 115, 22, 0.4);
     }
 
     .glass-modal {
@@ -88,6 +83,29 @@
 
     .custom-scrollbar::-webkit-scrollbar { display: none; }
     .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Fondo de producto con imagen oscurecida y zoom */
+    .bg-product-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .bg-product-image {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.35);
+      filter: blur(4px) brightness(0.22);
+      transition: transform 0.5s ease;
+      z-index: 0;
+    }
+    .bg-product-card:hover .bg-product-image {
+      transform: scale(1.45);
+    }
+    .product-content-relative {
+      position: relative;
+      z-index: 10;
+    }
 
     @keyframes cartBump {
       0% { transform: scale(1); }
@@ -113,30 +131,30 @@
 
   <!-- Header / Navbar -->
   <header class="glass-nav sticky top-0 z-40 text-white shadow-2xl">
-    <div class="max-w-2xl mx-auto px-4 py-3.5 flex justify-between items-center gap-2">
+    <div class="max-w-2xl mx-auto px-3.5 py-3 flex justify-between items-center gap-2">
       
       <!-- Brand Logo -->
-      <div class="flex items-center gap-3 cursor-pointer group" onclick="mostrarInicio()">
-        <div class="w-10 h-10 bg-gradient-to-tr from-brand-600 via-amber-500 to-emerald-400 rounded-2xl flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-brand-500/30 group-hover:scale-105 transition duration-300">
+      <div class="flex items-center gap-2.5 cursor-pointer group" onclick="mostrarInicio()">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-tr from-brand-600 via-amber-500 to-emerald-400 rounded-2xl flex items-center justify-center font-black text-white text-xl sm:text-2xl shadow-lg shadow-brand-500/30 group-hover:scale-105 transition duration-300">
           N
         </div>
         <div>
-          <h1 class="text-xl font-black tracking-tight leading-none text-white flex items-center gap-1">
+          <h1 class="text-lg sm:text-xl font-black tracking-tight leading-none text-white flex items-center gap-1">
             Neco<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-amber-400">Vende</span>
           </h1>
-          <p class="text-[9px] text-slate-400 font-extrabold tracking-widest uppercase mt-0.5">Marketplace Digital</p>
+          <p class="text-[8px] sm:text-[9px] text-slate-400 font-extrabold tracking-widest uppercase mt-0.5">Marketplace Digital</p>
         </div>
       </div>
       
-      <!-- Navigation Controls -->
-      <div class="flex items-center gap-2.5">
-        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/40 text-brand-400 hover:text-brand-300 text-xs font-bold px-3.5 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 active:scale-95 shadow-sm">
+      <!-- Navigation Controls (Optimizado Celular) -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5">
+        <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/40 text-brand-400 hover:text-brand-300 text-xs font-bold px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-xl transition duration-200 flex items-center gap-1.5 active:scale-95 shadow-sm">
           <i data-lucide="plus-circle" class="w-4 h-4 text-brand-400"></i>
           <span class="hidden sm:inline">Sumar Local</span>
-          <span class="sm:hidden">Unirme</span>
+          <span class="sm:hidden text-[11px]">Unirme</span>
         </button>
 
-        <button id="btn-login-google" onclick="iniciarSesionGoogle()" type="button" class="bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 text-xs font-extrabold px-3.5 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 active:scale-95 shadow-sm">
+        <button id="btn-login-google" onclick="iniciarSesionGoogle()" type="button" class="bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 text-xs font-extrabold px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-xl transition duration-200 flex items-center gap-1.5 active:scale-95 shadow-sm">
           <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -144,14 +162,15 @@
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
           <span class="hidden sm:inline">Ingresar</span>
+          <span class="sm:hidden text-[11px]">Entrar</span>
         </button>
 
-        <button id="user-profile-menu" onclick="abrirPanelControl()" type="button" class="hidden items-center gap-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 p-1.5 pr-3 rounded-xl transition duration-200 active:scale-95">
+        <button id="user-profile-menu" onclick="abrirPanelControl()" type="button" class="hidden items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 p-1.5 sm:pr-3 rounded-xl transition duration-200 active:scale-95">
           <img id="user-avatar" src="" class="w-7 h-7 rounded-lg object-cover border border-brand-500 shadow-sm" alt="Perfil">
           <span class="text-xs font-bold text-slate-200 hidden sm:inline">Mi Cuenta</span>
         </button>
 
-        <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs px-3 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 shadow-sm">
+        <button onclick="abrirModal('modal-carrito')" class="relative bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs p-2 sm:px-3 sm:py-2.5 rounded-xl transition duration-200 flex items-center gap-1.5 shadow-sm">
           <i data-lucide="shopping-bag" class="w-4 h-4 text-brand-400"></i>
           <span id="cart-count" class="bg-gradient-to-r from-brand-500 to-amber-500 text-white text-[10px] font-black rounded-full px-1.5 py-0.5 shadow-md shadow-brand-500/40">0</span>
         </button>
@@ -207,28 +226,30 @@
   </main>
 
   <!-- VISTA DETALLE COMERCIO -->
-  <main id="vista-comercio" class="max-w-2xl mx-auto px-4 pt-6 space-y-6 hidden relative z-10">
+  <main id="vista-comercio" class="max-w-2xl mx-auto px-3.5 sm:px-4 pt-4 sm:pt-6 space-y-5 hidden relative z-10">
+    <!-- Botones de Navegación del Local (Reorganizados para celular) -->
     <div class="flex items-center justify-between gap-2">
-      <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-4 py-2.5 rounded-xl shadow-lg transition">
-        <i data-lucide="arrow-left" class="w-4 h-4 text-brand-400"></i> Volver a comercios
+      <button onclick="mostrarInicio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl shadow-lg transition active:scale-95">
+        <i data-lucide="arrow-left" class="w-4 h-4 text-brand-400"></i> Volver
       </button>
 
-      <button onclick="compartirOlinkComercio()" class="inline-flex items-center gap-2 text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-4 py-2.5 rounded-xl transition">
-        <i data-lucide="share-2" class="w-4 h-4"></i> Compartir Local
+      <button onclick="compartirOlinkComercio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition active:scale-95">
+        <i data-lucide="share-2" class="w-4 h-4"></i> Compartir
       </button>
     </div>
 
-    <div id="detalle-comercio-header" class="glass-card rounded-3xl p-6 border border-white/10 shadow-2xl space-y-5"></div>
+    <!-- Header del Comercio con Portada Opcional -->
+    <div id="detalle-comercio-header" class="glass-card rounded-3xl overflow-hidden border border-white/10 shadow-2xl space-y-0"></div>
 
     <section class="space-y-4">
       <div class="flex justify-between items-center px-1 flex-wrap gap-2">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Catálogo de Productos</h3>
         <div id="acciones-duenio-prod" class="flex items-center gap-2 hidden">
-          <button id="btn-agregar-prod-vista" class="text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+          <button id="btn-agregar-prod-vista" class="text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i> Cargar Producto
           </button>
-          <button id="btn-agregar-promo-vista" onclick="prepararModalPromo()" class="text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
-            <i data-lucide="tag" class="w-4 h-4"></i> Armar Promoción
+          <button id="btn-agregar-promo-vista" onclick="prepararModalPromo()" class="text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="tag" class="w-4 h-4"></i> Armar Promo
           </button>
         </div>
       </div>
@@ -253,7 +274,7 @@
     </div>
   </div>
 
-  <!-- MODAL: SELECCIONAR SABORES Y VARIANTES -->
+  <!-- MODAL: SELECCIONAR SABORES, VARIANTES Y OPCIONES (Postre sin durazno, etc.) -->
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="glass-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto text-slate-100">
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
@@ -294,6 +315,18 @@
       </div>
 
       <div id="contenedor-bloques-unidades" class="space-y-4"></div>
+
+      <!-- SECCIÓN: AGREGAR OPCIONES PERSONALIZADAS DINÁMICAS (Postre sin durazno, extra salsa, etc.) -->
+      <div class="space-y-2 bg-slate-800/40 p-3.5 rounded-2xl border border-white/10">
+        <div class="flex justify-between items-center">
+          <label class="block text-xs font-bold text-slate-200">Opciones Adicionales / Peticiones</label>
+          <button type="button" onclick="agregarCampoOpcionDinamica()" class="text-[11px] font-black text-brand-400 bg-brand-500/10 border border-brand-500/30 px-2.5 py-1 rounded-lg hover:bg-brand-500/20 transition flex items-center gap-1 active:scale-95">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar Opción
+          </button>
+        </div>
+        <div id="lista-opciones-dinamicas" class="space-y-2"></div>
+        <p class="text-[10px] text-slate-400">Ejemplo: "Sin durazno", "Sin cebolla", "Salsa extra".</p>
+      </div>
 
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1.5">Aclaraciones o Nota Especial</label>
@@ -486,6 +519,7 @@
       <form id="form-comercio" class="space-y-4">
         <input type="hidden" id="comercio-edit-id">
         <input type="hidden" id="comercio-logo-existente">
+        <input type="hidden" id="comercio-portada-existente">
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Nombre del Local / Emprendimiento</label>
@@ -508,6 +542,19 @@
             <span id="cat-count-badge" class="text-[10px] font-black text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-md border border-brand-500/20">0 / 3</span>
           </div>
           <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-800/50 p-3 rounded-xl border border-white/10 max-h-36 overflow-y-auto"></div>
+        </div>
+
+        <!-- SELECCIÓN DE PALETA DE COLOR -->
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Color Temático del Comercio</label>
+          <select id="color-tema" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50">
+            <option value="orange" class="bg-slate-900">Naranja NecoVende (Predeterminado)</option>
+            <option value="emerald" class="bg-slate-900">Verde Emerald / Frescura</option>
+            <option value="purple" class="bg-slate-900">Violeta Neón / Moderno</option>
+            <option value="rose" class="bg-slate-900">Rosa / Fucsia / Dulcería</option>
+            <option value="cyan" class="bg-slate-900">Azul Cian / Tecnológico</option>
+            <option value="amber" class="bg-slate-900">Dorado Ámbar / Gourmet</option>
+          </select>
         </div>
 
         <div id="seccion-sabores-config" class="hidden space-y-1.5 bg-brand-500/10 p-3.5 rounded-xl border border-brand-500/20">
@@ -542,8 +589,9 @@
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
         </div>
 
+        <!-- FIX HORARIOS: CAMPOS OPCIONALES EN TURNO 2 Y SIN ERROR -->
         <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Horario Principal / Turno 1</label>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Horario Principal / Turno 1 *</label>
           <div class="grid grid-cols-2 gap-2.5">
             <input type="text" id="hora-apertura" placeholder="Ej: 09:00" value="09:00" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
             <input type="text" id="hora-cierre" placeholder="Ej: 13:00" value="13:00" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
@@ -553,9 +601,10 @@
         <div class="space-y-1">
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Turno 2 (Opcional - Horario Cortado)</label>
           <div class="grid grid-cols-2 gap-2.5">
-            <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
-            <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
+            <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00 (Opcional)" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
+            <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00 (Opcional)" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
           </div>
+          <p class="text-[10px] text-slate-400">Si tu local trabaja de corrido, podés dejar el Turno 2 vacío.</p>
         </div>
 
         <div>
@@ -580,9 +629,16 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Logo / Foto de Perfil (Optimización automática)</label>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Logo / Foto de Perfil</label>
           <input type="file" id="logo-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 cursor-pointer">
           <p class="text-[10px] text-slate-400 mt-1" id="help-logo-edit"></p>
+        </div>
+
+        <!-- NUEVA FOTO DE PORTADA -->
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Foto de Portada (Banner Superior Opcional)</label>
+          <input type="file" id="portada-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
+          <p class="text-[10px] text-slate-400 mt-1" id="help-portada-edit"></p>
         </div>
 
         <div class="flex gap-3 pt-3">
@@ -908,6 +964,35 @@
       else box.classList.add('hidden');
     }
 
+    /* SISTEMA DE OPCIONES DINÁMICAS ("+ AGREGAR OPCIÓN") */
+    function agregarCampoOpcionDinamica(textoPredeterminado = '') {
+      const container = document.getElementById('lista-opciones-dinamicas');
+      if (!container) return;
+
+      const divId = `opcion-din-${Date.now()}_${Math.floor(Math.random()*1000)}`;
+
+      const html = `
+        <div id="${divId}" class="flex items-center gap-2">
+          <input type="text" placeholder="Ej: Sin durazno, Extra salsa, Sin cebolla..." value="${textoPredeterminado}" class="input-opcion-dinamica w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50">
+          <button type="button" onclick="document.getElementById('${divId}').remove()" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition flex-shrink-0">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', html);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function obtenerOpcionesDinamicasElegidas() {
+      const inputs = document.querySelectorAll('.input-opcion-dinamica');
+      const opciones = [];
+      inputs.forEach(input => {
+        const val = input.value.trim();
+        if (val) opciones.push(val);
+      });
+      return opciones;
+    }
+
     function estaEnRango(hApertura, hCierre) {
       if (!hApertura || !hCierre) return false;
       const ahora = new Date();
@@ -1080,61 +1165,76 @@
         : [comercioActivo.categoria || 'General'];
 
       const header = document.getElementById('detalle-comercio-header');
-      header.innerHTML = `
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-center gap-4">
-            ${comercioActivo.logo_url 
-              ? `<img src="${comercioActivo.logo_url}" class="w-20 h-20 rounded-2xl object-cover border border-white/10 shadow-md">`
-              : `<div class="w-20 h-20 bg-slate-800 rounded-2xl border border-white/10 flex items-center justify-center font-black text-3xl text-brand-400">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
-            }
-            <div>
-              <div class="flex items-center gap-2.5">
-                <h2 class="text-2xl font-black text-white leading-tight">${comercioActivo.nombre}</h2>
-                <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}">
-                  ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
-                </span>
+      
+      let htmlHeader = '';
+      if (comercioActivo.portada_url) {
+        htmlHeader += `
+          <div class="h-36 sm:h-48 w-full overflow-hidden relative">
+            <img src="${comercioActivo.portada_url}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+          </div>
+        `;
+      }
+
+      htmlHeader += `
+        <div class="p-4 sm:p-6 space-y-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3.5">
+              ${comercioActivo.logo_url 
+                ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-white/10 shadow-md flex-shrink-0">`
+                : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-800 rounded-2xl border border-white/10 flex items-center justify-center font-black text-2xl sm:text-3xl text-brand-400 flex-shrink-0">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+              }
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-xl sm:text-2xl font-black text-white leading-tight">${comercioActivo.nombre}</h2>
+                  <span class="text-[9px] font-black px-2.5 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}">
+                    ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-lg border border-white/10">${cat}</span>`).join('')}
+                  ${comercioActivo.envio_gratis 
+                    ? '<span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
+                    : (comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-lg flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
+                  }
+                </div>
+                <p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-400"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
               </div>
-              <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-800/80 text-slate-300 px-2.5 py-1 rounded-lg border border-white/10">${cat}</span>`).join('')}
-                ${comercioActivo.envio_gratis 
-                  ? '<span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
-                  : (comercioActivo.hace_envios ? '<span class="text-[10px] font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
+            </div>
+            ${esDuenio ? `
+              <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 p-2 sm:p-2.5 rounded-xl transition flex items-center gap-1.5 text-xs font-bold flex-shrink-0">
+                <i data-lucide="edit-3" class="w-4 h-4 text-brand-400"></i> <span class="hidden sm:inline">Editar Local</span>
+              </button>
+            ` : ''}
+          </div>
+
+          <div class="pt-3 border-t border-white/10 space-y-2 text-xs text-slate-300">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-400"></i> Horario:</span>
+              <span class="text-right">${formatearHorarios(comercioActivo)}</span>
+            </div>
+
+            ${comercioActivo.hace_envios ? `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-400"></i> Costo Envío:</span>
+                <span class="${comercioActivo.envio_gratis ? 'text-emerald-400 font-bold' : ''}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
+              </div>
+            ` : ''}
+
+            <div class="pt-1">
+              <span class="font-bold text-slate-400 flex items-center gap-2 mb-1.5"><i data-lucide="credit-card" class="w-4 h-4 text-brand-400"></i> Medios de pago:</span>
+              <div class="flex flex-wrap gap-1.5">
+                ${pagos.length > 0 
+                  ? pagos.map(p => `<span class="bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">${p}</span>`).join('')
+                  : '<span class="text-slate-500">Efectivo</span>'
                 }
               </div>
-              <p class="text-xs text-slate-400 mt-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-400"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
-            </div>
-          </div>
-          ${esDuenio ? `
-            <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 p-2.5 rounded-xl transition flex items-center gap-1.5 text-xs font-bold flex-shrink-0">
-              <i data-lucide="edit-3" class="w-4 h-4 text-brand-400"></i> <span class="hidden sm:inline">Editar Local</span>
-            </button>
-          ` : ''}
-        </div>
-
-        <div class="pt-4 border-t border-white/10 space-y-2.5 text-xs text-slate-300">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-400"></i> Horario:</span>
-            <span>${formatearHorarios(comercioActivo)}</span>
-          </div>
-
-          ${comercioActivo.hace_envios ? `
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-400"></i> Costo Envío:</span>
-              <span class="${comercioActivo.envio_gratis ? 'text-emerald-400 font-bold' : ''}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
-            </div>
-          ` : ''}
-
-          <div class="pt-1">
-            <span class="font-bold text-slate-400 flex items-center gap-2 mb-2"><i data-lucide="credit-card" class="w-4 h-4 text-brand-400"></i> Medios de pago:</span>
-            <div class="flex flex-wrap gap-1.5">
-              ${pagos.length > 0 
-                ? pagos.map(p => `<span class="bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-semibold px-2.5 py-1 rounded-md">${p}</span>`).join('')
-                : '<span class="text-slate-500">Efectivo</span>'
-              }
             </div>
           </div>
         </div>
       `;
+
+      header.innerHTML = htmlHeader;
 
       const boxAccionesDuenio = document.getElementById('acciones-duenio-prod');
       if (esDuenio) {
@@ -1170,7 +1270,6 @@
       }
     }
 
-    // FUNCION PARA REORDENAR PRODUCTOS
     async function cambiarOrdenProducto(prodId, direccion) {
       if (!comercioActivo || !comercioActivo.productos) return;
       const prods = [...comercioActivo.productos].sort((a, b) => (a.orden || 0) - (b.orden || 0));
@@ -1210,7 +1309,7 @@
       return 0;
     }
 
-    /* 🚀 RENDERIZADO FLUIDO */
+    /* 🚀 RENDERIZADO FLUIDO CON FONDO DE IMAGEN OSCURECIDO Y ZOOM */
     function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
       
@@ -1240,64 +1339,70 @@
         const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
 
         htmlAcc += `
-          <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-500/40 bg-amber-500/5' : ''}">
-            <div class="flex items-center gap-4 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
-              ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-20 h-20 rounded-xl object-cover border border-white/10 flex-shrink-0 group-hover:scale-105 transition duration-300">` 
-                : `<div class="w-20 h-20 bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 flex-shrink-0 border border-white/10"><i data-lucide="${esCombo ? 'tag' : 'package'}" class="w-7 h-7"></i></div>`}
-              <div class="truncate">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <h4 class="font-bold text-base text-white truncate group-hover:text-brand-400 transition">${p.titulo}</h4>
-                  ${esCombo ? '<span class="text-[9px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
-                  ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
-                  ${!estaDisponible ? '<span class="text-[9px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
-                </div>
-                <p class="text-xs text-slate-400 truncate mt-0.5">${p.descripcion || 'Tocar para ver detalles'}</p>
-                
-                <div class="flex items-center gap-2 mt-1.5">
-                  <p class="text-lg font-black text-brand-400">$${p.precio}</p>
-                  ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-md">🔥 ${porcOff}% OFF</span>` : ''}
+          <div class="bg-product-card glass-card rounded-2xl p-4 shadow-xl border border-white/10 relative group transition duration-300 ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-500/40 bg-amber-500/5' : ''}">
+            
+            ${p.imagen_url ? `<div class="bg-product-image" style="background-image: url('${p.imagen_url}');"></div>` : ''}
+
+            <div class="product-content-relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-3.5 overflow-hidden cursor-pointer flex-1" onclick="abrirVerProducto('${p.id}')">
+                ${p.imagen_url 
+                  ? `<img src="${p.imagen_url}" class="w-20 h-20 rounded-xl object-cover border border-white/20 flex-shrink-0 group-hover:scale-105 transition duration-300 shadow-md">` 
+                  : `<div class="w-20 h-20 bg-slate-800/90 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-white/10"><i data-lucide="${esCombo ? 'tag' : 'package'}" class="w-7 h-7"></i></div>`}
+                <div class="truncate">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h4 class="font-bold text-base text-white truncate group-hover:text-brand-400 transition drop-shadow-md">${p.titulo}</h4>
+                    ${esCombo ? '<span class="text-[9px] font-black bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
+                    ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-800/90 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
+                    ${!estaDisponible ? '<span class="text-[9px] font-black bg-rose-500/30 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
+                  </div>
+                  <p class="text-xs text-slate-300 truncate mt-0.5 drop-shadow">${p.descripcion || 'Tocar para ver detalles'}</p>
+                  
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <p class="text-lg font-black text-brand-400 drop-shadow">$${p.precio}</p>
+                    ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-md">🔥 ${porcOff}% OFF</span>` : ''}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/10">
-              ${esDuenio ? `
-                <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-                  <button onclick="cambiarOrdenProducto('${p.id}', 'arriba')" title="Subir" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}">
-                    <i data-lucide="arrow-up" class="w-4 h-4"></i>
-                  </button>
-                  <button onclick="cambiarOrdenProducto('${p.id}', 'abajo')" title="Bajar" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition ${idx === productosVisibles.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}">
-                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                  </button>
-                  <button onclick="toggleStockExpress('${p.id}', ${estaDisponible})" title="Cambiar Disponibilidad" class="text-[10px] font-black px-2 py-1 rounded-lg border transition ${estaDisponible ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-rose-500/20 hover:text-rose-400' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-emerald-500/20 hover:text-emerald-400'}">
-                    ${estaDisponible ? 'Pausar' : 'Activar'}
-                  </button>
-                  <button onclick="${esCombo ? `prepararEditarPromo('${p.id}')` : `prepararEditarProducto('${p.id}')`}" title="Editar" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                  </button>
-                  <button onclick="eliminarProducto('${p.id}')" title="Eliminar" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  </button>
-                </div>
-              ` : ''}
-
-              ${estaDisponible ? `
-                ${(!esIlimitado && !esCombo) ? `
-                  <div class="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-white/10">
-                    <button type="button" onclick="cambiarCantidadPrevia('${p.id}', -1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">-</button>
-                    <span id="cant-previa-${p.id}" class="w-6 text-center font-black text-xs text-white">${cantidadesProductosPrevias[p.id]}</span>
-                    <button type="button" onclick="cambiarCantidadPrevia('${p.id}', 1)" class="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-600 active:scale-95 transition">+</button>
+              <div class="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/10">
+                ${esDuenio ? `
+                  <div class="flex items-center gap-1 border-r border-white/10 pr-2">
+                    <button onclick="cambiarOrdenProducto('${p.id}', 'arriba')" title="Subir" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}">
+                      <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="cambiarOrdenProducto('${p.id}', 'abajo')" title="Bajar" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition ${idx === productosVisibles.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}">
+                      <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="toggleStockExpress('${p.id}', ${estaDisponible})" title="Cambiar Disponibilidad" class="text-[10px] font-black px-2 py-1 rounded-lg border transition ${estaDisponible ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-rose-500/20 hover:text-rose-300' : 'bg-rose-500/20 text-rose-300 border-rose-500/30 hover:bg-emerald-500/20 hover:text-emerald-300'}">
+                      ${estaDisponible ? 'Pausar' : 'Activar'}
+                    </button>
+                    <button onclick="${esCombo ? `prepararEditarPromo('${p.id}')` : `prepararEditarProducto('${p.id}')`}" title="Editar" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition">
+                      <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="eliminarProducto('${p.id}')" title="Eliminar" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 transition">
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                   </div>
                 ` : ''}
 
-                <button onclick="intentarAgregarProducto('${p.id}')" class="bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-lg shadow-brand-500/20 transition flex items-center gap-1.5 active:scale-95">
-                  <i data-lucide="plus" class="w-4 h-4"></i> ${esCombo ? 'Elegir opciones de promo' : (esIlimitado ? 'Elegir sabores' : 'Agregar')}
-                </button>
-              ` : `
-                <span class="text-xs font-bold text-slate-500 bg-slate-800 px-3 py-2 rounded-xl">No disponible</span>
-              `}
+                ${estaDisponible ? `
+                  ${(!esIlimitado && !esCombo) ? `
+                    <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/20 shadow-md">
+                      <button type="button" onclick="cambiarCantidadPrevia('${p.id}', -1)" class="w-7 h-7 bg-slate-800 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-700 active:scale-95 transition">-</button>
+                      <span id="cant-previa-${p.id}" class="w-6 text-center font-black text-xs text-white">${cantidadesProductosPrevias[p.id]}</span>
+                      <button type="button" onclick="cambiarCantidadPrevia('${p.id}', 1)" class="w-7 h-7 bg-slate-800 rounded-lg flex items-center justify-center text-white font-black text-xs hover:bg-slate-700 active:scale-95 transition">+</button>
+                    </div>
+                  ` : ''}
+
+                  <button onclick="intentarAgregarProducto('${p.id}')" class="bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-lg shadow-brand-500/30 transition flex items-center gap-1.5 active:scale-95">
+                    <i data-lucide="plus" class="w-4 h-4"></i> ${esCombo ? 'Opciones promo' : (esIlimitado ? 'Elegir sabores' : 'Agregar')}
+                  </button>
+                ` : `
+                  <span class="text-xs font-bold text-slate-400 bg-slate-900/90 px-3 py-2 rounded-xl border border-white/10">No disponible</span>
+                `}
+              </div>
             </div>
+
           </div>
         `;
       });
@@ -1311,6 +1416,10 @@
       if (!p) return;
 
       const cantidadPedida = cantidadesProductosPrevias[p.id] || 1;
+
+      // Limpiar opciones dinámicas de veces anteriores
+      const boxDinamicas = document.getElementById('lista-opciones-dinamicas');
+      if (boxDinamicas) boxDinamicas.innerHTML = '';
 
       if (p.es_combo && p.items_combo) {
         let componentesPromo = [];
@@ -1669,13 +1778,19 @@
         }
       }
 
-      if (totalUnidadesElegidasGlobal === 0) {
-        alert("Por favor elegí al menos 1 sabor antes de agregar al carrito.");
+      // Opciones adicionales dinámicas ("+ Agregar Opción")
+      const opcionesDinamicas = obtenerOpcionesDinamicasElegidas();
+      if (opcionesDinamicas.length > 0) {
+        varianteTexto += `[Opciones: ${opcionesDinamicas.join(', ')}] `;
+      }
+
+      if (totalUnidadesElegidasGlobal === 0 && resumenUnidadesTexto.length === 0 && opcionesDinamicas.length === 0) {
+        alert("Por favor elegí al menos 1 sabor u opción antes de agregar al carrito.");
         return;
       }
 
       let cantidadAAgregarAlCarrito = productoPendienteSabores.esIlimitado 
-        ? totalUnidadesElegidasGlobal 
+        ? Math.max(1, totalUnidadesElegidasGlobal) 
         : productoPendienteSabores.cantidadUnidades;
 
       const detalles = document.getElementById('sabores-detalles').value.trim();
@@ -1974,7 +2089,7 @@
       return publicData.publicUrl;
     }
 
-    /* 🚀 CARGA DE LISTA GENERAL DE COMERCIOS CORREGIDA */
+    /* 🚀 CARGA DE LISTA GENERAL DE COMERCIOS */
     async function cargarComercios() {
       const { data: comercios, error } = await _supabase.from('comercios').select('*');
 
@@ -2177,10 +2292,12 @@
       document.getElementById('form-comercio').reset();
       document.getElementById('comercio-edit-id').value = '';
       document.getElementById('comercio-logo-existente').value = '';
+      document.getElementById('comercio-portada-existente').value = '';
       document.getElementById('modal-comercio-head-title').innerText = 'Registrar mi Comercio';
       document.getElementById('modal-comercio-head-sub').innerText = 'Sumá tu negocio gratis a NecoVende.';
       document.getElementById('btn-guardar-comercio').innerText = 'Guardar Local';
       document.getElementById('help-logo-edit').innerText = '';
+      document.getElementById('help-portada-edit').innerText = '';
       document.getElementById('contenedor-btn-eliminar-comercio').classList.add('hidden');
 
       document.getElementById('envios').checked = true;
@@ -2211,10 +2328,12 @@
       document.getElementById('form-comercio').reset();
       document.getElementById('comercio-edit-id').value = c.id;
       document.getElementById('comercio-logo-existente').value = c.logo_url || '';
+      document.getElementById('comercio-portada-existente').value = c.portada_url || '';
 
       document.getElementById('nombre').value = c.nombre;
       document.getElementById('telefono').value = c.telefono_whatsapp;
       document.getElementById('direccion').value = c.direccion || '';
+      document.getElementById('color-tema').value = c.color_tema || 'orange';
       
       document.getElementById('envios').checked = Boolean(c.hace_envios);
       document.getElementById('envio-gratis').checked = Boolean(c.envio_gratis);
@@ -2244,8 +2363,11 @@
       document.getElementById('btn-guardar-comercio').innerText = 'Guardar Cambios';
       document.getElementById('contenedor-btn-eliminar-comercio').classList.remove('hidden');
 
-      const help = document.getElementById('help-logo-edit');
-      help.innerText = c.logo_url ? 'Dejá el campo vacío si querés conservar el logo actual.' : '';
+      const helpLogo = document.getElementById('help-logo-edit');
+      helpLogo.innerText = c.logo_url ? 'Dejá el campo vacío si querés conservar el logo actual.' : '';
+
+      const helpPortada = document.getElementById('help-portada-edit');
+      helpPortada.innerText = c.portada_url ? 'Dejá el campo vacío si querés conservar la portada actual.' : '';
 
       abrirModal('modal-registro');
     }
@@ -2525,7 +2647,7 @@
     // LISTENER DE BUSQUEDA
     document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
 
-    // SUBMIT COMERCIO
+    // SUBMIT COMERCIO (SOPORTE PARA FOTO DE PORTADA Y FIX HORARIO CORTADO OPCIONAL)
     document.getElementById('form-comercio').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!usuarioActual) {
@@ -2535,7 +2657,10 @@
 
       const editId = document.getElementById('comercio-edit-id').value;
       const logoExistente = document.getElementById('comercio-logo-existente').value;
+      const portadaExistente = document.getElementById('comercio-portada-existente').value;
+
       const logoInput = document.getElementById('logo-input');
+      const portadaInput = document.getElementById('portada-input');
 
       const categorias = obtenerCategoriasSeleccionadasModal();
       if (categorias.length === 0) {
@@ -2550,11 +2675,22 @@
         if (subida) logo_url = subida;
       }
 
+      let portada_url = portadaExistente;
+      if (portadaInput.files.length > 0) {
+        const subidaPort = await subirImagen(portadaInput);
+        if (subidaPort === false) return;
+        if (subidaPort) portada_url = subidaPort;
+      }
+
       const nombreVal = document.getElementById('nombre').value.trim();
       const slugVal = crearSlug(nombreVal);
 
       const saboresTxt = document.getElementById('sabores-input').value.trim();
       const saboresArr = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+      // SOLUCIÓN A ERROR EN SEGUNDO HORARIO VACÍO:
+      const hAp2 = document.getElementById('hora-apertura-2').value.trim();
+      const hCi2 = document.getElementById('hora-cierre-2').value.trim();
 
       const datosComercio = {
         user_id: usuarioActual.id,
@@ -2564,13 +2700,14 @@
         direccion: document.getElementById('direccion').value.trim(),
         categoria: categorias[0],
         categorias: categorias,
+        color_tema: document.getElementById('color-tema').value || 'orange',
         hace_envios: document.getElementById('envios').checked,
         envio_gratis: document.getElementById('envio-gratis').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
         hora_apertura: document.getElementById('hora-apertura').value.trim(),
         hora_cierre: document.getElementById('hora-cierre').value.trim(),
-        hora_apertura_2: document.getElementById('hora-apertura-2').value.trim(),
-        hora_cierre_2: document.getElementById('hora-cierre-2').value.trim(),
+        hora_apertura_2: hAp2 || '',
+        hora_cierre_2: hCi2 || '',
         pagos_efectivo: document.getElementById('pago-efectivo').checked,
         pagos_transferencia: document.getElementById('pago-transferencia').checked,
         pagos_qr: document.getElementById('pago-qr').checked,
@@ -2578,7 +2715,8 @@
         pagos_tarjeta: document.getElementById('pago-tarjeta').checked,
         sabores: saboresArr,
         tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
-        logo_url
+        logo_url,
+        portada_url
       };
 
       let res;
@@ -2726,7 +2864,7 @@
       }
     });
 
-    // INICIALIZACION
+    // INICIALIZACIÓN
     window.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await _supabase.auth.getSession();
       actualizarInterfazUsuario(session?.user || null);
