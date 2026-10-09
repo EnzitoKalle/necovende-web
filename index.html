@@ -49,6 +49,7 @@
       background-color: #090d16;
       color: #f8fafc;
       overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     
     .glass-nav {
@@ -84,7 +85,6 @@
     .custom-scrollbar::-webkit-scrollbar { display: none; }
     .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Fondo de producto con imagen oscurecida y zoom */
     .bg-product-card {
       position: relative;
       overflow: hidden;
@@ -127,7 +127,7 @@
     }
   </style>
 </head>
-<body class="antialiased pb-28 min-h-screen text-slate-100 selection:bg-brand-500 selection:text-white">
+<body id="body-main" class="antialiased pb-28 min-h-screen text-slate-100 selection:bg-brand-500 selection:text-white">
 
   <!-- Header / Navbar -->
   <header class="glass-nav sticky top-0 z-40 text-white shadow-2xl">
@@ -146,7 +146,7 @@
         </div>
       </div>
       
-      <!-- Navigation Controls (Optimizado Celular) -->
+      <!-- Navigation Controls -->
       <div class="flex items-center gap-1.5 sm:gap-2.5">
         <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/40 text-brand-400 hover:text-brand-300 text-xs font-bold px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-xl transition duration-200 flex items-center gap-1.5 active:scale-95 shadow-sm">
           <i data-lucide="plus-circle" class="w-4 h-4 text-brand-400"></i>
@@ -227,25 +227,25 @@
 
   <!-- VISTA DETALLE COMERCIO -->
   <main id="vista-comercio" class="max-w-2xl mx-auto px-3.5 sm:px-4 pt-4 sm:pt-6 space-y-5 hidden relative z-10">
-    <!-- Botones de Navegación del Local (Reorganizados para celular) -->
+    <!-- Botones de Navegación del Local -->
     <div class="flex items-center justify-between gap-2">
       <button onclick="mostrarInicio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl shadow-lg transition active:scale-95">
         <i data-lucide="arrow-left" class="w-4 h-4 text-brand-400"></i> Volver
       </button>
 
-      <button onclick="compartirOlinkComercio()" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition active:scale-95">
+      <button onclick="compartirOlinkComercio()" class="btn-custom-accent inline-flex items-center gap-1.5 text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition active:scale-95">
         <i data-lucide="share-2" class="w-4 h-4"></i> Compartir
       </button>
     </div>
 
-    <!-- Header del Comercio con Portada Opcional -->
+    <!-- Header del Comercio -->
     <div id="detalle-comercio-header" class="glass-card rounded-3xl overflow-hidden border border-white/10 shadow-2xl space-y-0"></div>
 
     <section class="space-y-4">
       <div class="flex justify-between items-center px-1 flex-wrap gap-2">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Catálogo de Productos</h3>
         <div id="acciones-duenio-prod" class="flex items-center gap-2 hidden">
-          <button id="btn-agregar-prod-vista" class="text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
+          <button id="btn-agregar-prod-vista" class="btn-custom-accent text-xs font-bold text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i> Cargar Producto
           </button>
           <button id="btn-agregar-promo-vista" onclick="prepararModalPromo()" class="text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-2 rounded-xl transition flex items-center gap-1.5 active:scale-95">
@@ -261,7 +261,7 @@
   <!-- BARRA FLOTANTE CARRITO -->
   <div id="barra-flotante-carrito" class="fixed bottom-5 left-0 right-0 z-30 px-4 hidden">
     <div class="max-w-2xl mx-auto">
-      <button id="btn-float-cart-action" onclick="abrirModal('modal-carrito')" class="w-full bg-gradient-to-r from-brand-500 via-amber-500 to-brand-600 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 px-6 rounded-2xl shadow-2xl shadow-brand-500/40 border border-brand-400/30 transition duration-200 active:scale-[0.98] flex items-center justify-between">
+      <button id="btn-float-cart-action" onclick="abrirModal('modal-carrito')" class="btn-custom-main w-full bg-gradient-to-r from-brand-500 via-amber-500 to-brand-600 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 px-6 rounded-2xl shadow-2xl shadow-brand-500/40 border border-brand-400/30 transition duration-200 active:scale-[0.98] flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span id="float-cart-count" class="bg-white text-brand-600 text-xs font-black px-2.5 py-1 rounded-lg shadow-sm">0</span>
           <span class="text-xs tracking-tight uppercase font-extrabold">Ver mi pedido</span>
@@ -274,7 +274,7 @@
     </div>
   </div>
 
-  <!-- MODAL: SELECCIONAR SABORES, VARIANTES Y OPCIONES (Postre sin durazno, etc.) -->
+  <!-- MODAL: SELECCIONAR SABORES Y OPCIONES -->
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="glass-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto text-slate-100">
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
@@ -316,11 +316,11 @@
 
       <div id="contenedor-bloques-unidades" class="space-y-4"></div>
 
-      <!-- SECCIÓN: AGREGAR OPCIONES PERSONALIZADAS DINÁMICAS (Postre sin durazno, extra salsa, etc.) -->
+      <!-- OPCIONES DINÁMICAS ("+ AGREGAR OPCIÓN") -->
       <div class="space-y-2 bg-slate-800/40 p-3.5 rounded-2xl border border-white/10">
         <div class="flex justify-between items-center">
           <label class="block text-xs font-bold text-slate-200">Opciones Adicionales / Peticiones</label>
-          <button type="button" onclick="agregarCampoOpcionDinamica()" class="text-[11px] font-black text-brand-400 bg-brand-500/10 border border-brand-500/30 px-2.5 py-1 rounded-lg hover:bg-brand-500/20 transition flex items-center gap-1 active:scale-95">
+          <button type="button" onclick="agregarCampoOpcionDinamica()" class="btn-custom-accent text-[11px] font-black text-brand-400 bg-brand-500/10 border border-brand-500/30 px-2.5 py-1 rounded-lg hover:bg-brand-500/20 transition flex items-center gap-1 active:scale-95">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar Opción
           </button>
         </div>
@@ -333,7 +333,7 @@
         <textarea id="sabores-detalles" placeholder="Aclaraciones sobre tu pedido..." class="w-full glass-input px-4 py-2.5 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500/50 transition" rows="2"></textarea>
       </div>
 
-      <button id="btn-confirmar-sabores" type="button" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-3.5 rounded-xl text-xs shadow-lg shadow-brand-500/30 transition active:scale-95">
+      <button id="btn-confirmar-sabores" type="button" class="btn-custom-main w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-3.5 rounded-xl text-xs shadow-lg shadow-brand-500/30 transition active:scale-95">
         Agregar al Carrito
       </button>
     </div>
@@ -422,7 +422,7 @@
 
         <p id="view-prod-descripcion" class="text-xs text-slate-300 leading-relaxed max-h-32 overflow-y-auto"></p>
 
-        <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-xl shadow-brand-500/30 transition flex items-center justify-center gap-2">
+        <button id="view-prod-btn-agregar" class="btn-custom-main w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-xl shadow-brand-500/30 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
       </div>
@@ -544,17 +544,24 @@
           <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-800/50 p-3 rounded-xl border border-white/10 max-h-36 overflow-y-auto"></div>
         </div>
 
-        <!-- SELECCIÓN DE PALETA DE COLOR -->
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Color Temático del Comercio</label>
-          <select id="color-tema" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50">
-            <option value="orange" class="bg-slate-900">Naranja NecoVende (Predeterminado)</option>
-            <option value="emerald" class="bg-slate-900">Verde Emerald / Frescura</option>
-            <option value="purple" class="bg-slate-900">Violeta Neón / Moderno</option>
-            <option value="rose" class="bg-slate-900">Rosa / Fucsia / Dulcería</option>
-            <option value="cyan" class="bg-slate-900">Azul Cian / Tecnológico</option>
-            <option value="amber" class="bg-slate-900">Dorado Ámbar / Gourmet</option>
-          </select>
+        <!-- SELECCIÓN MANUAL DE COLORES -->
+        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
+          <label class="block text-xs font-bold text-slate-200">Personalizar Colores del Local</label>
+          
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1">Color Botones / Acentuado</label>
+              <input type="color" id="color-principal" value="#f97316" class="w-full h-10 rounded-xl cursor-pointer bg-slate-900 border border-white/10 p-1">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1">Color de Fondo</label>
+              <input type="color" id="color-fondo" value="#090d16" class="w-full h-10 rounded-xl cursor-pointer bg-slate-900 border border-white/10 p-1">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1">Color del Texto</label>
+              <input type="color" id="color-texto" value="#ffffff" class="w-full h-10 rounded-xl cursor-pointer bg-slate-900 border border-white/10 p-1">
+            </div>
+          </div>
         </div>
 
         <div id="seccion-sabores-config" class="hidden space-y-1.5 bg-brand-500/10 p-3.5 rounded-xl border border-brand-500/20">
@@ -589,7 +596,7 @@
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
         </div>
 
-        <!-- FIX HORARIOS: CAMPOS OPCIONALES EN TURNO 2 Y SIN ERROR -->
+        <!-- HORARIOS CON CONVERSIÓN AUTOMÁTICA A NULL SI QUEDAN VACÍOS -->
         <div class="space-y-1">
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Horario Principal / Turno 1 *</label>
           <div class="grid grid-cols-2 gap-2.5">
@@ -604,7 +611,6 @@
             <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00 (Opcional)" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
             <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00 (Opcional)" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
           </div>
-          <p class="text-[10px] text-slate-400">Si tu local trabaja de corrido, podés dejar el Turno 2 vacío.</p>
         </div>
 
         <div>
@@ -634,7 +640,6 @@
           <p class="text-[10px] text-slate-400 mt-1" id="help-logo-edit"></p>
         </div>
 
-        <!-- NUEVA FOTO DE PORTADA -->
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Foto de Portada (Banner Superior Opcional)</label>
           <input type="file" id="portada-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
@@ -788,7 +793,6 @@
           <input type="text" id="promo-titulo" placeholder="Ej: Combo Fiesta 1 Kg + 2 Cubatones" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
         </div>
 
-        <!-- SELECCIONADOR DE PRODUCTOS COMPONENTES -->
         <div class="bg-slate-800/60 p-4 rounded-2xl border border-amber-500/30 space-y-3">
           <div class="flex justify-between items-center">
             <label class="block text-xs font-bold text-amber-400">Elegir productos del combo</label>
@@ -865,7 +869,46 @@
 
     let promoItemsSeleccionados = {};
 
-    /* COMPRESIÓN AUTOMÁTICA DE IMÁGENES (CANVAS) */
+    /* FUNCION PARA APLICAR TEMA DE COLOR DINÁMICO AL LOCAL */
+    function aplicarColoresComercio(c) {
+      const body = document.getElementById('body-main');
+      
+      if (!c) {
+        // Restaurar valores por defecto de la app
+        body.style.backgroundColor = '#090d16';
+        body.style.color = '#f8fafc';
+        document.querySelectorAll('.btn-custom-main').forEach(el => {
+          el.style.backgroundColor = '';
+          el.style.color = '';
+        });
+        document.querySelectorAll('.btn-custom-accent').forEach(el => {
+          el.style.backgroundColor = '';
+          el.style.borderColor = '';
+          el.style.color = '';
+        });
+        return;
+      }
+
+      const colorPrincipal = c.color_principal || '#f97316';
+      const colorFondo = c.color_fondo || '#090d16';
+      const colorTexto = c.color_texto || '#ffffff';
+
+      body.style.backgroundColor = colorFondo;
+      body.style.color = colorTexto;
+
+      // Aplicar color principal a los botones destacados
+      document.querySelectorAll('.btn-custom-main').forEach(el => {
+        el.style.backgroundColor = colorPrincipal;
+        el.style.color = '#ffffff';
+      });
+
+      document.querySelectorAll('.btn-custom-accent').forEach(el => {
+        el.style.backgroundColor = `${colorPrincipal}22`;
+        el.style.borderColor = colorPrincipal;
+        el.style.color = colorPrincipal;
+      });
+    }
+
     async function comprimirImagenCliente(file, maxAncho = 800, maxAlto = 800, calidad = 0.8) {
       return new Promise((resolve, reject) => {
         if (!file || !file.type.startsWith('image/')) {
@@ -1130,18 +1173,20 @@
       document.getElementById('vista-comercio').classList.add('hidden');
       document.getElementById('vista-inicio').classList.remove('hidden');
       comercioActivo = null;
+      aplicarColoresComercio(null);
       window.scrollTo(0, 0);
     }
 
-    /* 🚀 CARGA DE COMERCIO ULTRA RÁPIDA */
+    /* 🚀 CARGA DE COMERCIO */
     async function abrirVistaComercio(identificador, cambiarUrl = true) {
       comercioActivo = comerciosGlobales.find(c => c.slug === identificador || c.id === identificador);
       if (!comercioActivo) return;
 
+      aplicarColoresComercio(comercioActivo);
+
       const slugOId = comercioActivo.slug || comercioActivo.id;
       if (cambiarUrl) window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
 
-      // Pedir sólo los productos de este local
       const { data: prods } = await _supabase
         .from('productos')
         .select('*')
@@ -1309,7 +1354,7 @@
       return 0;
     }
 
-    /* 🚀 RENDERIZADO FLUIDO CON FONDO DE IMAGEN OSCURECIDO Y ZOOM */
+    /* 🚀 RENDERIZADO FLUIDO */
     function renderizarProductosComercio(productos, esDuenio = false) {
       const container = document.getElementById('productos-container');
       
@@ -1394,7 +1439,7 @@
                     </div>
                   ` : ''}
 
-                  <button onclick="intentarAgregarProducto('${p.id}')" class="bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-lg shadow-brand-500/30 transition flex items-center gap-1.5 active:scale-95">
+                  <button onclick="intentarAgregarProducto('${p.id}')" class="btn-custom-main bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-lg shadow-brand-500/30 transition flex items-center gap-1.5 active:scale-95">
                     <i data-lucide="plus" class="w-4 h-4"></i> ${esCombo ? 'Opciones promo' : (esIlimitado ? 'Elegir sabores' : 'Agregar')}
                   </button>
                 ` : `
@@ -1417,7 +1462,6 @@
 
       const cantidadPedida = cantidadesProductosPrevias[p.id] || 1;
 
-      // Limpiar opciones dinámicas de veces anteriores
       const boxDinamicas = document.getElementById('lista-opciones-dinamicas');
       if (boxDinamicas) boxDinamicas.innerHTML = '';
 
@@ -1778,7 +1822,6 @@
         }
       }
 
-      // Opciones adicionales dinámicas ("+ Agregar Opción")
       const opcionesDinamicas = obtenerOpcionesDinamicasElegidas();
       if (opcionesDinamicas.length > 0) {
         varianteTexto += `[Opciones: ${opcionesDinamicas.join(', ')}] `;
@@ -2300,6 +2343,10 @@
       document.getElementById('help-portada-edit').innerText = '';
       document.getElementById('contenedor-btn-eliminar-comercio').classList.add('hidden');
 
+      document.getElementById('color-principal').value = "#f97316";
+      document.getElementById('color-fondo').value = "#090d16";
+      document.getElementById('color-texto').value = "#ffffff";
+
       document.getElementById('envios').checked = true;
       document.getElementById('envio-gratis').checked = false;
       toggleCampoCostoEnvio();
@@ -2333,8 +2380,11 @@
       document.getElementById('nombre').value = c.nombre;
       document.getElementById('telefono').value = c.telefono_whatsapp;
       document.getElementById('direccion').value = c.direccion || '';
-      document.getElementById('color-tema').value = c.color_tema || 'orange';
       
+      document.getElementById('color-principal').value = c.color_principal || "#f97316";
+      document.getElementById('color-fondo').value = c.color_fondo || "#090d16";
+      document.getElementById('color-texto').value = c.color_texto || "#ffffff";
+
       document.getElementById('envios').checked = Boolean(c.hace_envios);
       document.getElementById('envio-gratis').checked = Boolean(c.envio_gratis);
       toggleCampoCostoEnvio();
@@ -2647,7 +2697,7 @@
     // LISTENER DE BUSQUEDA
     document.getElementById('input-buscar').addEventListener('input', aplicarFiltros);
 
-    // SUBMIT COMERCIO (SOPORTE PARA FOTO DE PORTADA Y FIX HORARIO CORTADO OPCIONAL)
+    // SUBMIT COMERCIO
     document.getElementById('form-comercio').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!usuarioActual) {
@@ -2688,9 +2738,10 @@
       const saboresTxt = document.getElementById('sabores-input').value.trim();
       const saboresArr = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-      // SOLUCIÓN A ERROR EN SEGUNDO HORARIO VACÍO:
-      const hAp2 = document.getElementById('hora-apertura-2').value.trim();
-      const hCi2 = document.getElementById('hora-cierre-2').value.trim();
+      // SOLUCIÓN AL ERROR "invalid input syntax for type time"
+      // Convertir campos vacíos a null explícito antes de mandar a Supabase
+      const rawAp2 = document.getElementById('hora-apertura-2').value.trim();
+      const rawCi2 = document.getElementById('hora-cierre-2').value.trim();
 
       const datosComercio = {
         user_id: usuarioActual.id,
@@ -2700,14 +2751,16 @@
         direccion: document.getElementById('direccion').value.trim(),
         categoria: categorias[0],
         categorias: categorias,
-        color_tema: document.getElementById('color-tema').value || 'orange',
+        color_principal: document.getElementById('color-principal').value || '#f97316',
+        color_fondo: document.getElementById('color-fondo').value || '#090d16',
+        color_texto: document.getElementById('color-texto').value || '#ffffff',
         hace_envios: document.getElementById('envios').checked,
         envio_gratis: document.getElementById('envio-gratis').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
-        hora_apertura: document.getElementById('hora-apertura').value.trim(),
-        hora_cierre: document.getElementById('hora-cierre').value.trim(),
-        hora_apertura_2: hAp2 || '',
-        hora_cierre_2: hCi2 || '',
+        hora_apertura: document.getElementById('hora-apertura').value.trim() || null,
+        hora_cierre: document.getElementById('hora-cierre').value.trim() || null,
+        hora_apertura_2: rawAp2 ? rawAp2 : null,
+        hora_cierre_2: rawCi2 ? rawCi2 : null,
         pagos_efectivo: document.getElementById('pago-efectivo').checked,
         pagos_transferencia: document.getElementById('pago-transferencia').checked,
         pagos_qr: document.getElementById('pago-qr').checked,
