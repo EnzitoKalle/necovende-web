@@ -93,6 +93,12 @@
     }
     .cart-animate { animation: cartBump 0.2s ease-out; }
 
+    @keyframes toastSlide {
+      0% { transform: translateY(100px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .toast-animate { animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
     @media (max-width: 640px) {
       .modal-bottom-sheet {
         align-items: flex-end !important;
@@ -107,6 +113,19 @@
   </style>
 </head>
 <body class="antialiased pb-28 min-h-screen selection:bg-brand-500 selection:text-white">
+
+  <!-- Toast de Notificación Visual -->
+  <div id="toast-notificacion" class="fixed bottom-6 right-6 z-50 hidden max-w-sm w-full px-4">
+    <div class="bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 toast-animate">
+      <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h5 class="font-black text-sm text-white">¡Pedido Enviado!</h5>
+        <p class="text-xs text-slate-300 truncate" id="toast-mensaje-texto">Tu pedido se abrió en WhatsApp con éxito.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Header / Navbar Limpio y Claro -->
   <header class="clean-nav sticky top-0 z-40 shadow-sm">
@@ -127,6 +146,11 @@
       
       <!-- Navigation Controls -->
       <div class="flex items-center gap-2">
+        <button onclick="abrirModal('modal-historial')" type="button" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 active:scale-95 shadow-sm" title="Mis Pedidos Recientes">
+          <i data-lucide="history" class="w-4 h-4 text-brand-500"></i>
+          <span class="hidden sm:inline">Historial</span>
+        </button>
+
         <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-50 hover:bg-brand-100 border border-brand-200 text-brand-600 text-xs font-bold px-3 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 active:scale-95 shadow-sm">
           <i data-lucide="plus-circle" class="w-4 h-4 text-brand-500"></i>
           <span class="hidden sm:inline">Sumar Local</span>
@@ -292,6 +316,25 @@
           <i data-lucide="arrow-right" class="w-5 h-5"></i>
         </div>
       </button>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTORIAL DE PEDIDOS Y REPETIR -->
+  <div id="modal-historial" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      
+      <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Historial de Pedidos</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Repetití tus pedidos anteriores con un solo toque.</p>
+        </div>
+        <button onclick="cerrarModal('modal-historial')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="historial-lista-container" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
     </div>
   </div>
 
@@ -865,7 +908,7 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const CATEGORIAS_DISPONIBLES = [
-      "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", "Rotisería", 
+      "Favoritos ❤️", "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", "Rotisería", 
       "Panaderías & Pastelería", "Cafetería", "Sushi & Comida Oriental", "Postres & Dulces", 
       "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", 
       "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", 
@@ -900,6 +943,121 @@
 
     let promoItemsSeleccionados = {};
     let timeoutBusquedaGlobal = null;
+
+    // Favoritos localstorage
+    function obtenerFavoritos() {
+      try {
+        return JSON.parse(localStorage.getItem('necovende_favoritos') || '[]');
+      } catch(e) { return []; }
+    }
+
+    function toggleFavoritoComercio(comercioId, event) {
+      if (event) event.stopPropagation();
+      let favs = obtenerFavoritos();
+      if (favs.includes(comercioId)) {
+        favs = favs.filter(id => id !== comercioId);
+      } else {
+        favs.push(comercioId);
+      }
+      localStorage.setItem('necovende_favoritos', JSON.stringify(favs));
+      aplicarFiltros();
+      if (comercioActivo && comercioActivo.id === comercioId) {
+        abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+      }
+    }
+
+    // Dar Like / Manito Arriba
+    async function darLikeComercio(comercioId, event) {
+      if (event) event.stopPropagation();
+      const c = comerciosGlobales.find(x => x.id === comercioId);
+      if (!c) return;
+
+      const likesActuales = (c.likes_count || 0) + 1;
+      const { error } = await _supabase.from('comercios').update({ likes_count: likesActuales }).eq('id', comercioId);
+      if (!error) {
+        c.likes_count = likesActuales;
+        aplicarFiltros();
+        if (comercioActivo && comercioActivo.id === comercioId) {
+          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+        }
+        mostrarToast(`¡Gracias por valorar a ${c.nombre}! 👍`);
+      }
+    }
+
+    // Historial de pedidos locales
+    function obtenerHistorialPedidos() {
+      try {
+        return JSON.parse(localStorage.getItem('necovende_historial_pedidos') || '[]');
+      } catch(e) { return []; }
+    }
+
+    function guardarPedidoEnHistorial(pedidoObj) {
+      let historial = obtenerHistorialPedidos();
+      historial.unshift(pedidoObj);
+      if (historial.length > 10) historial = historial.slice(0, 10);
+      localStorage.setItem('necovende_historial_pedidos', JSON.stringify(historial));
+    }
+
+    function repetirPedidoHistorial(index) {
+      const historial = obtenerHistorialPedidos();
+      const pedido = historial[index];
+      if (!pedido) return;
+
+      const comercioDestino = comerciosGlobales.find(c => c.id === pedido.comercioId);
+      if (!comercioDestino) {
+        alert("El comercio de este pedido ya no se encuentra disponible.");
+        return;
+      }
+
+      comercioActivo = comercioDestino;
+      comercioCarrito = comercioDestino;
+      carrito = [...pedido.items];
+      actualizarCarrito();
+      cerrarModal('modal-historial');
+      abrirVistaComercio(comercioDestino.slug || comercioDestino.id);
+      abrirModal('modal-carrito');
+    }
+
+    function renderizarHistorialModal() {
+      const container = document.getElementById('historial-lista-container');
+      const historial = obtenerHistorialPedidos();
+      container.innerHTML = '';
+
+      if (historial.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 font-semibold">No tenés pedidos recientes guardados.</p>`;
+        return;
+      }
+
+      historial.forEach((ped, idx) => {
+        let itemsTxt = ped.items.map(i => `${i.cantidad}x ${i.titulo}`).join(', ');
+        container.innerHTML += `
+          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-black text-slate-900">${ped.comercioNombre}</span>
+              <span class="text-[10px] text-slate-400 font-bold">${ped.fecha || ''}</span>
+            </div>
+            <p class="text-xs text-slate-600 truncate">${itemsTxt}</p>
+            <div class="flex justify-between items-center pt-1">
+              <span class="font-black text-brand-600 text-xs">$${ped.total}</span>
+              <button onclick="repetirPedidoHistorial(${idx})" class="bg-brand-50 hover:bg-brand-100 text-brand-600 border border-brand-200 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 shadow-sm">
+                <i data-lucide="repeat" class="w-3.5 h-3.5"></i> Repetir Pedido
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Notificación Toast
+    function mostrarToast(mensaje) {
+      const toast = document.getElementById('toast-notificacion');
+      document.getElementById('toast-mensaje-texto').innerText = mensaje;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
 
     function actualizarRelojNecochea() {
       const ahora = new Date();
@@ -1199,7 +1357,10 @@
       prepararModalNuevoComercio();
     }
 
-    function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function abrirModal(id) { 
+      if (id === 'modal-historial') renderizarHistorialModal();
+      document.getElementById(id).classList.remove('hidden'); 
+    }
     function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     function mostrarInicio() {
@@ -1249,6 +1410,8 @@
 
       const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
       const abierto = estaAbierto(comercioActivo);
+      const esFav = obtenerFavoritos().includes(comercioActivo.id);
+      const likesCount = comercioActivo.likes_count || 0;
 
       const pagos = [];
       if (comercioActivo.pagos_efectivo) pagos.push('Efectivo');
@@ -1326,6 +1489,17 @@
                     : (comercioActivo.hace_envios ? '<span class="text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 bg-brand-50 border border-brand-200 text-brand-600"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
                   }
                 </div>
+
+                <!-- Botones de Interacción (Like y Favorito) -->
+                <div class="flex items-center gap-2 mt-3">
+                  <button onclick="darLikeComercio('${comercioActivo.id}')" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                    👍 Recomendar (<span id="likes-val-header">${likesCount}</span>)
+                  </button>
+                  <button onclick="toggleFavoritoComercio('${comercioActivo.id}')" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                    <i data-lucide="heart" class="w-3.5 h-3.5 ${esFav ? 'fill-rose-500 text-rose-500' : ''}"></i> ${esFav ? 'Guardado' : 'Guardar'}
+                  </button>
+                </div>
+
                 <div class="flex items-center gap-2 mt-2">
                   <p class="text-xs text-slate-500 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
                   <button onclick="abrirMapaDireccion('${direccionLocalEsc}')" class="text-[10px] font-extrabold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition">
@@ -2180,11 +2354,13 @@
 
       let mensaje = `¡Hola *${comercioCarrito.nombre}*! Quiero realizar el siguiente pedido desde *NecoVende*:\n\n`;
       let total = 0;
+      let itemsGuardarHistorial = [];
 
       carrito.forEach(item => {
         const subtotal = item.precio * item.cantidad;
         total += subtotal;
         mensaje += `• *${item.cantidad}x* ${item.titulo} ($${subtotal})\n`;
+        itemsGuardarHistorial.push({ id: item.id, titulo: item.titulo, precio: item.precio, cantidad: item.cantidad });
       });
 
       mensaje += `\n📌 *Detalles del Pedido:*\n`;
@@ -2206,6 +2382,18 @@
       }
 
       mensaje += `\n¿Me confirman la recepción y la preparación? ¡Muchas gracias!`;
+
+      // Guardar en historial
+      guardarPedidoEnHistorial({
+        comercioId: comercioCarrito.id,
+        comercioNombre: comercioCarrito.nombre,
+        items: itemsGuardarHistorial,
+        total: total,
+        fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      cerrarModal('modal-carrito');
+      mostrarToast(`Pedido enviado a ${comercioCarrito.nombre} vía WhatsApp.`);
 
       const url = `https://wa.me/${comercioCarrito.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
       window.open(url, '_blank');
@@ -2291,6 +2479,8 @@
       lista.forEach(c => {
         const abierto = estaAbierto(c);
         const identificador = c.slug || c.id;
+        const esFav = obtenerFavoritos().includes(c.id);
+        const likesCount = c.likes_count || 0;
 
         const listaCats = c.categorias && c.categorias.length > 0 
           ? c.categorias 
@@ -2299,7 +2489,13 @@
         const direccionEsc = (c.direccion || 'Necochea').replace(/'/g, "\\'");
 
         container.innerHTML += `
-          <div class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-xl transition duration-300 space-y-3.5 group">
+          <div class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-xl transition duration-300 space-y-3.5 group relative">
+            
+            <!-- Botón de Favorito Corazón en Tarjeta -->
+            <button onclick="toggleFavoritoComercio('${c.id}', event)" class="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md p-2 rounded-full border border-slate-200 shadow-sm hover:scale-110 transition">
+              <i data-lucide="heart" class="w-4 h-4 ${esFav ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}"></i>
+            </button>
+
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-start gap-3 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
                 ${c.logo_url 
@@ -2308,7 +2504,7 @@
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
-                <div class="min-w-0 flex-1">
+                <div class="min-w-0 flex-1 pr-8">
                   <div class="flex items-start justify-between gap-2">
                     <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition break-words">${c.nombre}</h4>
                     <span class="text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'} flex-shrink-0">
@@ -2323,12 +2519,15 @@
                       : (c.hace_envios ? '<span class="text-[10px] font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
                     }
                   </div>
+
+                  <!-- Botón de Like Rápido en Tarjeta -->
+                  <div class="flex items-center gap-2 mt-2.5">
+                    <button onclick="darLikeComercio('${c.id}', event)" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-sm active:scale-95">
+                      👍 Recomendar (${likesCount})
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <button onclick="abrirVistaComercio('${identificador}')" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition flex items-center gap-1 shadow-md shadow-brand-500/20 flex-shrink-0 self-start">
-                Ver <i data-lucide="chevron-right" class="w-4 h-4"></i>
-              </button>
             </div>
 
             <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 flex-wrap gap-2">
@@ -2360,7 +2559,10 @@
       const texto = document.getElementById('input-buscar').value.toLowerCase().trim();
       let resultado = comerciosGlobales;
 
-      if (categoriaSeleccionada !== 'Todas') {
+      if (categoriaSeleccionada === 'Favoritos ❤️') {
+        const favs = obtenerFavoritos();
+        resultado = resultado.filter(c => favs.includes(c.id));
+      } else if (categoriaSeleccionada !== 'Todas') {
         resultado = resultado.filter(c => {
           if (c.categorias && c.categorias.length > 0) return c.categorias.includes(categoriaSeleccionada);
           return c.categoria === categoriaSeleccionada;
@@ -2438,6 +2640,7 @@
       grid.innerHTML = '';
 
       CATEGORIAS_DISPONIBLES.forEach((cat) => {
+        if (cat === 'Favoritos ❤️') return;
         const isChecked = categoriasSeleccionadas.includes(cat);
         grid.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-700">
