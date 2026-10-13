@@ -2639,6 +2639,17 @@
       }
 
       const editId = document.getElementById('comercio-edit-id').value;
+      const nombreVal = document.getElementById('nombre').value.trim();
+      const slugVal = crearSlug(nombreVal);
+
+      // VALIDACIÓN: Verificar si el nombre/slug ya existe en otro comercio
+      const slugExistente = comerciosGlobales.find(c => c.slug === slugVal && c.id !== editId);
+      if (slugExistente) {
+        alert(`¡Atención! Ya existe un comercio registrado con el nombre "${nombreVal}". Por favor elegí otro nombre o modificá ligeramente el actual.`);
+        document.getElementById('nombre').focus();
+        return;
+      }
+
       const logoExistente = document.getElementById('comercio-logo-existente').value;
       const portadaExistente = document.getElementById('comercio-portada-existente').value;
       
@@ -2664,9 +2675,6 @@
         if (subidaPortada === false) return;
         if (subidaPortada) portada_url = subidaPortada;
       }
-
-      const nombreVal = document.getElementById('nombre').value.trim();
-      const slugVal = crearSlug(nombreVal);
 
       const saboresTxt = document.getElementById('sabores-input').value.trim();
       const saboresArr = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
