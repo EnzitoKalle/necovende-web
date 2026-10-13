@@ -473,30 +473,29 @@
           </select>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5" id="label-horario-entrega-titulo">Programar Horario de Entrega</label>
-          <select id="cart-programacion-horario" onchange="toggleInputHorarioProgramado()" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
-            <option value="inmediato">Lo antes posible (Inmediato)</option>
-            <option value="programado">Programar para un horario específico</option>
-          </select>
-        </div>
-
-        <div id="box-cart-horario-custom" class="hidden">
-          <label class="block text-xs font-bold text-slate-700 mb-1.5" id="label-horario-custom-sub">Horario solicitado de entrega/retiro</label>
-          <input type="text" id="cart-input-horario-custom" placeholder="Ej: 21:30 hs" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
-        </div>
-
-        <div id="box-cart-tipo-entrega" class="hidden">
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Forma de Entrega</label>
-          <select id="cart-tipo-entrega" onchange="toggleDireccionCarrito()" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
-            <option value="retiro">Pasar a retirar por el local</option>
-            <option value="envio">Envío a domicilio</option>
-          </select>
+        <div id="box-cart-tipo-entrega-wrapper">
+          <div id="box-cart-tipo-entrega" class="hidden">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Forma de Entrega</label>
+            <select id="cart-tipo-entrega" onchange="toggleDireccionCarrito()" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+              <option value="retiro">Pasar a retirar por el local</option>
+              <option value="envio">Envío a domicilio</option>
+            </select>
+          </div>
         </div>
 
         <div id="box-cart-direccion" class="hidden">
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Dirección de Entrega</label>
           <input type="text" id="cart-input-direccion" placeholder="Ej: Calle 60 N° 2840, Depto 2" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+        </div>
+
+        <div id="box-cart-info-retiro-directo" class="hidden bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
+          <p class="font-bold text-slate-700">Horario de retiro: <span id="cart-lbl-horario-retiro" class="font-normal text-slate-600"></span></p>
+          <p class="font-bold text-slate-700">Dirección: <span id="cart-lbl-dir-retiro" class="font-normal text-slate-600"></span></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Nombre de la persona que retira</label>
+          <input type="text" id="cart-input-nombre-retira" placeholder="Ej: Juan Pérez" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
         </div>
       </div>
 
@@ -591,19 +590,11 @@
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
         </div>
 
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Horario Principal / Turno 1 *</label>
-          <div class="grid grid-cols-2 gap-2.5">
-            <input type="text" id="hora-apertura" placeholder="Ej: 09:00" value="09:00" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
-            <input type="text" id="hora-cierre" placeholder="Ej: 13:00" value="13:00" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
-          </div>
-        </div>
-
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Turno 2 (Opcional - Horario Cortado)</label>
-          <div class="grid grid-cols-2 gap-2.5">
-            <input type="text" id="hora-apertura-2" placeholder="Ej: 17:00" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
-            <input type="text" id="hora-cierre-2" placeholder="Ej: 21:00" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+        <!-- CONFIGURACIÓN DE HORARIOS DÍA POR DÍA -->
+        <div class="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <label class="block text-xs font-bold text-slate-800">Horarios de Atención Día por Día</label>
+          <div id="grilla-horarios-dias" class="space-y-2 text-xs">
+            <!-- Se inyecta dinámicamente por JS -->
           </div>
         </div>
 
@@ -886,6 +877,16 @@
       "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", "Cosmética & Belleza", "Tecnología & Celulares"
     ];
 
+    const DIAS_SEMANA = [
+      { id: 'lun', nombre: 'Lunes' },
+      { id: 'mar', nombre: 'Martes' },
+      { id: 'mie', nombre: 'Miércoles' },
+      { id: 'jue', nombre: 'Jueves' },
+      { id: 'vie', nombre: 'Viernes' },
+      { id: 'sab', nombre: 'Sábado' },
+      { id: 'dom', nombre: 'Domingo' }
+    ];
+
     let comerciosGlobales = [];
     let categoriaSeleccionada = 'Todas';
     let comercioActivo = null;
@@ -900,7 +901,6 @@
     let promoItemsSeleccionados = {};
     let timeoutBusquedaGlobal = null;
 
-    // Reloj en tiempo real para Necochea
     function actualizarRelojNecochea() {
       const ahora = new Date();
       const horas = String(ahora.getHours()).padStart(2, '0');
@@ -1006,11 +1006,63 @@
       }
     }
 
-    function toggleInputHorarioProgramado() {
-      const val = document.getElementById('cart-programacion-horario').value;
-      const box = document.getElementById('box-cart-horario-custom');
-      if (val === 'programado') box.classList.remove('hidden');
-      else box.classList.add('hidden');
+    function toggleCheckDiaCerrado(diaId) {
+      const cerrado = document.getElementById(`chk-cerrado-${diaId}`).checked;
+      const inputs = document.querySelectorAll(`.horario-inputs-${diaId}`);
+      inputs.forEach(inp => {
+        inp.disabled = cerrado;
+        if (cerrado) inp.classList.add('opacity-40', 'bg-slate-100');
+        else inp.classList.remove('opacity-40', 'bg-slate-100');
+      });
+    }
+
+    function renderizarGrillaHorarios(horariosGuardados = {}) {
+      const container = document.getElementById('grilla-horarios-dias');
+      container.innerHTML = '';
+
+      DIAS_SEMANA.forEach(d => {
+        const datosDia = horariosGuardados[d.id] || { cerrado: false, desde: '09:00', hasta: '13:00' };
+        
+        container.innerHTML += `
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
+            <div class="flex items-center justify-between sm:w-28">
+              <span class="font-bold text-slate-800">${d.nombre}</span>
+              <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-rose-600 font-semibold">
+                <input type="checkbox" id="chk-cerrado-${d.id}" ${datosDia.cerrado ? 'checked' : ''} onchange="toggleCheckDiaCerrado('${d.id}')" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                Cerrado
+              </label>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <input type="text" id="horario-desde-${d.id}" value="${datosDia.desde || '09:00'}" placeholder="09:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-20 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+              <span class="text-slate-400 text-xs">a</span>
+              <input type="text" id="horario-hasta-${d.id}" value="${datosDia.hasta || '13:00'}" placeholder="13:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-20 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function obtenerHorariosFormulario() {
+      let obj = {};
+      DIAS_SEMANA.forEach(d => {
+        const cerrado = document.getElementById(`chk-cerrado-${d.id}`).checked;
+        const desde = document.getElementById(`horario-desde-${d.id}`).value.trim();
+        const hasta = document.getElementById(`horario-hasta-${d.id}`).value.trim();
+        obj[d.id] = { cerrado, desde, hasta };
+      });
+      return obj;
+    }
+
+    function estaAbiertoSegunGrilla(horariosGrilla) {
+      if (!horariosGrilla) return false;
+      const ahora = new Date();
+      const diasMap = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+      const diaHoy = diasMap[ahora.getDay()];
+      
+      const configHoy = horariosGrilla[diaHoy];
+      if (!configHoy || configHoy.cerrado) return false;
+
+      return estaEnRango(configHoy.desde, configHoy.hasta);
     }
 
     function estaEnRango(hApertura, hCierre) {
@@ -1030,27 +1082,32 @@
     }
 
     function estaAbierto(c) {
+      if (c.horarios_dias) {
+        return estaAbiertoSegunGrilla(c.horarios_dias);
+      }
       return estaEnRango(c.hora_apertura, c.hora_cierre) || estaEnRango(c.hora_apertura_2, c.hora_cierre_2);
     }
 
-    function formatearHoraCorta(horaStr) {
-      if (!horaStr) return '';
-      const partes = horaStr.trim().split(':');
-      if (partes.length >= 2) return `${partes[0].padStart(2, '0')}:${partes[1].padStart(2, '0')}`;
-      return horaStr;
+    function obtenerHorarioHoyTexto(c) {
+      if (!c.horarios_dias) return formatearHorariosLegacy(c);
+      const ahora = new Date();
+      const diasMap = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+      const diaHoy = diasMap[ahora.getDay()];
+      const config = c.horarios_dias[diaHoy];
+
+      if (!config || config.cerrado) return "Cerrado hoy";
+      return `${config.desde} a ${config.hasta} hs`;
     }
 
-    function formatearHorarios(c) {
-      const h1Ap = formatearHoraCorta(c.hora_apertura) || '09:00';
-      const h1Ci = formatearHoraCorta(c.hora_cierre) || '13:00';
-      let texto = `${h1Ap} a ${h1Ci} hs`;
+    function formatearHorariosLegacy(c) {
+      const h1Ap = c.hora_apertura || '09:00';
+      const h1Ci = c.hora_cierre || '13:00';
+      return `${h1Ap} a ${h1Ci} hs`;
+    }
 
-      if (c.hora_apertura_2 && c.hora_cierre_2) {
-        const h2Ap = formatearHoraCorta(c.hora_apertura_2);
-        const h2Ci = formatearHoraCorta(c.hora_cierre_2);
-        if (h2Ap && h2Ci) texto += ` y ${h2Ap} a ${h2Ci} hs`;
-      }
-      return texto;
+    function toggleAcordeonHorarios() {
+      const box = document.getElementById('lista-horarios-desplegable');
+      if (box) box.classList.toggle('hidden');
     }
 
     async function iniciarSesionGoogle() {
@@ -1154,7 +1211,6 @@
       window.scrollTo(0, 0);
     }
 
-    // FILTRADO INTERNO DEL COMERCIO
     function filtrarProductosComercioActual() {
       if (!comercioActivo || !comercioActivo.productos) return;
       const q = document.getElementById('input-buscar-comercio').value.toLowerCase().trim();
@@ -1211,6 +1267,34 @@
       const posPortada = comercioActivo.posicion_portada || 'object-center';
       const direccionLocalEsc = (comercioActivo.direccion || 'Necochea').replace(/'/g, "\\'");
 
+      let horariosHtml = '';
+      const grilla = comercioActivo.horarios_dias;
+      if (grilla) {
+        horariosHtml = `
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Horario:</span>
+              <button onclick="toggleAcordeonHorarios()" class="font-bold text-brand-600 hover:underline flex items-center gap-1">
+                <span>${obtenerHorarioHoyTexto(comercioActivo)}</span> <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div id="lista-horarios-desplegable" class="hidden bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 text-[11px]">
+        `;
+        DIAS_SEMANA.forEach(d => {
+          const cfg = grilla[d.id] || { cerrado: true };
+          const txt = cfg.cerrado ? '<span class="text-rose-500 font-bold">Cerrado</span>' : `${cfg.desde} a ${cfg.hasta} hs`;
+          horariosHtml += `<div class="flex justify-between"><span class="font-semibold text-slate-700">${d.nombre}:</span><span>${txt}</span></div>`;
+        });
+        horariosHtml += `</div></div>`;
+      } else {
+        horariosHtml = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Horario:</span>
+            <span class="font-semibold text-slate-700">${formatearHorariosLegacy(comercioActivo)}</span>
+          </div>
+        `;
+      }
+
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
         ${comercioActivo.portada_url ? `
@@ -1258,10 +1342,7 @@
           </div>
 
           <div class="pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Horario:</span>
-              <span class="font-semibold text-slate-700">${formatearHorarios(comercioActivo)}</span>
-            </div>
+            ${horariosHtml}
 
             ${comercioActivo.hace_envios ? `
               <div class="flex items-center justify-between">
@@ -2018,6 +2099,7 @@
       const itemsContainer = document.getElementById('carrito-items');
       const opcionesExtra = document.getElementById('carrito-opciones-extra');
       const boxEntrega = document.getElementById('box-cart-tipo-entrega');
+      const boxInfoRetiroDirecto = document.getElementById('box-cart-info-retiro-directo');
       const selectPago = document.getElementById('cart-medio-pago');
 
       itemsContainer.innerHTML = '';
@@ -2041,18 +2123,14 @@
       if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">Tarjeta Débito / Crédito</option>`;
       if (selectPago.options.length === 0) selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
 
-      const labelTituloHorario = document.getElementById('label-horario-entrega-titulo');
-      const labelSubHorarioCustom = document.getElementById('label-horario-custom-sub');
-
       if (comercioCarrito.hace_envios) {
         boxEntrega.classList.remove('hidden');
-        if (labelTituloHorario) labelTituloHorario.innerText = "Programar Horario de Entrega";
-        if (labelSubHorarioCustom) labelSubHorarioCustom.innerText = "Horario solicitado de entrega/retiro";
+        boxInfoRetiroDirecto.classList.add('hidden');
       } else {
         boxEntrega.classList.add('hidden');
-        document.getElementById('cart-tipo-entrega').value = 'retiro';
-        if (labelTituloHorario) labelTituloHorario.innerText = "Horario de Retiro en Local";
-        if (labelSubHorarioCustom) labelSubHorarioCustom.innerText = "Horario en que pasará a retirar";
+        boxInfoRetiroDirecto.classList.remove('hidden');
+        document.getElementById('cart-lbl-horario-retiro').innerText = obtenerHorarioHoyTexto(comercioCarrito);
+        document.getElementById('cart-lbl-dir-retiro').innerText = comercioCarrito.direccion || 'Necochea';
       }
 
       toggleDireccionCarrito();
@@ -2084,20 +2162,19 @@
       if (!comercioCarrito) return;
 
       const medioPago = document.getElementById('cart-medio-pago').value;
+      const nombreRetira = document.getElementById('cart-input-nombre-retira').value.trim();
       const tipoEntrega = comercioCarrito.hace_envios ? document.getElementById('cart-tipo-entrega').value : 'retiro';
       const direccion = comercioCarrito.hace_envios ? document.getElementById('cart-input-direccion').value.trim() : '';
-      const modoHorario = document.getElementById('cart-programacion-horario').value;
-      const horarioCustom = document.getElementById('cart-input-horario-custom').value.trim();
+
+      if (!nombreRetira) {
+        alert("Por favor, ingresá el nombre de la persona que retira el pedido.");
+        document.getElementById('cart-input-nombre-retira').focus();
+        return;
+      }
 
       if (comercioCarrito.hace_envios && tipoEntrega === 'envio' && !direccion) {
         alert("Por favor, ingresá tu dirección para poder realizar el envío.");
         document.getElementById('cart-input-direccion').focus();
-        return;
-      }
-
-      if (modoHorario === 'programado' && !horarioCustom) {
-        alert("Por favor, indicá el horario en el que te gustaría recibir o retirar tu pedido.");
-        document.getElementById('cart-input-horario-custom').focus();
         return;
       }
 
@@ -2112,12 +2189,7 @@
 
       mensaje += `\n📌 *Detalles del Pedido:*\n`;
       mensaje += `• *Medio de pago:* ${medioPago}\n`;
-
-      if (modoHorario === 'programado') {
-        mensaje += `• *Horario de retiro/entrega:* ${horarioCustom}\n`;
-      } else {
-        mensaje += `• *Horario de retiro/entrega:* Lo antes posible (Inmediato)\n`;
-      }
+      mensaje += `• *Persona que retira:* ${nombreRetira}\n`;
 
       if (comercioCarrito.hace_envios && tipoEntrega === 'envio') {
         mensaje += `• *Entrega:* Envío a domicilio\n`;
@@ -2128,11 +2200,12 @@
           mensaje += `\n*Total Productos:* $${total} (+ Costo de Envío)\n`;
         }
       } else {
-        mensaje += `• *Entrega:* Retiro en el local (${comercioCarrito.direccion || 'Necochea'})\n`;
+        mensaje += `• *Horario de retiro:* ${obtenerHorarioHoyTexto(comercioCarrito)}\n`;
+        mensaje += `• *Dirección de retiro:* ${comercioCarrito.direccion || 'Necochea'}\n`;
         mensaje += `\n*Total a pagar:* $${total}\n`;
       }
 
-      mensaje += `\n¿Me confirman la recepción y la demora? ¡Muchas gracias!`;
+      mensaje += `\n¿Me confirman la recepción y la preparación? ¡Muchas gracias!`;
 
       const url = `https://wa.me/${comercioCarrito.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
       window.open(url, '_blank');
@@ -2430,12 +2503,7 @@
       document.getElementById('envio-gratis').checked = false;
       toggleCampoCostoEnvio();
 
-      document.getElementById('hora-apertura').value = "09:00";
-      document.getElementById('hora-cierre').value = "13:00";
-      document.getElementById('hora-apertura-2').value = "";
-      document.getElementById('hora-cierre-2').value = "";
       document.getElementById('costo-envio').value = "A convenir según zona";
-
       document.getElementById('comercio-color-primario').value = "#f8fafc";
       document.getElementById('comercio-color-acento').value = "#ea580c";
       document.getElementById('comercio-posicion-portada').value = "object-center";
@@ -2446,6 +2514,7 @@
       document.getElementById('pago-cuenta-dni').checked = false;
       document.getElementById('pago-tarjeta').checked = false;
 
+      renderizarGrillaHorarios({});
       renderizarOpcionesCategoriasModal([]);
       evaluarCamposEspecialesSegunCategoria();
       abrirModal('modal-registro');
@@ -2468,12 +2537,7 @@
       document.getElementById('envio-gratis').checked = Boolean(c.envio_gratis);
       toggleCampoCostoEnvio();
 
-      document.getElementById('hora-apertura').value = formatearHoraCorta(c.hora_apertura) || "09:00";
-      document.getElementById('hora-cierre').value = formatearHoraCorta(c.hora_cierre) || "13:00";
-      document.getElementById('hora-apertura-2').value = formatearHoraCorta(c.hora_apertura_2) || "";
-      document.getElementById('hora-cierre-2').value = formatearHoraCorta(c.hora_cierre_2) || "";
       document.getElementById('costo-envio').value = c.costo_envio || "";
-
       document.getElementById('comercio-color-primario').value = c.color_primario || "#f8fafc";
       document.getElementById('comercio-color-acento').value = c.color_acento || "#ea580c";
       document.getElementById('comercio-posicion-portada').value = c.posicion_portada || "object-center";
@@ -2486,6 +2550,8 @@
       document.getElementById('pago-qr').checked = Boolean(c.pagos_qr);
       document.getElementById('pago-cuenta-dni').checked = Boolean(c.pagos_cuenta_dni);
       document.getElementById('pago-tarjeta').checked = Boolean(c.pagos_tarjeta);
+
+      renderizarGrillaHorarios(c.horarios_dias || {});
 
       const misCategorias = c.categorias && c.categorias.length > 0 ? c.categorias : [c.categoria].filter(Boolean);
       renderizarOpcionesCategoriasModal(misCategorias);
@@ -2835,11 +2901,7 @@
 
       const saboresTxt = document.getElementById('sabores-input').value.trim();
       const saboresArr = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-      const hApertura1 = document.getElementById('hora-apertura').value.trim() || null;
-      const hCierre1 = document.getElementById('hora-cierre').value.trim() || null;
-      const hApertura2 = document.getElementById('hora-apertura-2').value.trim() || null;
-      const hCierre2 = document.getElementById('hora-cierre-2').value.trim() || null;
+      const horariosGrillaVal = obtenerHorariosFormulario();
 
       const datosComercio = {
         user_id: usuarioActual.id,
@@ -2852,10 +2914,7 @@
         hace_envios: document.getElementById('envios').checked,
         envio_gratis: document.getElementById('envio-gratis').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
-        hora_apertura: hApertura1,
-        hora_cierre: hCierre1,
-        hora_apertura_2: hApertura2,
-        hora_cierre_2: hCierre2,
+        horarios_dias: horariosGrillaVal,
         color_primario: document.getElementById('comercio-color-primario').value,
         color_acento: document.getElementById('comercio-color-acento').value,
         posicion_portada: document.getElementById('comercio-posicion-portada').value,
@@ -2914,7 +2973,7 @@
       }
 
       const saboresEspTxt = document.getElementById('prod-sabores-especificos').value.trim();
-      const saboresEspArr = saboresEspTxt ? saboresEspTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
+      const saboresEspArr = saboresEspTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
       const tallesTxt = document.getElementById('prod-talles-input').value.trim();
       const tallesArr = (tieneVariantes && tallesTxt) ? tallesTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
