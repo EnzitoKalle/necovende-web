@@ -160,14 +160,39 @@
 
   <!-- VISTA INICIO (MARKETPLACE) -->
   <main id="vista-inicio" class="max-w-2xl mx-auto px-4 pt-6 space-y-6 relative z-10">
-    <div class="glass-card rounded-3xl p-5 border border-white/10 shadow-2xl relative overflow-hidden">
-      <div class="flex items-center justify-between relative z-10">
-        <div>
-          <span class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest text-brand-400 uppercase bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-full mb-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Necochea & Quequén
+    
+    <!-- NUEVA CABECERA AMIGABLE CON CLIMA Y HORA ACTUALIZADA -->
+    <div class="glass-card rounded-3xl p-5 border border-white/10 shadow-2xl relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-brand-950/30">
+      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div class="space-y-1.5">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest text-brand-400 uppercase bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Marketplace Digital
           </span>
-          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">Comercio Local a un Clic</h2>
-          <p class="text-xs text-slate-400 font-medium mt-1">Pedí directamente a tus locales favoritos sin comisiones ni intermediarios.</p>
+          <h2 class="text-lg sm:text-xl font-black text-white tracking-tight leading-snug">
+            Necochea & Quequén, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-amber-400">las mejores playas de Argentina</span>
+          </h2>
+          <p class="text-xs text-slate-400 font-medium">Comprá o pedí directo a los comercios locales sin intermediarios.</p>
+        </div>
+
+        <!-- WIDGET CLIMA Y HORA -->
+        <div class="flex items-center gap-3 bg-slate-800/80 border border-white/10 px-4 py-3 rounded-2xl shadow-lg flex-shrink-0 self-start sm:self-auto">
+          <div class="text-brand-400">
+            <i data-lucide="cloud-sun" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-black text-white" id="widget-clima-temp">11°C</span>
+              <span class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-md border border-white/5" id="widget-clima-estado">Nublado</span>
+            </div>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3"></i> <span id="widget-hora-actual">--:--</span> hs
+              </span>
+              <span class="text-[10px] text-slate-400">Necochea</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -528,7 +553,6 @@
           <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-800/50 p-3 rounded-xl border border-white/10 max-h-36 overflow-y-auto"></div>
         </div>
 
-        <!-- SECCIONES CONDICIONALES SEGÚN RUBRO -->
         <div id="seccion-sabores-config" class="hidden space-y-1.5 bg-brand-500/10 p-3.5 rounded-xl border border-brand-500/20">
           <label class="block text-xs font-bold text-brand-400 mb-1">Lista General de Sabores del Comercio</label>
           <textarea id="sabores-input" placeholder="Ingresá los sabores generales separados por coma. Ej: Carne, J&Q, Dulce de Leche, Frutilla..." class="w-full glass-input px-3 py-2 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500/50 transition" rows="3"></textarea>
@@ -853,6 +877,16 @@
 
     let promoItemsSeleccionados = {};
     let timeoutBusquedaGlobal = null;
+
+    // Reloj en tiempo real para Necochea
+    function actualizarRelojNecochea() {
+      const ahora = new Date();
+      const horas = String(ahoras = ahora.getHours()).padStart(2, '0');
+      const minutos = String(ahora.getMinutes()).padStart(2, '0');
+      const relojEl = document.getElementById('widget-hora-actual');
+      if (relojEl) relojEl.innerText = `${horas}:${minutos}`;
+    }
+    setInterval(actualizarRelojNecochea, 1000);
 
     async function comprimirImagenCliente(file, maxAncho = 800, maxAlto = 800, calidad = 0.8) {
       return new Promise((resolve, reject) => {
@@ -2179,7 +2213,6 @@
       aplicarFiltros();
     }
 
-    /* 🚀 BUSCADOR POTENCIADO: FILTRA LOCALES Y BUSCA PRODUCTOS GLOBALES EN TIEMPO REAL */
     function aplicarFiltros() {
       const texto = document.getElementById('input-buscar').value.toLowerCase().trim();
       let resultado = comerciosGlobales;
@@ -2912,6 +2945,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
+      actualizarRelojNecochea();
       const { data: { session } } = await _supabase.auth.getSession();
       actualizarInterfazUsuario(session?.user || null);
 
