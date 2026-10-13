@@ -474,7 +474,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Programar Horario de Entrega</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5" id="label-horario-entrega-titulo">Programar Horario de Entrega</label>
           <select id="cart-programacion-horario" onchange="toggleInputHorarioProgramado()" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
             <option value="inmediato">Lo antes posible (Inmediato)</option>
             <option value="programado">Programar para un horario específico</option>
@@ -482,7 +482,7 @@
         </div>
 
         <div id="box-cart-horario-custom" class="hidden">
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Horario solicitado de entrega/retiro</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5" id="label-horario-custom-sub">Horario solicitado de entrega/retiro</label>
           <input type="text" id="cart-input-horario-custom" placeholder="Ej: 21:30 hs" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
         </div>
 
@@ -971,6 +971,11 @@
         .replace(/-+/g, '-');
     }
 
+    function abrirMapaDireccion(direccionLocal) {
+      const query = encodeURIComponent(`${direccionLocal}, Necochea, Buenos Aires`);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+    }
+
     function compartirOlinkComercio() {
       if (!comercioActivo) return;
       const identificador = comercioActivo.slug || comercioActivo.id;
@@ -1183,7 +1188,6 @@
 
       comercioActivo.productos = prods || [];
 
-      // Limpiar buscador interno
       const inputSearchComercio = document.getElementById('input-buscar-comercio');
       if (inputSearchComercio) inputSearchComercio.value = '';
 
@@ -1201,11 +1205,11 @@
         ? comercioActivo.categorias 
         : [comercioActivo.categoria || 'General'];
 
-      // Aplicar color de fondo personalizado del comercio a la página
       const colorFondo = comercioActivo.color_primario || '#f8fafc';
       document.body.style.backgroundColor = colorFondo;
       const colorAcentoBtn = comercioActivo.color_acento || '#f97316';
       const posPortada = comercioActivo.posicion_portada || 'object-center';
+      const direccionLocalEsc = (comercioActivo.direccion || 'Necochea').replace(/'/g, "\\'");
 
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
@@ -1231,7 +1235,6 @@
                   </span>
                 </div>
                 
-                <!-- Categorías alineadas horizontalmente una al lado de la otra -->
                 <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                   ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200">${cat}</span>`).join('')}
                   ${comercioActivo.envio_gratis 
@@ -1239,7 +1242,12 @@
                     : (comercioActivo.hace_envios ? '<span class="text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 bg-brand-50 border border-brand-200 text-brand-600"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
                   }
                 </div>
-                <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <p class="text-xs text-slate-500 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
+                  <button onclick="abrirMapaDireccion('${direccionLocalEsc}')" class="text-[10px] font-extrabold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition">
+                    <i data-lucide="map" class="w-3 h-3"></i> Ver en mapa
+                  </button>
+                </div>
               </div>
             </div>
             ${esDuenio ? `
@@ -1311,7 +1319,8 @@
 
     async function cambiarOrdenProducto(prodId, direccion) {
       if (!comercioActivo || !comercioActivo.productos) return;
-      const prods = [...comercioActivo.productos].sort((a, b) => (a.orden || 0) - (b.orden || 0));
+      
+      const prods = [...comercioActivo.productos].sort((a, b) => (a.orden !== undefined ? a.orden : 0) - (b.orden !== undefined ? b.orden : 0));
       const idx = prods.findIndex(p => p.id === prodId);
 
       if (idx === -1) return;
@@ -1321,9 +1330,18 @@
       const actual = prods[idx];
       const objetivo = prods[targetIdx];
 
-      const tempOrden = actual.orden || 0;
-      actual.orden = objetivo.orden || targetIdx;
-      objetivo.orden = tempOrden;
+      const ordenActualTemp = actual.orden !== undefined ? actual.orden : idx;
+      const ordenObjetivoTemp = objetivo.orden !== undefined ? objetivo.orden : targetIdx;
+
+      let nuevoOrdenActual = ordenObjetivoTemp;
+      let nuevoOrdenObjetivo = ordenActualTemp;
+
+      if (nuevoOrdenActual === nuevoOrdenObjetivo) {
+        nuevoOrdenActual = direccion === 'arriba' ? ordenObjetivoTemp - 1 : ordenObjetivoTemp + 1;
+      }
+
+      actual.orden = nuevoOrdenActual;
+      objetivo.orden = nuevoOrdenObjetivo;
 
       await _supabase.from('productos').update({ orden: actual.orden }).eq('id', actual.id);
       await _supabase.from('productos').update({ orden: objetivo.orden }).eq('id', objetivo.id);
@@ -2023,11 +2041,18 @@
       if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">Tarjeta Débito / Crédito</option>`;
       if (selectPago.options.length === 0) selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
 
+      const labelTituloHorario = document.getElementById('label-horario-entrega-titulo');
+      const labelSubHorarioCustom = document.getElementById('label-horario-custom-sub');
+
       if (comercioCarrito.hace_envios) {
         boxEntrega.classList.remove('hidden');
+        if (labelTituloHorario) labelTituloHorario.innerText = "Programar Horario de Entrega";
+        if (labelSubHorarioCustom) labelSubHorarioCustom.innerText = "Horario solicitado de entrega/retiro";
       } else {
         boxEntrega.classList.add('hidden');
         document.getElementById('cart-tipo-entrega').value = 'retiro';
+        if (labelTituloHorario) labelTituloHorario.innerText = "Horario de Retiro en Local";
+        if (labelSubHorarioCustom) labelSubHorarioCustom.innerText = "Horario en que pasará a retirar";
       }
 
       toggleDireccionCarrito();
@@ -2059,8 +2084,8 @@
       if (!comercioCarrito) return;
 
       const medioPago = document.getElementById('cart-medio-pago').value;
-      const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
-      const direccion = document.getElementById('cart-input-direccion').value.trim();
+      const tipoEntrega = comercioCarrito.hace_envios ? document.getElementById('cart-tipo-entrega').value : 'retiro';
+      const direccion = comercioCarrito.hace_envios ? document.getElementById('cart-input-direccion').value.trim() : '';
       const modoHorario = document.getElementById('cart-programacion-horario').value;
       const horarioCustom = document.getElementById('cart-input-horario-custom').value.trim();
 
@@ -2089,9 +2114,9 @@
       mensaje += `• *Medio de pago:* ${medioPago}\n`;
 
       if (modoHorario === 'programado') {
-        mensaje += `• *Horario solicitado:* ${horarioCustom}\n`;
+        mensaje += `• *Horario de retiro/entrega:* ${horarioCustom}\n`;
       } else {
-        mensaje += `• *Horario solicitado:* Lo antes posible (Inmediato)\n`;
+        mensaje += `• *Horario de retiro/entrega:* Lo antes posible (Inmediato)\n`;
       }
 
       if (comercioCarrito.hace_envios && tipoEntrega === 'envio') {
@@ -2103,7 +2128,7 @@
           mensaje += `\n*Total Productos:* $${total} (+ Costo de Envío)\n`;
         }
       } else {
-        mensaje += `• *Entrega:* Retiro en el local\n`;
+        mensaje += `• *Entrega:* Retiro en el local (${comercioCarrito.direccion || 'Necochea'})\n`;
         mensaje += `\n*Total a pagar:* $${total}\n`;
       }
 
@@ -2198,10 +2223,12 @@
           ? c.categorias 
           : [c.categoria || 'General'];
 
+        const direccionEsc = (c.direccion || 'Necochea').replace(/'/g, "\\'");
+
         container.innerHTML += `
-          <div onclick="abrirVistaComercio('${identificador}')" class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-xl transition duration-300 space-y-3.5 cursor-pointer group">
+          <div class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-xl transition duration-300 space-y-3.5 group">
             <div class="flex items-start justify-between gap-3">
-              <div class="flex items-start gap-3 min-w-0 flex-1">
+              <div class="flex items-start gap-3 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
                 ${c.logo_url 
                   ? `<img src="${c.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-slate-200 shadow-sm flex-shrink-0 group-hover:scale-105 transition duration-300 mt-0.5">`
                   : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-2xl group-hover:border-brand-300 transition flex-shrink-0 mt-0.5">
@@ -2209,7 +2236,6 @@
                     </div>`
                 }
                 <div class="min-w-0 flex-1">
-                  <!-- Nombre completo visible sin cortar -->
                   <div class="flex items-start justify-between gap-2">
                     <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition break-words">${c.nombre}</h4>
                     <span class="text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'} flex-shrink-0">
@@ -2217,27 +2243,26 @@
                     </span>
                   </div>
 
-                  <!-- Categorías alineadas horizontalmente una al lado de la otra -->
                   <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                     ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
                     ${c.envio_gratis 
-                      ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
-                      : (c.hace_envios ? '<span class="text-[10px] font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
+                      ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
+                      : (c.hace_envios ? '<span class="text-[10px] font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
                     }
                   </div>
                 </div>
               </div>
 
-              <button class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition flex items-center gap-1 shadow-md shadow-brand-500/20 flex-shrink-0 self-start">
+              <button onclick="abrirVistaComercio('${identificador}')" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition flex items-center gap-1 shadow-md shadow-brand-500/20 flex-shrink-0 self-start">
                 Ver <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </button>
             </div>
 
-            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span class="flex items-center gap-1.5 truncate">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea / Quequén'}</span>
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 flex-wrap gap-2">
+              <span class="flex items-center gap-1.5 truncate cursor-pointer hover:text-brand-600 transition" onclick="abrirMapaDireccion('${direccionEsc}')" title="Ver en Google Maps">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 flex-shrink-0"></i> <span class="truncate underline decoration-dotted">${c.direccion || 'Necochea / Quequén'}</span>
               </span>
-              <span class="font-bold text-brand-600 flex-shrink-0 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200">Ingresar al Menú</span>
+              <button onclick="abrirVistaComercio('${identificador}')" class="font-bold text-brand-600 flex-shrink-0 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-full border border-brand-200 transition">Ingresar al Menú</button>
             </div>
           </div>
         `;
@@ -2889,7 +2914,7 @@
       }
 
       const saboresEspTxt = document.getElementById('prod-sabores-especificos').value.trim();
-      const saboresEspArr = saboresEspTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
+      const saboresEspArr = saboresEspTxt ? saboresEspTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
       const tallesTxt = document.getElementById('prod-talles-input').value.trim();
       const tallesArr = (tieneVariantes && tallesTxt) ? tallesTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
