@@ -187,6 +187,17 @@
       <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-medium custom-scrollbar"></div>
     </section>
 
+    <!-- SECCIÓN DE PRODUCTOS ENCONTRADOS (GLOBAL) -->
+    <section id="seccion-resultados-productos" class="space-y-3 hidden">
+      <div class="flex justify-between items-center px-1">
+        <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="package-search" class="w-4 h-4 text-brand-400"></i> Productos Encontrados
+        </h3>
+        <span class="text-[11px] font-bold text-slate-400" id="total-prods-busqueda">0 productos</span>
+      </div>
+      <div id="container-productos-busqueda" class="grid grid-cols-1 gap-3"></div>
+    </section>
+
     <!-- Lista de Comercios -->
     <section class="space-y-4 pt-1">
       <div class="flex justify-between items-center px-1">
@@ -517,7 +528,7 @@
           <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-800/50 p-3 rounded-xl border border-white/10 max-h-36 overflow-y-auto"></div>
         </div>
 
-        <!-- SECCIONES CONDICIONALES SEGÚN RUBRO (SOLO SE MUESTRAN SI ES GASTRONOMÍA) -->
+        <!-- SECCIONES CONDICIONALES SEGÚN RUBRO -->
         <div id="seccion-sabores-config" class="hidden space-y-1.5 bg-brand-500/10 p-3.5 rounded-xl border border-brand-500/20">
           <label class="block text-xs font-bold text-brand-400 mb-1">Lista General de Sabores del Comercio</label>
           <textarea id="sabores-input" placeholder="Ingresá los sabores generales separados por coma. Ej: Carne, J&Q, Dulce de Leche, Frutilla..." class="w-full glass-input px-3 py-2 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500/50 transition" rows="3"></textarea>
@@ -550,7 +561,6 @@
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500/50 transition">
         </div>
 
-        <!-- HORARIOS (SEGUNDO TURNO OPCIONAL SIN ERRORES) -->
         <div class="space-y-1">
           <label class="block text-xs font-bold text-slate-300 mb-1.5">Horario Principal / Turno 1 *</label>
           <div class="grid grid-cols-2 gap-2.5">
@@ -588,7 +598,6 @@
           </div>
         </div>
 
-        <!-- PERSONALIZACIÓN DE COLORES -->
         <div class="bg-slate-800/50 p-3.5 rounded-xl border border-white/10 space-y-2">
           <label class="block text-xs font-bold text-slate-300">Personalizar Colores del Local</label>
           <div class="grid grid-cols-2 gap-3 text-xs">
@@ -603,7 +612,6 @@
           </div>
         </div>
 
-        <!-- FOTO DE PORTADA Y LOGO -->
         <div class="space-y-3">
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1.5">Foto de Portada / Banner</label>
@@ -632,7 +640,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Cargar / Editar Producto Optimizado por Rubro -->
+  <!-- MODAL: Cargar / Editar Producto -->
   <div id="modal-producto" class="modal-bottom-sheet fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
     <div class="glass-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto text-slate-100">
       
@@ -667,19 +675,16 @@
         <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/10 space-y-3">
           <label class="block text-xs font-bold text-slate-200">Opciones del Producto</label>
           
-          <!-- SECCIÓN SABORES (SOLO APARECE SI EL COMERCIO ES DE HELADERÍA O EMPANADAS) -->
           <div id="box-check-sabores-prod" class="hidden flex items-center gap-2.5">
             <input type="checkbox" id="prod-requiere-sabores" onchange="toggleBoxConfigSabores()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
             <label for="prod-requiere-sabores" class="text-xs font-semibold text-slate-300 cursor-pointer">Permitir elegir sabores / gustos</label>
           </div>
 
-          <!-- SECCIÓN COCCIÓN (SOLO APARECE SI EL COMERCIO ES DE EMPANADAS) -->
           <div id="box-check-coccion-prod" class="hidden flex items-center gap-2.5">
             <input type="checkbox" id="prod-requiere-coccion" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
             <label for="prod-requiere-coccion" class="text-xs font-semibold text-slate-300 cursor-pointer">Pedir tipo de cocción (Al Horno / Fritas)</label>
           </div>
 
-          <!-- SECCIÓN VARIANTES (TALLES/COLORES - SOLO SI ES INDUMENTARIA O REGALERÍA) -->
           <div id="box-check-variantes-prod" class="hidden">
             <div class="flex items-center gap-2.5 pt-1">
               <input type="checkbox" id="prod-tiene-variantes" onchange="toggleBoxVariantes()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
@@ -698,14 +703,12 @@
             </div>
           </div>
 
-          <!-- BOTÓN Y CAMPO DE OPCIONES PERSONALIZADAS ("AGREGAR OPCIÓN" - EJ: SIN DURAZNO) -->
           <div class="pt-2 border-t border-white/10 space-y-2">
             <label class="block text-xs font-bold text-slate-300">Opciones Personalizadas (Ej: Sin durazno, Sin cebolla)</label>
-            <input type="text" id="prod-opciones-custom-input" placeholder="Ingresá las opciones separadas por coma. Ej: Sin durazno, Sin cebolla, Extra queso" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
+            <input type="text" id="prod-opciones-custom-input" placeholder="Ingresá las opciones separadas por coma." class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold">
             <p class="text-[10px] text-slate-400">Separá cada opción especial con una coma (,).</p>
           </div>
 
-          <!-- SUB-BOX SABORES -->
           <div id="sub-box-config-sabores" class="hidden pt-3 border-t border-white/10 space-y-3">
             <div class="flex items-center gap-2.5">
               <input type="checkbox" id="prod-sin-limite-sabores" onchange="toggleInputMaxSabores()" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-brand-500 focus:ring-brand-500 cursor-pointer">
@@ -723,7 +726,6 @@
             </div>
           </div>
 
-          <!-- CHECKBOX PRODUCTO EXCLUSIVO DE COMBO -->
           <div class="pt-2 border-t border-white/10 flex items-center gap-2.5">
             <input type="checkbox" id="prod-solo-promo" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500 cursor-pointer">
             <label for="prod-solo-promo" class="text-xs font-bold text-amber-400 cursor-pointer">Exclusivo para promociones (ocultar en menú individual)</label>
@@ -775,7 +777,6 @@
           <input type="text" id="promo-titulo" placeholder="Ej: Promo 2 Squishy Coleccionables" required class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
         </div>
 
-        <!-- SELECCIONADOR DE PRODUCTOS COMPONENTES -->
         <div class="bg-slate-800/60 p-4 rounded-2xl border border-amber-500/30 space-y-3">
           <div class="flex justify-between items-center">
             <label class="block text-xs font-bold text-amber-400">Elegir productos del combo</label>
@@ -851,6 +852,7 @@
     let estadoSaboresPorUnidad = {};
 
     let promoItemsSeleccionados = {};
+    let timeoutBusquedaGlobal = null;
 
     async function comprimirImagenCliente(file, maxAncho = 800, maxAlto = 800, calidad = 0.8) {
       return new Promise((resolve, reject) => {
@@ -1294,7 +1296,6 @@
         htmlAcc += `
           <div class="glass-card rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 overflow-hidden ${!estaDisponible ? 'opacity-60 bg-slate-900/80' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-500/40 bg-amber-500/5' : ''}">
             
-            <!-- FONDO DE PRODUCTO CON ZOOM Y BLUR/OSCURECIDO -->
             ${p.imagen_url ? `
               <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
                 <img src="${p.imagen_url}" class="w-full h-full object-cover scale-125 opacity-15 filter blur-md transition duration-500 group-hover:scale-150">
@@ -2178,8 +2179,9 @@
       aplicarFiltros();
     }
 
+    /* 🚀 BUSCADOR POTENCIADO: FILTRA LOCALES Y BUSCA PRODUCTOS GLOBALES EN TIEMPO REAL */
     function aplicarFiltros() {
-      const texto = document.getElementById('input-buscar').value.toLowerCase();
+      const texto = document.getElementById('input-buscar').value.toLowerCase().trim();
       let resultado = comerciosGlobales;
 
       if (categoriaSeleccionada !== 'Todas') {
@@ -2189,7 +2191,7 @@
         });
       }
 
-      if (texto.trim() !== '') {
+      if (texto !== '') {
         resultado = resultado.filter(c => 
           c.nombre.toLowerCase().includes(texto) || 
           (c.direccion && c.direccion.toLowerCase().includes(texto)) ||
@@ -2199,6 +2201,60 @@
       }
 
       renderizarComercios(resultado);
+
+      clearTimeout(timeoutBusquedaGlobal);
+      if (texto.length >= 2) {
+        timeoutBusquedaGlobal = setTimeout(() => buscarProductosGlobales(texto), 300);
+      } else {
+        document.getElementById('seccion-resultados-productos').classList.add('hidden');
+      }
+    }
+
+    async function buscarProductosGlobales(query) {
+      const { data: productos, error } = await _supabase
+        .from('productos')
+        .select('*, comercios(nombre, slug, logo_url)')
+        .ilike('titulo', `%${query}%`)
+        .eq('disponible', true)
+        .limit(10);
+
+      const secProds = document.getElementById('seccion-resultados-productos');
+      const container = document.getElementById('container-productos-busqueda');
+      const counter = document.getElementById('total-prods-busqueda');
+
+      if (error || !productos || productos.length === 0) {
+        secProds.classList.add('hidden');
+        return;
+      }
+
+      secProds.classList.remove('hidden');
+      counter.innerText = `${productos.length} productos`;
+      container.innerHTML = '';
+
+      productos.forEach(p => {
+        const nomComercio = p.comercios?.nombre || 'Local';
+        const slugComercio = p.comercios?.slug || p.comercio_id;
+
+        container.innerHTML += `
+          <div onclick="abrirVistaComercio('${slugComercio}'); setTimeout(() => abrirVerProducto('${p.id}'), 300);" class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-brand-500/50 transition">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              ${p.imagen_url 
+                ? `<img src="${p.imagen_url}" class="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0">` 
+                : `<div class="w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-white/10"><i data-lucide="package" class="w-6 h-6"></i></div>`}
+              <div class="min-w-0 flex-1">
+                <h4 class="font-black text-white text-sm truncate">${p.titulo}</h4>
+                <p class="text-[11px] text-slate-400 truncate">Vendido por: <strong class="text-brand-400">${nomComercio}</strong></p>
+                <p class="text-sm font-black text-brand-400 mt-0.5">$${p.precio}</p>
+              </div>
+            </div>
+            <button class="bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition flex-shrink-0 border border-brand-500/30">
+              Ver Local
+            </button>
+          </div>
+        `;
+      });
+
+      if (window.lucide) lucide.createIcons();
     }
 
     function renderizarOpcionesCategoriasModal(categoriasSeleccionadas = []) {
@@ -2387,7 +2443,6 @@
       else boxMax.classList.remove('hidden');
     }
 
-    /* 🚀 FORMULARIO DE PRODUCTOS OPTIMIZADO POR RUBRO (FILTRA CAMPOS SEGÚN CATEGORÍA) */
     function prepararModalProducto(comercioId, nombreComercio) {
       document.getElementById('form-producto').reset();
       document.getElementById('prod-comercio-id').value = comercioId;
@@ -2399,14 +2454,12 @@
       const esEmpanadas = cats.includes('Empanadas');
       const esHeladeria = cats.includes('Heladerías');
       const esGastronomiaConSabores = esHeladeria || esEmpanadas;
-      
       const esComercioRetail = cats.some(c => CATEGORIAS_INDUMENTARIA.includes(c));
 
       const boxSaboresProd = document.getElementById('box-check-sabores-prod');
       const boxCoccionProd = document.getElementById('box-check-coccion-prod');
       const boxVariantesProd = document.getElementById('box-check-variantes-prod');
 
-      // Optimización estricta por categoría:
       if (esGastronomiaConSabores) {
         boxSaboresProd.classList.remove('hidden');
         document.getElementById('prod-requiere-sabores').checked = true;
@@ -2639,6 +2692,16 @@
       }
 
       const editId = document.getElementById('comercio-edit-id').value;
+      const nombreVal = document.getElementById('nombre').value.trim();
+      const slugVal = crearSlug(nombreVal);
+
+      const slugExistente = comerciosGlobales.find(c => c.slug === slugVal && c.id !== editId);
+      if (slugExistente) {
+        alert(`¡Atención! Ya existe un comercio registrado con el nombre "${nombreVal}". Por favor elegí otro nombre o modificá ligeramente el actual.`);
+        document.getElementById('nombre').focus();
+        return;
+      }
+
       const logoExistente = document.getElementById('comercio-logo-existente').value;
       const portadaExistente = document.getElementById('comercio-portada-existente').value;
       
@@ -2664,9 +2727,6 @@
         if (subidaPortada === false) return;
         if (subidaPortada) portada_url = subidaPortada;
       }
-
-      const nombreVal = document.getElementById('nombre').value.trim();
-      const slugVal = crearSlug(nombreVal);
 
       const saboresTxt = document.getElementById('sabores-input').value.trim();
       const saboresArr = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
