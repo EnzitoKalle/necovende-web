@@ -966,23 +966,39 @@
       }
     }
 
-    // Dar Like / Manito Arriba
-    async function darLikeComercio(comercioId, event) {
-      if (event) event.stopPropagation();
-      const c = comerciosGlobales.find(x => x.id === comercioId);
-      if (!c) return;
+  function obtenerLikesUsuario() {
+  try {
+    return JSON.parse(localStorage.getItem('necovende_mis_likes') || '{}');
+  } catch(e) { return {}; }
+}
 
-      const likesActuales = (c.likes_count || 0) + 1;
-      const { error } = await _supabase.from('comercios').update({ likes_count: likesActuales }).eq('id', comercioId);
-      if (!error) {
-        c.likes_count = likesActuales;
-        aplicarFiltros();
-        if (comercioActivo && comercioActivo.id === comercioId) {
-          abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
-        }
-        mostrarToast(`¡Gracias por valorar a ${c.nombre}! 👍`);
-      }
+async function darLikeComercio(comercioId, event) {
+  if (event) event.stopPropagation();
+  
+  let misLikes = obtenerLikesUsuario();
+  if (misLikes[comercioId]) {
+    alert("¡Ya le diste tu apoyo a este comercio!");
+    return;
+  }
+
+  const c = comerciosGlobales.find(x => x.id === comercioId);
+  if (!c) return;
+
+  const likesActuales = (c.likes_count || 0) + 1;
+  const { error } = await _supabase.from('comercios').update({ likes_count: likesActuales }).eq('id', comercioId);
+  
+  if (!error) {
+    c.likes_count = likesActuales;
+    misLikes[comercioId] = true;
+    localStorage.setItem('necovende_mis_likes', JSON.stringify(misLikes));
+    
+    aplicarFiltros();
+    if (comercioActivo && comercioActivo.id === comercioId) {
+      abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
     }
+    mostrarToast(`¡Gracias por valorar a ${c.nombre}! 👍`);
+  }
+}
 
     // Historial de pedidos locales
     function obtenerHistorialPedidos() {
