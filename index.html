@@ -240,7 +240,7 @@
   </main>
 
   <!-- VISTA DETALLE COMERCIO -->
-  <main id="vista-comercio" class="max-w-2xl mx-auto px-4 pt-6 space-y-6 hidden relative z-10">
+  <main id="vista-comercio" class="max-w-2xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 space-y-5 hidden relative z-10">
     <div class="flex items-center justify-between gap-2">
       <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm transition">
         <i data-lucide="arrow-left" class="w-4 h-4 text-brand-500"></i> Volver a comercios
@@ -251,12 +251,20 @@
       </button>
     </div>
 
-    <!-- Header dinámico con foto de portada y colores personalizados -->
-    <div id="detalle-comercio-header" class="clean-card rounded-3xl overflow-hidden shadow-xl space-y-5 relative"></div>
+    <!-- Header dinámico con foto de portada extendida y mejor aprovechamiento de espacio -->
+    <div id="detalle-comercio-header" class="clean-card rounded-3xl overflow-hidden shadow-xl space-y-4 relative"></div>
+
+    <!-- BUSCADOR INTERNO DEL MENÚ DEL COMERCIO -->
+    <div class="relative">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+      <input type="text" id="input-buscar-comercio" oninput="filtrarProductosComercioActual()" placeholder="Buscar producto dentro de este local..." class="w-full clean-input pl-11 pr-4 py-3 rounded-2xl text-xs font-medium shadow-sm transition placeholder:text-slate-400">
+    </div>
 
     <section class="space-y-4">
       <div class="flex justify-between items-center px-1 flex-wrap gap-2">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-700">Catálogo de Productos</h3>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="book-open" class="w-4 h-4 text-brand-500"></i> Catálogo de Productos
+        </h3>
         <div id="acciones-duenio-prod" class="flex items-center gap-2 hidden">
           <button id="btn-agregar-prod-vista" class="text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
             <i data-lucide="plus" class="w-4 h-4"></i> Cargar Producto
@@ -620,7 +628,7 @@
           </div>
         </div>
 
-        <!-- PERSONALIZACIÓN DE COLORES DEL LOCAL -->
+        <!-- PERSONALIZACIÓN DE COLORES Y ENCUADRE DE PORTADA -->
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <label class="block text-xs font-bold text-slate-800">Personalización Visual del Local</label>
           <div class="grid grid-cols-2 gap-3 text-xs">
@@ -638,6 +646,15 @@
                 <span class="text-[10px] text-slate-400 font-mono">Color botón</span>
               </div>
             </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-slate-500 mb-1 font-semibold">Ajuste de Vista de Portada</label>
+            <select id="comercio-posicion-portada" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+              <option value="object-center">Centrado (Por defecto)</option>
+              <option value="object-top">Enfocar arriba de la foto</option>
+              <option value="object-bottom">Enfocar abajo de la foto</option>
+            </select>
           </div>
         </div>
 
@@ -1132,6 +1149,25 @@
       window.scrollTo(0, 0);
     }
 
+    // FILTRADO INTERNO DEL COMERCIO
+    function filtrarProductosComercioActual() {
+      if (!comercioActivo || !comercioActivo.productos) return;
+      const q = document.getElementById('input-buscar-comercio').value.toLowerCase().trim();
+      
+      const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
+      const colorAcentoBtn = comercioActivo.color_acento || '#f97316';
+
+      let productosFiltrados = comercioActivo.productos;
+      if (q !== '') {
+        productosFiltrados = productosFiltrados.filter(p => 
+          p.titulo.toLowerCase().includes(q) || 
+          (p.descripcion && p.descripcion.toLowerCase().includes(q))
+        );
+      }
+
+      renderizarProductosComercio(productosFiltrados, esDuenio, colorAcentoBtn);
+    }
+
     async function abrirVistaComercio(identificador, cambiarUrl = true) {
       comercioActivo = comerciosGlobales.find(c => c.slug === identificador || c.id === identificador);
       if (!comercioActivo) return;
@@ -1146,6 +1182,10 @@
         .order('orden', { ascending: true });
 
       comercioActivo.productos = prods || [];
+
+      // Limpiar buscador interno
+      const inputSearchComercio = document.getElementById('input-buscar-comercio');
+      if (inputSearchComercio) inputSearchComercio.value = '';
 
       const esDuenio = usuarioActual && comercioActivo.user_id === usuarioActual.id;
       const abierto = estaAbierto(comercioActivo);
@@ -1165,30 +1205,33 @@
       const colorFondo = comercioActivo.color_primario || '#f8fafc';
       document.body.style.backgroundColor = colorFondo;
       const colorAcentoBtn = comercioActivo.color_acento || '#f97316';
+      const posPortada = comercioActivo.posicion_portada || 'object-center';
 
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
         ${comercioActivo.portada_url ? `
-          <div class="h-32 sm:h-44 w-full relative overflow-hidden">
-            <img src="${comercioActivo.portada_url}" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          <div class="h-48 sm:h-64 w-full relative overflow-hidden bg-slate-100">
+            <img src="${comercioActivo.portada_url}" class="w-full h-full ${posPortada} object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent"></div>
           </div>
         ` : ''}
 
-        <div class="p-6 space-y-5 relative bg-white ${comercioActivo.portada_url ? '-mt-12 z-10 pt-4' : ''}">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex items-center gap-4">
+        <div class="p-5 sm:p-6 space-y-4 relative bg-white ${comercioActivo.portada_url ? '-mt-10 sm:-mt-14 z-10 pt-2 rounded-3xl' : ''}">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3.5 min-w-0">
               ${comercioActivo.logo_url 
-                ? `<img src="${comercioActivo.logo_url}" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
-                : `<div class="w-20 h-20 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-3xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+                ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
+                : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-2xl sm:text-3xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
               }
-              <div>
-                <div class="flex items-center gap-2.5">
-                  <h2 class="text-2xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
-                  <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
+                  <span class="text-[9px] font-black px-2.5 py-0.5 rounded-full border shadow-sm flex-shrink-0 ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
                     ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
                   </span>
                 </div>
+                
+                <!-- Categorías alineadas horizontalmente una al lado de la otra -->
                 <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                   ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200">${cat}</span>`).join('')}
                   ${comercioActivo.envio_gratis 
@@ -1206,21 +1249,21 @@
             ` : ''}
           </div>
 
-          <div class="pt-4 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
+          <div class="pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Horario:</span>
-              <span>${formatearHorarios(comercioActivo)}</span>
+              <span class="font-semibold text-slate-700">${formatearHorarios(comercioActivo)}</span>
             </div>
 
             ${comercioActivo.hace_envios ? `
               <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-500"></i> Costo Envío:</span>
-                <span class="${comercioActivo.envio_gratis ? 'text-emerald-600 font-bold' : ''}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
+                <span class="${comercioActivo.envio_gratis ? 'text-emerald-600 font-bold' : 'font-semibold text-slate-700'}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
               </div>
             ` : ''}
 
             <div class="pt-1">
-              <span class="font-bold text-slate-400 flex items-center gap-2 mb-2"><i data-lucide="credit-card" class="w-4 h-4 text-brand-500"></i> Medios de pago:</span>
+              <span class="font-bold text-slate-400 flex items-center gap-2 mb-1.5"><i data-lucide="credit-card" class="w-4 h-4 text-brand-500"></i> Medios de pago:</span>
               <div class="flex flex-wrap gap-1.5">
                 ${pagos.length > 0 
                   ? pagos.map(p => `<span class="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-semibold px-2.5 py-1 rounded-md">${p}</span>`).join('')
@@ -1316,7 +1359,7 @@
         container.innerHTML = `
           <div class="p-10 clean-card rounded-3xl text-center text-slate-400 space-y-3">
             <i data-lucide="package-open" class="w-10 h-10 mx-auto text-slate-400"></i>
-            <p class="text-xs font-semibold">Este local aún no ha publicado productos visibles.</p>
+            <p class="text-xs font-semibold">No se encontraron productos en este local.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -2156,24 +2199,27 @@
           : [c.categoria || 'General'];
 
         container.innerHTML += `
-          <div onclick="abrirVistaComercio('${identificador}')" class="clean-card rounded-3xl p-5 hover:shadow-xl transition duration-300 space-y-4 cursor-pointer group">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex items-center gap-4 min-w-0 flex-1">
+          <div onclick="abrirVistaComercio('${identificador}')" class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-xl transition duration-300 space-y-3.5 cursor-pointer group">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 min-w-0 flex-1">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-20 h-20 rounded-2xl object-cover border border-slate-200 shadow-sm flex-shrink-0 group-hover:scale-105 transition duration-300">`
-                  : `<div class="w-20 h-20 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-2xl group-hover:border-brand-300 transition flex-shrink-0">
+                  ? `<img src="${c.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-slate-200 shadow-sm flex-shrink-0 group-hover:scale-105 transition duration-300 mt-0.5">`
+                  : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-2xl group-hover:border-brand-300 transition flex-shrink-0 mt-0.5">
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
                 <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition truncate">${c.nombre}</h4>
-                    <span class="text-[9px] font-black px-2.5 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'} flex-shrink-0">
+                  <!-- Nombre completo visible sin cortar -->
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition break-words">${c.nombre}</h4>
+                    <span class="text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'} flex-shrink-0">
                       ${abierto ? 'ABIERTO' : 'CERRADO'}
                     </span>
                   </div>
-                  <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
+
+                  <!-- Categorías alineadas horizontalmente una al lado de la otra -->
+                  <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                    ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
                     ${c.envio_gratis 
                       ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
                       : (c.hace_envios ? '<span class="text-[10px] font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
@@ -2182,12 +2228,12 @@
                 </div>
               </div>
 
-              <span class="text-xs font-black text-slate-600 bg-slate-100 group-hover:bg-brand-500 group-hover:text-white px-3.5 py-2.5 rounded-xl transition flex items-center gap-1 border border-slate-200 group-hover:border-brand-500 shadow-sm flex-shrink-0">
+              <button class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition flex items-center gap-1 shadow-md shadow-brand-500/20 flex-shrink-0 self-start">
                 Ver <i data-lucide="chevron-right" class="w-4 h-4"></i>
-              </span>
+              </button>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span class="flex items-center gap-1.5 truncate">
                 <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea / Quequén'}</span>
               </span>
@@ -2367,6 +2413,7 @@
 
       document.getElementById('comercio-color-primario').value = "#f8fafc";
       document.getElementById('comercio-color-acento').value = "#ea580c";
+      document.getElementById('comercio-posicion-portada').value = "object-center";
 
       document.getElementById('pago-efectivo').checked = true;
       document.getElementById('pago-transferencia').checked = true;
@@ -2404,6 +2451,7 @@
 
       document.getElementById('comercio-color-primario').value = c.color_primario || "#f8fafc";
       document.getElementById('comercio-color-acento').value = c.color_acento || "#ea580c";
+      document.getElementById('comercio-posicion-portada').value = c.posicion_portada || "object-center";
 
       document.getElementById('sabores-input').value = c.sabores ? c.sabores.join(', ') : '';
       document.getElementById('tipo-coccion-select').value = c.tipo_coccion_empanadas || 'ambas';
@@ -2785,6 +2833,7 @@
         hora_cierre_2: hCierre2,
         color_primario: document.getElementById('comercio-color-primario').value,
         color_acento: document.getElementById('comercio-color-acento').value,
+        posicion_portada: document.getElementById('comercio-posicion-portada').value,
         pagos_efectivo: document.getElementById('pago-efectivo').checked,
         pagos_transferencia: document.getElementById('pago-transferencia').checked,
         pagos_qr: document.getElementById('pago-qr').checked,
@@ -2840,7 +2889,7 @@
       }
 
       const saboresEspTxt = document.getElementById('prod-sabores-especificos').value.trim();
-      const saboresEspArr = saboresEspTxt ? saboresEspTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
+      const saboresEspArr = saboresEspTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
 
       const tallesTxt = document.getElementById('prod-talles-input').value.trim();
       const tallesArr = (tieneVariantes && tallesTxt) ? tallesTxt.split(',').map(s => s.trim()).filter(Boolean) : null;
