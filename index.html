@@ -537,7 +537,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Nombre de la persona que retira</label>
+          <label id="cart-label-nombre" class="block text-xs font-bold text-slate-700 mb-1.5">Nombre de la persona que retira</label>
           <input type="text" id="cart-input-nombre-retira" placeholder="Ej: Juan Pérez" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
         </div>
       </div>
@@ -1412,6 +1412,7 @@
       const abierto = estaAbierto(comercioActivo);
       const esFav = obtenerFavoritos().includes(comercioActivo.id);
       const likesCount = comercioActivo.likes_count || 0;
+      const ofreceEnvios = Boolean(comercioActivo.hace_envios || comercioActivo.envio_gratis);
 
       const pagos = [];
       if (comercioActivo.pagos_efectivo) pagos.push('Efectivo');
@@ -1469,7 +1470,7 @@
 
         <div class="p-5 sm:p-6 space-y-4 relative bg-white ${comercioActivo.portada_url ? '-mt-10 sm:-mt-14 z-10 pt-2 rounded-3xl' : ''}">
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-center gap-3.5 min-w-0">
+            <div class="flex items-center gap-3.5 min-w-0 flex-1">
               ${comercioActivo.logo_url 
                 ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
                 : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-2xl sm:text-3xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
@@ -1518,7 +1519,7 @@
           <div class="pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
             ${horariosHtml}
 
-            ${comercioActivo.hace_envios ? `
+            ${ofreceEnvios ? `
               <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-500"></i> Costo Envío:</span>
                 <span class="${comercioActivo.envio_gratis ? 'text-emerald-600 font-bold' : 'font-semibold text-slate-700'}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
@@ -2236,6 +2237,8 @@
       const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
       const boxDireccion = document.getElementById('box-cart-direccion');
       const leyendaEnvio = document.getElementById('cart-leyenda-envio');
+      const labelNombre = document.getElementById('cart-label-nombre');
+      const inputNombre = document.getElementById('cart-input-nombre-retira');
 
       if (tipoEntrega === 'envio') {
         boxDireccion.classList.remove('hidden');
@@ -2244,9 +2247,13 @@
         } else {
           leyendaEnvio.classList.add('hidden');
         }
+        if (labelNombre) labelNombre.innerText = "Nombre de la persona que recibe";
+        if (inputNombre) inputNombre.placeholder = "Ej: Juan Pérez";
       } else {
         boxDireccion.classList.add('hidden');
         leyendaEnvio.classList.add('hidden');
+        if (labelNombre) labelNombre.innerText = "Nombre de la persona que retira";
+        if (inputNombre) inputNombre.placeholder = "Ej: Juan Pérez";
       }
     }
 
@@ -2297,7 +2304,9 @@
       if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">Tarjeta Débito / Crédito</option>`;
       if (selectPago.options.length === 0) selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
 
-      if (comercioCarrito.hace_envios) {
+      const permiteEnvios = Boolean(comercioCarrito.hace_envios || comercioCarrito.envio_gratis);
+
+      if (permiteEnvios) {
         boxEntrega.classList.remove('hidden');
         boxInfoRetiroDirecto.classList.add('hidden');
       } else {
@@ -2337,16 +2346,17 @@
 
       const medioPago = document.getElementById('cart-medio-pago').value;
       const nombreRetira = document.getElementById('cart-input-nombre-retira').value.trim();
-      const tipoEntrega = comercioCarrito.hace_envios ? document.getElementById('cart-tipo-entrega').value : 'retiro';
-      const direccion = comercioCarrito.hace_envios ? document.getElementById('cart-input-direccion').value.trim() : '';
+      const permiteEnvios = Boolean(comercioCarrito.hace_envios || comercioCarrito.envio_gratis);
+      const tipoEntrega = permiteEnvios ? document.getElementById('cart-tipo-entrega').value : 'retiro';
+      const direccion = permiteEnvios && tipoEntrega === 'envio' ? document.getElementById('cart-input-direccion').value.trim() : '';
 
       if (!nombreRetira) {
-        alert("Por favor, ingresá el nombre de la persona que retira el pedido.");
+        alert("Por favor, ingresá el nombre correspondiente.");
         document.getElementById('cart-input-nombre-retira').focus();
         return;
       }
 
-      if (comercioCarrito.hace_envios && tipoEntrega === 'envio' && !direccion) {
+      if (permiteEnvios && tipoEntrega === 'envio' && !direccion) {
         alert("Por favor, ingresá tu dirección para poder realizar el envío.");
         document.getElementById('cart-input-direccion').focus();
         return;
@@ -2365,9 +2375,9 @@
 
       mensaje += `\n📌 *Detalles del Pedido:*\n`;
       mensaje += `• *Medio de pago:* ${medioPago}\n`;
-      mensaje += `• *Persona que retira:* ${nombreRetira}\n`;
 
-      if (comercioCarrito.hace_envios && tipoEntrega === 'envio') {
+      if (permiteEnvios && tipoEntrega === 'envio') {
+        mensaje += `• *Persona que recibe:* ${nombreRetira}\n`;
         mensaje += `• *Entrega:* Envío a domicilio\n`;
         mensaje += `• *Dirección:* ${direccion}\n`;
         if (comercioCarrito.envio_gratis) {
@@ -2376,6 +2386,7 @@
           mensaje += `\n*Total Productos:* $${total} (+ Costo de Envío)\n`;
         }
       } else {
+        mensaje += `• *Persona que retira:* ${nombreRetira}\n`;
         mensaje += `• *Horario de retiro:* ${obtenerHorarioHoyTexto(comercioCarrito)}\n`;
         mensaje += `• *Dirección de retiro:* ${comercioCarrito.direccion || 'Necochea'}\n`;
         mensaje += `\n*Total a pagar:* $${total}\n`;
@@ -2491,11 +2502,6 @@
         container.innerHTML += `
           <div class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-xl transition duration-300 space-y-3.5 group relative">
             
-            <!-- Botón de Favorito Corazón en Tarjeta -->
-            <button onclick="toggleFavoritoComercio('${c.id}', event)" class="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md p-2 rounded-full border border-slate-200 shadow-sm hover:scale-110 transition">
-              <i data-lucide="heart" class="w-4 h-4 ${esFav ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}"></i>
-            </button>
-
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-start gap-3 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
                 ${c.logo_url 
@@ -2504,12 +2510,18 @@
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
-                <div class="min-w-0 flex-1 pr-8">
-                  <div class="flex items-start justify-between gap-2">
-                    <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition break-words">${c.nombre}</h4>
-                    <span class="text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'} flex-shrink-0">
-                      ${abierto ? 'ABIERTO' : 'CERRADO'}
-                    </span>
+                <div class="min-w-0 flex-1 pr-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition truncate">${c.nombre}</h4>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                      <span class="text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
+                        ${abierto ? 'ABIERTO' : 'CERRADO'}
+                      </span>
+                      <!-- Botón de Favorito Corazón en Tarjeta -->
+                      <button onclick="toggleFavoritoComercio('${c.id}', event)" class="bg-white/90 hover:bg-slate-50 p-1.5 rounded-full border border-slate-200 shadow-sm transition">
+                        <i data-lucide="heart" class="w-4 h-4 ${esFav ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}"></i>
+                      </button>
+                    </div>
                   </div>
 
                   <div class="flex items-center gap-1.5 mt-2 flex-wrap">
