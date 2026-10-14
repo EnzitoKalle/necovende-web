@@ -292,7 +292,7 @@
     </div>
 
     <!-- Header dinámico del perfil -->
-    <div id="detalle-comercio-header" class="clean-card rounded-3xl overflow-hidden shadow-xl space-y-4 relative"></div>
+    <div id="detalle-comercio-header" class="clean-card rounded-3xl overflow-hidden shadow-xl relative"></div>
 
     <!-- BUSCADOR INTERNO DEL MENÚ DEL COMERCIO -->
     <div class="relative">
@@ -996,7 +996,7 @@
     const SUPABASE_ANON_KEY = "sb_publishable_sW8WBd-hoa155VOla5xj8A__0X494yO";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const EMAIL_ADMIN = "enzitohkallepremium@gmail.com"; // Modificar con tu mail de administrador
+    const EMAIL_ADMIN = "administracion@necovende.com"; // Modificar con tu mail de administrador
 
     const CATEGORIAS_DISPONIBLES = [
       "Favoritos ❤️", "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", "Rotisería", 
@@ -1066,7 +1066,7 @@
       if (event) event.stopPropagation();
       let misLikes = obtenerLikesUsuario();
       if (misLikes[comercioId]) {
-        mostrarToast("¡Ya le diste tu apoyo a este comercio!");
+        mostrarToast("¡Ya apoyaste a este comercio!");
         return;
       }
 
@@ -1084,7 +1084,7 @@
         if (comercioActivo && comercioActivo.id === comercioId) {
           abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
         }
-        mostrarToast(`¡Gracias por recomendar a ${c.nombre}! 👍`);
+        mostrarToast(`¡Gracias por apoyar a ${c.nombre}! 👍`);
       }
     }
 
@@ -1528,7 +1528,20 @@
       renderizarProductosComercio(productosFiltrados, esDuenio, colorAcentoBtn);
     }
 
-    // Helper para formatear botones de redes sociales dinámicas
+    // Helper SVG directo para asegurar logos de redes
+    function obtenerIconoSVGRed(tipo) {
+      if (tipo === 'instagram') {
+        return `<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
+      }
+      if (tipo === 'facebook') {
+        return `<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.5 5H18V0h-3.808C10.592 0 9 1.583 9 4.615V8z"/></svg>`;
+      }
+      if (tipo === 'whatsapp') {
+        return `<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>`;
+      }
+      return `<svg class="w-4 h-4 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>`;
+    }
+
     function generarBotonesRedesSociales(redesArr) {
       if (!redesArr || !Array.isArray(redesArr) || redesArr.length === 0) return '';
       
@@ -1538,26 +1551,24 @@
         if (!item || !item.url) return;
         let urlFinal = item.url.startsWith('http') ? item.url : `https://${item.url}`;
         let claseColor = 'btn-net-web';
-        let icono = 'globe';
         let nombreRed = 'Sitio Web';
 
         if (item.tipo === 'instagram') {
           claseColor = 'btn-net-instagram';
-          icono = 'instagram';
           nombreRed = 'Instagram';
         } else if (item.tipo === 'facebook') {
           claseColor = 'btn-net-facebook';
-          icono = 'facebook';
           nombreRed = 'Facebook';
         } else if (item.tipo === 'whatsapp') {
           claseColor = 'btn-net-whatsapp';
-          icono = 'message-circle';
           nombreRed = 'WhatsApp';
         }
 
+        const iconSvg = obtenerIconoSVGRed(item.tipo);
+
         html += `
-          <a href="${urlFinal}" target="_blank" class="${claseColor} text-[11px] font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-sm active:scale-95">
-            <i data-lucide="${icono}" class="w-3.5 h-3.5"></i> ${nombreRed}
+          <a href="${urlFinal}" target="_blank" class="${claseColor} text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-2 shadow-sm active:scale-95">
+            ${iconSvg} <span>${nombreRed}</span>
           </a>
         `;
       });
@@ -1590,7 +1601,6 @@
       const likesCount = comercioActivo.likes_count || 0;
       const ofreceEnvios = Boolean(comercioActivo.hace_envios || comercioActivo.envio_gratis);
 
-      // Verificación de Plan
       const plan = comercioActivo.plan || 'gratis';
       const esUltra = plan === 'ultra';
       const esProOrUltra = plan === 'pro' || plan === 'ultra';
@@ -1616,7 +1626,6 @@
       const posPortada = esUltra ? (comercioActivo.posicion_portada || 'object-center') : 'object-center';
       const direccionLocalEsc = (comercioActivo.direccion || 'Necochea').replace(/'/g, "\\'");
 
-      // Redes Sociales Dinámicas
       const redesHtml = generarBotonesRedesSociales(comercioActivo.redes_sociales);
 
       let horariosHtml = `
@@ -1629,63 +1638,68 @@
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
         ${(esUltra && comercioActivo.portada_url) ? `
-          <div class="h-48 sm:h-64 w-full relative overflow-hidden bg-slate-100">
+          <div class="h-44 sm:h-60 w-full relative overflow-hidden bg-slate-100">
             <img src="${comercioActivo.portada_url}" class="w-full h-full ${posPortada} object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/10 to-transparent"></div>
           </div>
         ` : ''}
 
-        <div class="p-5 sm:p-6 space-y-4 relative bg-white ${(esUltra && comercioActivo.portada_url) ? '-mt-10 sm:-mt-14 z-10 pt-2 rounded-3xl' : ''}">
+        <div class="p-5 sm:p-6 space-y-3.5 relative bg-white ${(esUltra && comercioActivo.portada_url) ? '-mt-8 sm:-mt-12 z-10 pt-2 rounded-3xl' : ''}">
+          
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-3.5 min-w-0 flex-1">
               ${comercioActivo.logo_url 
                 ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
                 : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-2xl sm:text-3xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
               }
+              
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap">
                   <h2 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
-                  ${insigniaVerificado}
-                  <span class="text-[9px] font-black px-2.5 py-0.5 rounded-full border shadow-sm flex-shrink-0 ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
-                    ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
-                  </span>
                 </div>
                 
+                ${insigniaVerificado ? `<div class="mt-1">${insigniaVerificado}</div>` : ''}
+
+                <!-- Categorías agrupadas limpia -->
                 <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                  ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200">${cat}</span>`).join('')}
-                  ${comercioActivo.envio_gratis 
-                    ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
-                    : (comercioActivo.hace_envios ? '<span class="text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 bg-brand-50 border border-brand-200 text-brand-600"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
-                  }
+                  ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
                 </div>
-
-                <div class="flex items-center gap-2 mt-3">
-                  <button onclick="darLikeComercio('${comercioActivo.id}')" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-                    👍 Recomendar (${likesCount})
-                  </button>
-                  <button onclick="toggleFavoritoComercio('${comercioActivo.id}')" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-                    <i data-lucide="heart" class="w-3.5 h-3.5 ${esFav ? 'fill-rose-500 text-rose-500' : ''}"></i> ${esFav ? 'Guardado' : 'Guardar'}
-                  </button>
-                </div>
-
-                <div class="flex items-center gap-2 mt-2">
-                  <p class="text-xs text-slate-500 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500"></i> ${comercioActivo.direccion || 'Necochea / Quequén'}</p>
-                  <button onclick="abrirMapaDireccion('${direccionLocalEsc}')" class="text-[10px] font-extrabold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition">
-                    <i data-lucide="map" class="w-3 h-3"></i> Ver en mapa
-                  </button>
-                </div>
-
-                ${redesHtml}
               </div>
             </div>
-            ${esDuenio ? `
-              <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 p-2.5 rounded-xl transition flex items-center gap-1.5 text-xs font-bold flex-shrink-0 shadow-sm">
-                <i data-lucide="edit-3" class="w-4 h-4 text-brand-500"></i> <span class="hidden sm:inline">Editar Local</span>
-              </button>
-            ` : ''}
+
+            <!-- Bloque superior derecho con ABIERTO/CERRADO y Editar si es dueño -->
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <span class="text-[9px] font-black px-2.5 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
+                ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
+              </span>
+              ${esDuenio ? `
+                <button onclick="prepararModalEditarComercio('${comercioActivo.id}')" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 p-1.5 rounded-xl transition flex items-center shadow-sm" title="Editar Local">
+                  <i data-lucide="edit-3" class="w-4 h-4 text-brand-500"></i>
+                </button>
+              ` : ''}
+            </div>
           </div>
 
-          <div class="pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+          <!-- Dirección limpia y acciones de interacción -->
+          <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5">
+            <span class="text-xs text-slate-600 flex items-center gap-1.5 truncate cursor-pointer hover:text-brand-600 transition" onclick="abrirMapaDireccion('${direccionLocalEsc}')">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 flex-shrink-0"></i> 
+              <span class="truncate underline decoration-dotted">${comercioActivo.direccion || 'Necochea / Quequén'}</span>
+            </span>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button onclick="darLikeComercio('${comercioActivo.id}')" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm active:scale-95">
+                👍 ${likesCount}
+              </button>
+              <button onclick="toggleFavoritoComercio('${comercioActivo.id}')" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 p-2 rounded-xl text-xs font-bold transition flex items-center shadow-sm active:scale-95">
+                <i data-lucide="heart" class="w-4 h-4 ${esFav ? 'fill-rose-500 text-rose-500' : ''}"></i>
+              </button>
+            </div>
+          </div>
+
+          ${redesHtml ? `<div class="pt-1">${redesHtml}</div>` : ''}
+
+          <div class="pt-2.5 border-t border-slate-100 space-y-2 text-xs text-slate-600">
             ${horariosHtml}
 
             ${ofreceEnvios ? `
@@ -1895,7 +1909,7 @@
         p.opciones_custom.forEach((op, i) => {
           containerCustom.innerHTML += `
             <label class="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer text-xs font-semibold text-slate-700 shadow-sm">
-              <input type="checkbox" name="opcion-custom-check" value="${op}" class="w-4 h-4 rounded border-slate-300 text-brand-500 focus:ring-brand-500">
+              <input type="checkbox" name="opcion-custom-check" value="${op}" class="w-4 h-4 rounded border-slate-300 bg-white text-brand-500 focus:ring-brand-500">
               <span>${op}</span>
             </label>
           `;
@@ -2615,7 +2629,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // RENDERIZADO LIMPIO DE TARJETAS EN EL HOME
+    // RENDERIZADO ULTRALIMPIO DE TARJETAS EN EL HOME
     function renderizarComercios(lista) {
       const container = document.getElementById('comercios-container');
       const counter = document.getElementById('total-comercios');
@@ -2646,7 +2660,6 @@
         const esUltra = plan === 'ultra';
         const esProOrUltra = plan === 'pro' || plan === 'ultra';
 
-        // Insignias limpias con el texto requested
         let insigniaVerificado = '';
         if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">🟡 Perfil Verificado Ultra</span>';
         else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">🔵 Perfil Verificado Pro</span>';
@@ -2660,10 +2673,17 @@
 
         const direccionEsc = (c.direccion || 'Necochea').replace(/'/g, "\\'");
 
+        // Icono de envíos (camioncito verde para gratis, normal si cobra, oculto si no ofrece)
+        let iconoEnvioHtml = '';
+        if (c.envio_gratis) {
+          iconoEnvioHtml = `<span class="inline-flex items-center text-emerald-600 bg-emerald-50 border border-emerald-200 p-1 rounded-lg" title="¡Envío Gratis!"><i data-lucide="truck" class="w-3.5 h-3.5"></i></span>`;
+        } else if (c.hace_envios) {
+          iconoEnvioHtml = `<span class="inline-flex items-center text-slate-500 bg-slate-100 border border-slate-200 p-1 rounded-lg" title="Envíos a domicilio"><i data-lucide="truck" class="w-3.5 h-3.5"></i></span>`;
+        }
+
         container.innerHTML += `
           <div class="clean-card rounded-3xl p-4 sm:p-4 hover:shadow-lg transition duration-200 space-y-3 group relative bg-white">
             
-            <!-- Fila Superior: Logo + Datos principales + Bloque Abierto/Corazón -->
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-start gap-3 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
                 ${c.logo_url 
@@ -2679,18 +2699,9 @@
                   </div>
                   
                   ${insigniaVerificado ? `<div class="mt-0.5">${insigniaVerificado}</div>` : ''}
-
-                  <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200 truncate">${catPrincipal}${catMasCount}</span>
-                    ${c.envio_gratis 
-                      ? '<span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">⚡ ENVÍO GRATIS</span>' 
-                      : (c.hace_envios ? '<span class="text-[10px] font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="truck" class="w-3 h-3"></i> Envíos</span>' : '')
-                    }
-                  </div>
                 </div>
               </div>
 
-              <!-- Bloque Limpio de Estado + Favorito en la esquina superior derecha -->
               <div class="flex items-center gap-1.5 flex-shrink-0">
                 <span class="text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
                   ${abierto ? 'ABIERTO' : 'CERRADO'}
@@ -2701,16 +2712,16 @@
               </div>
             </div>
 
-            <!-- Fila Inferior: Dirección + Likes Discretos + Botón Ingresar -->
+            <!-- Fila Inferior SÚPER LIMPIA: Likes (Manito) -> Camioncito -> Categoría -> Ingresar -->
             <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs text-slate-500">
-              <div class="flex items-center gap-2 truncate">
-                <span class="flex items-center gap-1 text-[11px] truncate cursor-pointer hover:text-brand-600 transition" onclick="abrirMapaDireccion('${direccionEsc}')" title="Ver en Google Maps">
-                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 flex-shrink-0"></i> <span class="truncate">${c.direccion || 'Necochea'}</span>
-                </span>
-
-                <button onclick="darLikeComercio('${c.id}', event)" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-2 py-0.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1 shadow-sm active:scale-95 flex-shrink-0">
+              <div class="flex items-center gap-2 min-w-0 flex-1 truncate">
+                <button onclick="darLikeComercio('${c.id}', event)" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-2 py-0.5 rounded-lg text-[11px] font-black transition flex items-center gap-1 shadow-sm active:scale-95 flex-shrink-0">
                   👍 ${likesCount}
                 </button>
+
+                ${iconoEnvioHtml}
+
+                <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200 truncate flex-shrink min-w-0">${catPrincipal}${catMasCount}</span>
               </div>
 
               <button onclick="abrirVistaComercio('${identificador}')" class="font-extrabold text-brand-600 flex-shrink-0 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-xl border border-brand-200 transition text-xs shadow-sm">
@@ -3283,7 +3294,6 @@
       const saboresArr = saboresTxt ? saboresTxt.split(',').map(s => s.trim()).filter(Boolean) : [];
       const horariosGrillaVal = obtenerHorariosFormulario();
 
-      // Guardar Redes Sociales dinámicas
       let redesArray = [];
       if (planActual === 'pro' || planActual === 'ultra') {
         const url1 = document.getElementById('red-url-1').value.trim();
