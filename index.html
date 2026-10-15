@@ -385,7 +385,7 @@
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-sky-200">
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Hasta <strong>2 comercios</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Hasta <strong>10 productos</strong></li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Insignia ✓ Perfil Pro</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Insignia Tilde Azul ✓</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> <strong>1 Link</strong> de Red Social / Web</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Posicionamiento Prioritario</li>
             </ul>
@@ -404,7 +404,7 @@
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-amber-200">
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Comercios <strong>Ilimitados</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Productos <strong>Ilimitados</strong></li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Insignia ✓✓ Perfil Ultra</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Insignia Tilde Dorada ✓✓</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Hasta <strong>3 Links</strong> de Redes / Web</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Portada y Colores Custom</li>
             </ul>
@@ -610,7 +610,7 @@
 
         <p id="view-prod-descripcion" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto"></p>
 
-        <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-brand-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+        <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
       </div>
@@ -1300,7 +1300,7 @@
               }
             } else {
               if (height > maxAlto) {
-                width = Math.round((width * maxAlto) / height);
+                width = Math.round((height * maxAlto) / height);
                 height = maxAlto;
               }
             }
@@ -1528,7 +1528,7 @@
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
               <div class="truncate">
                 <p class="font-black text-slate-900 truncate">${c.nombre} <span class="text-[10px] font-bold px-2 py-0.5 rounded ${estaActivo ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${estaActivo ? 'Activo' : 'Inactivo / Pendiente'}</span></p>
-                <p class="text-[10px] text-slate-400">Titular: ${c.titular_alias || 'No especificado'}</p>
+                <p class="text-[10px] text-slate-400">Titular: ${c.titular_alias || 'No especificado'} | Plan: ${planActual.toUpperCase()}</p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="toggleActivarComercioAdmin('${c.id}', ${estaActivo})" class="px-3 py-1.5 rounded-lg font-bold text-xs ${estaActivo ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-500 text-white'}">
@@ -1596,8 +1596,8 @@
             <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2 shadow-sm">
               <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.slug || c.id}');">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0">` 
-                  : `<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-brand-600 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
+                  ? `<img src="${c.logo_url}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">` 
+                  : `<div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-brand-600 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5">
                     <p class="font-bold text-xs text-slate-800 truncate">${c.nombre}</p>
@@ -1755,11 +1755,11 @@
 
       const plan = comercioActivo.plan || 'gratis';
       const esUltra = plan === 'ultra';
-      const esProOrUltra = plan === 'pro' || plan === 'ultra';
+      const esPro = plan === 'pro';
 
       let insigniaVerificado = '';
       if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">✓✓ Comercio Verificado Ultra</span>';
-      else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">✓ Comercio Verificado Pro</span>';
+      else if (esPro) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">✓ Comercio Verificado Pro</span>';
 
       const pagos = [];
       if (comercioActivo.pagos_efectivo) pagos.push('Efectivo');
@@ -1799,10 +1799,10 @@
         <div class="p-5 sm:p-6 space-y-3.5 relative bg-white ${(esUltra && comercioActivo.portada_url) ? '-mt-8 sm:-mt-12 z-10 pt-2 rounded-3xl' : ''}">
           
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3.5 min-w-0 flex-1">
+            <div class="flex items-start gap-4 min-w-0 flex-1">
               ${comercioActivo.logo_url 
-                ? `<img src="${comercioActivo.logo_url}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
-                : `<div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-2xl sm:text-3xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+                ? `<img src="${comercioActivo.logo_url}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
+                : `<div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-3xl sm:text-4xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
               }
               
               <div class="min-w-0 flex-1">
@@ -2757,7 +2757,6 @@
       const counter = document.getElementById('total-comercios');
       container.innerHTML = '';
 
-      // Filtramos en la vista pública solo los comercios que están ACTIVOS (aprobados por el admin)
       const listaActivos = lista.filter(c => c.activo === true);
 
       counter.innerText = `${listaActivos.length} locales encontrados`;
@@ -2783,11 +2782,14 @@
 
         const plan = c.plan || 'gratis';
         const esUltra = plan === 'ultra';
-        const esProOrUltra = plan === 'pro' || plan === 'ultra';
+        const esPro = plan === 'pro';
 
-        let insigniaVerificado = '';
-        if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">✓✓ Perfil Verificado Ultra</span>';
-        else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">✓ Perfil Verificado Pro</span>';
+        let insigniaTilde = '';
+        if (esUltra) {
+          insigniaTilde = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-400 text-white shadow-sm flex-shrink-0" title="Perfil Verificado Ultra"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></span>`;
+        } else if (esPro) {
+          insigniaTilde = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-sky-500 text-white shadow-sm flex-shrink-0" title="Perfil Verificado Pro"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></span>`;
+        }
 
         const listaCats = c.categorias && c.categorias.length > 0 
           ? c.categorias 
@@ -2804,23 +2806,22 @@
         }
 
         container.innerHTML += `
-          <div class="clean-card rounded-3xl p-4 sm:p-4 hover:shadow-lg transition duration-200 space-y-3 group relative bg-white">
+          <div class="clean-card rounded-3xl p-4 sm:p-5 hover:shadow-lg transition duration-200 space-y-3.5 group relative bg-white">
             
             <div class="flex items-start justify-between gap-3">
-              <div class="flex items-start gap-3 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
+              <div class="flex items-start gap-4 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-100 shadow-sm flex-shrink-0 group-hover:scale-105 transition duration-300">`
-                  : `<div class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-xl group-hover:border-brand-300 transition flex-shrink-0">
+                  ? `<img src="${c.logo_url}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-slate-100 shadow-md flex-shrink-0 group-hover:scale-105 transition duration-300">`
+                  : `<div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-2xl group-hover:border-brand-300 transition flex-shrink-0">
                       ${c.nombre.charAt(0).toUpperCase()}
                     </div>`
                 }
                 
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-1.5 flex-wrap">
+                <div class="min-w-0 flex-1 pt-0.5">
+                  <div class="flex items-center gap-2 flex-wrap">
                     <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition truncate">${c.nombre}</h4>
+                    ${insigniaTilde}
                   </div>
-                  
-                  ${insigniaVerificado ? `<div class="mt-0.5">${insigniaVerificado}</div>` : ''}
                 </div>
               </div>
 
@@ -2928,7 +2929,6 @@
       const container = document.getElementById('container-productos-busqueda');
       const counter = document.getElementById('total-prods-busqueda');
 
-      // Filtramos solo los productos de comercios activos
       const productosValidos = (productos || []).filter(p => p.comercios && p.comercios.activo === true);
 
       if (error || productosValidos.length === 0) {
@@ -3503,7 +3503,7 @@
         tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
         logo_url,
         portada_url,
-        activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false // Se crea inactivo por defecto si es nuevo
+        activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false
       };
 
       let res;
@@ -3519,7 +3519,6 @@
         cerrarModal('modal-registro');
         await cargarComercios();
 
-        // Si es un comercio nuevo, redirigimos automáticamente a WhatsApp con el mensaje estructurado
         if (!editId) {
           const planTxt = planElegidoVal.toUpperCase();
           const mensajeAlta = `¡Hola! Solicito el alta del comercio *${nombreVal}*, plan *${planTxt}*. El alias del comercio es *${aliasMpVal || 'No especificado'}*, titular del alias: *${titularAliasVal || 'No especificado'}*. ¿Qué me faltaría para que activen mi comercio?`;
