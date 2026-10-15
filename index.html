@@ -769,7 +769,7 @@
           <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
         </div>
         
-        <!-- NUEVO SELECTOR JERÁRQUICO DE CATEGORÍA PRINCIPAL Y SUBCATEGORÍAS -->
+        <!-- SELECTOR JERÁRQUICO DE CATEGORÍA PRINCIPAL Y SUBCATEGORÍAS -->
         <div class="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
           <div>
             <label class="block text-xs font-bold text-slate-800 mb-1">Categoría Principal (Rubro)</label>
@@ -784,6 +784,13 @@
               <span id="cat-count-badge" class="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">0 / 3</span>
             </div>
             <div id="grid-subcategorias-form" class="grid grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto"></div>
+          </div>
+
+          <!-- BOTÓN PARA SOLICITAR CATEGORÍA NUEVA -->
+          <div class="pt-2 border-t border-slate-200 text-right">
+            <button type="button" onclick="solicitarCategoriaNuevaWhatsApp()" class="text-[11px] font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 ml-auto">
+              <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> ¿No encontrás tu categoría? Solicitá una nueva
+            </button>
           </div>
         </div>
 
@@ -1183,6 +1190,11 @@
 
     function solicitarPlanWhatsApp(nombrePlan) {
       const msg = `¡Hola! Quisiera solicitar o aumentar mi plan en *NecoVende* al *Plan ${nombrePlan}*. ¿Me dan información para activar mi comercio?`;
+      window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function solicitarCategoriaNuevaWhatsApp() {
+      const msg = `¡Hola! Quisiera solicitar el alta de una *nueva categoría o subcategoría* para sumar en *NecoVende*. ¿Me ayudan con esto?`;
       window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
