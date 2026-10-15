@@ -154,7 +154,7 @@
         </div>
       </div>
       
-      <!-- Navigation Controls (Diseño limpio y sin amontonarse) -->
+      <!-- Navigation Controls -->
       <div class="flex items-center gap-1.5">
         
         <!-- BOTÓN PLANES -->
@@ -168,7 +168,7 @@
           <i data-lucide="history" class="w-4 h-4 text-brand-500"></i>
         </button>
 
-        <!-- BOTÓN ADMIN (Si corresponde) -->
+        <!-- BOTÓN ADMIN -->
         <button id="btn-admin-panel" onclick="abrirModalAdmin()" type="button" class="hidden bg-slate-800 text-white p-2 rounded-xl transition duration-200 items-center justify-center active:scale-95 shadow-sm" title="Panel Admin">
           <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
         </button>
@@ -249,13 +249,26 @@
       <input type="text" id="input-buscar" placeholder="Buscar por local, empanadas, ropa, helados..." class="w-full clean-input pl-11 pr-4 py-3.5 rounded-2xl text-xs font-medium shadow-sm transition placeholder:text-slate-400">
     </div>
 
-    <!-- Rubros Dinámicos -->
-    <section class="space-y-2.5">
+    <!-- GRILLA DE CATEGORÍAS PRINCIPALES (TARJETAS VISUALES) -->
+    <section class="space-y-3">
       <div class="flex justify-between items-center px-1">
-        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Explorar Categorías</h3>
+        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Rubros y Categorías Principales</h3>
         <span id="categoria-activa" class="text-xs font-bold text-brand-600">Todas</span>
       </div>
-      <div id="bar-categorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-medium custom-scrollbar"></div>
+      <div id="grid-categorias-principales" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <!-- Renderizado dinámico -->
+      </div>
+    </section>
+
+    <!-- BARRA DE SUBCATEGORÍAS (SE MUESTRA AL SELECCIONAR UNA CATEGORÍA PRINCIPAL) -->
+    <section id="seccion-subcategorias" class="space-y-2.5 hidden">
+      <div class="flex justify-between items-center px-1">
+        <h3 class="text-[11px] font-black text-brand-600 uppercase tracking-widest flex items-center gap-1.5">
+          <i data-lucide="filter" class="w-3.5 h-3.5"></i> Filtrar Subcategorías de <span id="lbl-cat-principal-activa"></span>
+        </h3>
+        <button onclick="reiniciarFiltroCategorias()" class="text-[10px] font-bold text-slate-500 hover:text-brand-600 underline">Ver todo</button>
+      </div>
+      <div id="bar-subcategorias-filtros" class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-medium custom-scrollbar"></div>
     </section>
 
     <!-- SECCIÓN DE PRODUCTOS ENCONTRADOS (GLOBAL) -->
@@ -361,7 +374,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
         <!-- PLAN GRATIS -->
         <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex flex-col justify-between space-y-4 shadow-sm relative">
           <div class="space-y-2">
@@ -417,7 +429,6 @@
             Quiero este plan
           </button>
         </div>
-
       </div>
     </div>
   </div>
@@ -449,7 +460,7 @@
       <div class="flex justify-between items-start border-b border-slate-100 pb-4">
         <div>
           <h3 class="text-lg font-black text-slate-900">Historial de Pedidos</h3>
-          <p class="text-xs text-slate-500 mt-0.5">Repetití tus pedidos anteriores con un solo toque.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Repetí tus pedidos anteriores con un solo toque.</p>
         </div>
         <button onclick="cerrarModal('modal-historial')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -758,12 +769,22 @@
           <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
         </div>
         
-        <div>
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="block text-xs font-bold text-slate-700">Categorías (Elegí hasta 3)</label>
-            <span id="cat-count-badge" class="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">0 / 3</span>
+        <!-- NUEVO SELECTOR JERÁRQUICO DE CATEGORÍA PRINCIPAL Y SUBCATEGORÍAS -->
+        <div class="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+          <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1">Categoría Principal (Rubro)</label>
+            <select id="comercio-cat-principal" onchange="actualizarSubcategoriasFormulario()" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-bold">
+              <!-- Creado dinámicamente -->
+            </select>
           </div>
-          <div id="grid-categorias-form" class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto"></div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-slate-800">Subcategorías Específicas (Elegí hasta 3)</label>
+              <span id="cat-count-badge" class="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">0 / 3</span>
+            </div>
+            <div id="grid-subcategorias-form" class="grid grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto"></div>
+          </div>
         </div>
 
         <div id="seccion-sabores-config" class="hidden space-y-1.5 bg-brand-50 p-3.5 rounded-xl border border-brand-200">
@@ -1108,14 +1129,24 @@
     const EMAIL_ADMIN = "enzitohkallepremium@gmail.com";
     const WHATSAPP_SOPORTE_PLANES = "542262541305";
 
-    const CATEGORIAS_DISPONIBLES = [
-      "Favoritos ❤️", "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", "Rotisería", 
-      "Panaderías & Pastelería", "Cafetería", "Sushi & Comida Oriental", "Postres & Dulces", 
-      "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", 
-      "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", 
-      "Mercados & Almacén", "Kiosco", "Cervecería & Bebidas", 
-      "Cosmética & Belleza", "Mascotas", "Tecnología & Celulares"
-    ];
+    // NUEVA ESTRUCTURA JERÁRQUICA DE CATEGORÍAS PRINCIPALES Y SUBCATEGORÍAS
+    const CATEGORIAS_JERARQUICAS = {
+      "Gastronomía 🍔": [
+        "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", 
+        "Rotisería", "Panaderías & Pastelería", "Cafetería", 
+        "Sushi & Comida Oriental", "Postres & Dulces", "Cervecería & Bebidas"
+      ],
+      "Moda & Indumentaria 👗": [
+        "Moda Mujer", "Moda Hombre", "Ropa de Niños", "Calzado", "Deportes"
+      ],
+      "Hogar & Estilo 🏠": [
+        "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", 
+        "Cosmética & Belleza", "Mascotas"
+      ],
+      "Servicios & Tecnología ⚡": [
+        "Tecnología & Celulares", "Mercados & Almacén", "Kiosco"
+      ]
+    };
 
     const CATEGORIAS_INDUMENTARIA = [
       "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", "Cosmética & Belleza", "Tecnología & Celulares"
@@ -1132,7 +1163,8 @@
     ];
 
     let comerciosGlobales = [];
-    let categoriaSeleccionada = 'Todas';
+    let categoriaPrincipalSeleccionada = 'Todas';
+    let subcategoriaSeleccionada = 'Todas';
     let comercioActivo = null;
     let comercioCarrito = null;
     let carrito = [];
@@ -1772,9 +1804,9 @@
       if (comercioActivo.pagos_cuenta_dni) pagos.push('Cuenta DNI');
       if (comercioActivo.pagos_tarjeta) pagos.push('Tarjeta Débito/Crédito');
 
-      const listaCats = comercioActivo.categorias && comercioActivo.categorias.length > 0 
-        ? comercioActivo.categorias 
-        : [comercioActivo.categoria || 'General'];
+      const listaCats = comercioActivo.subcategorias && comercioActivo.subcategorias.length > 0 
+        ? comercioActivo.subcategorias 
+        : (comercioActivo.categorias || [comercioActivo.categoria || 'General']);
 
       const colorFondo = esUltra ? (comercioActivo.color_primario || '#f8fafc') : '#f8fafc';
       document.body.style.backgroundColor = colorFondo;
@@ -1969,7 +2001,7 @@
         const esCombo = Boolean(p.es_combo);
         const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
 
-        const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
+        const categoriasLocal = comercioActivo?.subcategorias || comercioActivo?.categorias || [comercioActivo?.categoria];
         const esHeladeria = categoriasLocal.includes('Heladerías');
         const esEmpanadas = categoriasLocal.includes('Empanadas');
 
@@ -2043,7 +2075,7 @@
 
       cantidadSeleccionadaModalSabores = 1;
 
-      const categoriasLocal = comercioActivo?.categorias || [comercioActivo?.categoria];
+      const categoriasLocal = comercioActivo?.subcategorias || comercioActivo?.categorias || [comercioActivo?.categoria];
       const esHeladeria = categoriasLocal.includes('Heladerías');
       const esEmpanadas = categoriasLocal.includes('Empanadas');
 
@@ -2729,7 +2761,7 @@
       }
 
       comerciosGlobales = comercios || [];
-      renderizarBarraCategorias();
+      renderizarCategoriasPrincipales();
       aplicarFiltros();
 
       const params = new URLSearchParams(window.location.search);
@@ -2737,23 +2769,85 @@
       if (comercioUrlId) abrirVistaComercio(comercioUrlId, false);
     }
 
-    function renderizarBarraCategorias() {
-      const bar = document.getElementById('bar-categorias-filtros');
-      bar.innerHTML = `
-        <button onclick="seleccionarCategoria('Todas', this)" class="btn-cat bg-gradient-to-r from-brand-500 to-amber-500 text-white font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-md shadow-brand-500/20 transition flex items-center gap-2">
-          <i data-lucide="grid" class="w-4 h-4"></i> Todas
+    // RENDERIZADO DE LAS TARJETAS DE CATEGORÍAS PRINCIPALES EN EL INICIO
+    function renderizarCategoriasPrincipales() {
+      const grid = document.getElementById('grid-categorias-principales');
+      grid.innerHTML = `
+        <button onclick="seleccionarCategoriaPrincipal('Todas')" class="clean-card rounded-2xl p-3.5 text-left transition hover:border-brand-500 group flex items-center gap-3 bg-gradient-to-r from-brand-500 to-amber-500 text-white shadow-md">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">✨</div>
+          <div>
+            <h4 class="font-black text-xs">Todos</h4>
+            <p class="text-[10px] opacity-90">Ver marketplace</p>
+          </div>
         </button>
       `;
 
-      CATEGORIAS_DISPONIBLES.forEach(cat => {
-        bar.innerHTML += `
-          <button onclick="seleccionarCategoria('${cat}', this)" class="btn-cat clean-card text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-2 hover:border-brand-300 shadow-sm">
-            ${cat}
+      Object.keys(CATEGORIAS_JERARQUICAS).forEach(catPrincipal => {
+        const isSelected = categoriaPrincipalSeleccionada === catPrincipal;
+        const icono = catPrincipal.includes('Gastronomía') ? '🍔' : (catPrincipal.includes('Moda') ? '👗' : (catPrincipal.includes('Hogar') ? '🏠' : '⚡'));
+        
+        grid.innerHTML += `
+          <button onclick="seleccionarCategoriaPrincipal('${catPrincipal}')" class="clean-card rounded-2xl p-3.5 text-left transition hover:border-brand-300 group flex items-center gap-3 bg-white shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg group-hover:scale-105 transition">${icono}</div>
+            <div class="truncate">
+              <h4 class="font-black text-xs text-slate-900 truncate">${catPrincipal}</h4>
+              <p class="text-[10px] text-slate-400">Ver variantes</p>
+            </div>
           </button>
         `;
       });
 
       if (window.lucide) lucide.createIcons();
+    }
+
+    function seleccionarCategoriaPrincipal(catPrincipal) {
+      categoriaPrincipalSeleccionada = catPrincipal;
+      subcategoriaSeleccionada = 'Todas';
+      document.getElementById('categoria-activa').innerText = catPrincipal;
+
+      const seccionSub = document.getElementById('seccion-subcategorias');
+      const barSub = document.getElementById('bar-subcategorias-filtros');
+      const lblCatActiva = document.getElementById('lbl-cat-principal-activa');
+
+      if (catPrincipal === 'Todas') {
+        seccionSub.classList.add('hidden');
+      } else {
+        seccionSub.classList.remove('hidden');
+        lblCatActiva.innerText = catPrincipal;
+        const subcats = CATEGORIAS_JERARQUICAS[catPrincipal] || [];
+        
+        barSub.innerHTML = `
+          <button onclick="seleccionarSubcategoria('Todas', this)" class="btn-subcat bg-brand-500 text-white font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-sm">
+            Todas de ${catPrincipal}
+          </button>
+        `;
+
+        subcats.forEach(sub => {
+          barSub.innerHTML += `
+            <button onclick="seleccionarSubcategoria('${sub}', this)" class="btn-subcat clean-card text-slate-600 px-3 py-1.5 rounded-xl whitespace-nowrap transition hover:border-brand-300 shadow-sm">
+              ${sub}
+            </button>
+          `;
+        });
+      }
+
+      aplicarFiltros();
+    }
+
+    function seleccionarSubcategoria(subcat, elemento) {
+      subcategoriaSeleccionada = subcat;
+      document.getElementById('categoria-activa').innerText = subcat;
+
+      document.querySelectorAll('.btn-subcat').forEach(b => {
+        b.className = 'btn-subcat clean-card text-slate-600 px-3 py-1.5 rounded-xl whitespace-nowrap transition hover:border-brand-300 shadow-sm';
+      });
+      elemento.className = 'btn-subcat bg-brand-500 text-white font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-sm';
+
+      aplicarFiltros();
+    }
+
+    function reiniciarFiltroCategorias() {
+      seleccionarCategoriaPrincipal('Todas');
     }
 
     function renderizarComercios(lista) {
@@ -2795,9 +2889,9 @@
           insigniaTilde = `<span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-sky-500 text-white shadow-sm flex-shrink-0" title="Perfil Verificado Pro"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></span>`;
         }
 
-        const listaCats = c.categorias && c.categorias.length > 0 
-          ? c.categorias 
-          : [c.categoria || 'General'];
+        const listaCats = c.subcategorias && c.subcategorias.length > 0 
+          ? c.subcategorias 
+          : (c.categorias || [c.categoria || 'General']);
 
         const catPrincipal = listaCats[0];
         const catMasCount = listaCats.length > 1 ? ` +${listaCats.length - 1}` : '';
@@ -2827,7 +2921,6 @@
                     ${insigniaTilde}
                   </div>
                   
-                  <!-- ESTADO CERRADO/ABIERTO UBICADO DEBAJO DEL NOMBRE PARA APROVECHAR ESPACIO -->
                   <div class="mt-2">
                     <span class="text-[9px] font-black px-2.5 py-1 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
                       ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
@@ -2836,7 +2929,6 @@
                 </div>
               </div>
 
-              <!-- BOTÓN FAVORITO ARRIBA A LA DERECHA -->
               <button onclick="toggleFavoritoComercio('${c.id}', event)" class="bg-slate-50 hover:bg-slate-100 p-2 rounded-full border border-slate-200 shadow-sm transition flex-shrink-0">
                 <i data-lucide="heart" class="w-4 h-4 ${esFav ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}"></i>
               </button>
@@ -2864,36 +2956,33 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function seleccionarCategoria(cat, elemento) {
-      categoriaSeleccionada = cat;
-      document.getElementById('categoria-activa').innerText = cat;
-
-      document.querySelectorAll('.btn-cat').forEach(b => {
-        b.className = 'btn-cat clean-card text-slate-600 px-4 py-2.5 rounded-xl whitespace-nowrap transition flex items-center gap-2 hover:border-brand-300 shadow-sm';
-      });
-      elemento.className = 'btn-cat bg-gradient-to-r from-brand-500 to-amber-500 text-white font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap shadow-md shadow-brand-500/20 transition flex items-center gap-2';
-
-      aplicarFiltros();
-    }
-
     function aplicarFiltros() {
       const texto = document.getElementById('input-buscar').value.toLowerCase().trim();
       let resultado = [...comerciosGlobales];
 
-      if (categoriaSeleccionada === 'Favoritos ❤️') {
+      if (categoriaPrincipalSeleccionada === 'Favoritos ❤️') {
         const favs = obtenerFavoritos();
         resultado = resultado.filter(c => favs.includes(c.id));
-      } else if (categoriaSeleccionada !== 'Todas') {
-        resultado = resultado.filter(c => {
-          if (c.categorias && c.categorias.length > 0) return c.categorias.includes(categoriaSeleccionada);
-          return c.categoria === categoriaSeleccionada;
-        });
+      } else if (categoriaPrincipalSeleccionada !== 'Todas') {
+        if (subcategoriaSeleccionada !== 'Todas') {
+          resultado = resultado.filter(c => {
+            const subs = c.subcategorias || c.categorias || [c.categoria];
+            return subs.includes(subcategoriaSeleccionada);
+          });
+        } else {
+          resultado = resultado.filter(c => {
+            const subsComercio = c.subcategorias || c.categorias || [c.categoria];
+            const posiblesSubsMacro = CATEGORIAS_JERARQUICAS[categoriaPrincipalSeleccionada] || [];
+            return subsComercio.some(sub => posiblesSubsMacro.includes(sub) || c.categoria_principal === categoriaPrincipalSeleccionada);
+          });
+        }
       }
 
       if (texto !== '') {
         resultado = resultado.filter(c => 
           c.nombre.toLowerCase().includes(texto) || 
           (c.direccion && c.direccion.toLowerCase().includes(texto)) ||
+          (c.subcategorias && c.subcategorias.some(cat => cat.toLowerCase().includes(texto))) ||
           (c.categorias && c.categorias.some(cat => cat.toLowerCase().includes(texto))) ||
           (c.categoria && c.categoria.toLowerCase().includes(texto))
         );
@@ -2973,59 +3062,75 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function renderizarOpcionesCategoriasModal(categoriasSeleccionadas = []) {
-      const grid = document.getElementById('grid-categorias-form');
+    // FORMULARIO DE REGISTRO DE COMERCIO CON CATEGORÍA PRINCIPAL Y SUBCATEGORÍAS
+    function inicializarSelectCategoriasFormulario(catPrincipalActual = '', subcatsActuales = []) {
+      const selectCatPrin = document.getElementById('comercio-cat-principal');
+      selectCatPrin.innerHTML = '';
+
+      Object.keys(CATEGORIAS_JERARQUICAS).forEach(catPrin => {
+        selectCatPrin.innerHTML += `<option value="${catPrin}" ${catPrincipalActual === catPrin ? 'selected' : ''}>${catPrin}</option>`;
+      });
+
+      actualizarSubcategoriasFormulario(subcatsActuales);
+    }
+
+    function actualizarSubcategoriasFormulario(subcatsActuales = []) {
+      const selectCatPrin = document.getElementById('comercio-cat-principal').value;
+      const grid = document.getElementById('grid-subcategorias-form');
       grid.innerHTML = '';
 
-      CATEGORIAS_DISPONIBLES.forEach((cat) => {
-        if (cat === 'Favoritos ❤️') return;
-        const isChecked = categoriasSeleccionadas.includes(cat);
+      const subcategoriasDisponibles = CATEGORIAS_JERARQUICAS[selectCatPrin] || [];
+
+      subcategoriasDisponibles.forEach(sub => {
+        const isChecked = subcatsActuales.includes(sub);
         grid.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-700">
-            <input type="checkbox" name="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="validarLimiteCategorias(this)" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500">
-            <span class="truncate">${cat}</span>
+            <input type="checkbox" name="subcat-checkbox" value="${sub}" ${isChecked ? 'checked' : ''} onchange="validarLimiteSubcategorias(this)" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500">
+            <span class="truncate">${sub}</span>
           </label>
         `;
       });
-      actualizarContadorCategorias();
-    }
 
-    function validarLimiteCategorias(checkbox) {
-      const seleccionados = document.querySelectorAll('input[name="cat-checkbox"]:checked');
-      if (seleccionados.length > 3) {
-        checkbox.checked = false;
-        alert("Podés seleccionar un máximo de 3 categorías por comercio.");
-      }
-      actualizarContadorCategorias();
+      actualizarContadorSubcategorias();
       evaluarCamposEspecialesSegunCategoria();
     }
 
+    function validarLimiteSubcategorias(checkbox) {
+      const seleccionados = document.querySelectorAll('input[name="subcat-checkbox"]:checked');
+      if (seleccionados.length > 3) {
+        checkbox.checked = false;
+        alert("Podés seleccionar un máximo de 3 subcategorías por comercio.");
+      }
+      actualizarContadorSubcategorias();
+      evaluarCamposEspecialesSegunCategoria();
+    }
+
+    function actualizarContadorSubcategorias() {
+      const total = document.querySelectorAll('input[name="subcat-checkbox"]:checked').length;
+      document.getElementById('cat-count-badge').innerText = `${total} / 3`;
+    }
+
+    function obtenerSubcategoriasSeleccionadasModal() {
+      const checkboxes = document.querySelectorAll('input[name="subcat-checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
+    }
+
     function evaluarCamposEspecialesSegunCategoria() {
-      const elegidas = obtenerCategoriasSeleccionadasModal();
+      const subcats = obtenerSubcategoriasSeleccionadasModal();
       const secSabores = document.getElementById('seccion-sabores-config');
       const secCoccion = document.getElementById('seccion-coccion-config');
 
-      if (elegidas.includes('Heladerías') || elegidas.includes('Empanadas')) {
+      if (subcats.includes('Heladerías') || subcats.includes('Empanadas')) {
         secSabores.classList.remove('hidden');
       } else {
         secSabores.classList.add('hidden');
       }
 
-      if (elegidas.includes('Empanadas')) {
+      if (subcats.includes('Empanadas')) {
         secCoccion.classList.remove('hidden');
       } else {
         secCoccion.classList.add('hidden');
       }
-    }
-
-    function actualizarContadorCategorias() {
-      const total = document.querySelectorAll('input[name="cat-checkbox"]:checked').length;
-      document.getElementById('cat-count-badge').innerText = `${total} / 3`;
-    }
-
-    function obtenerCategoriasSeleccionadasModal() {
-      const checkboxes = document.querySelectorAll('input[name="cat-checkbox"]:checked');
-      return Array.from(checkboxes).map(cb => cb.value);
     }
 
     function actualizarVisibilidadCamposSegunPlanRegistro() {
@@ -3082,8 +3187,7 @@
 
       actualizarVisibilidadCamposSegunPlanRegistro();
       renderizarGrillaHorarios({});
-      renderizarOpcionesCategoriasModal([]);
-      evaluarCamposEspecialesSegunCategoria();
+      inicializarSelectCategoriasFormulario('Gastronomía 🍔', []);
       abrirModal('modal-registro');
     }
 
@@ -3163,9 +3267,9 @@
 
       renderizarGrillaHorarios(c.horarios_dias || {});
 
-      const misCategorias = c.categorias && c.categorias.length > 0 ? c.categorias : [c.categoria].filter(Boolean);
-      renderizarOpcionesCategoriasModal(misCategorias);
-      evaluarCamposEspecialesSegunCategoria();
+      const subcats = c.subcategorias || c.categorias || [c.categoria].filter(Boolean);
+      const catPrin = c.categoria_principal || 'Gastronomía 🍔';
+      inicializarSelectCategoriasFormulario(catPrin, subcats);
 
       document.getElementById('modal-comercio-head-title').innerText = 'Editar mi Comercio';
       document.getElementById('modal-comercio-head-sub').innerText = `Modificando: ${c.nombre} (${plan.toUpperCase()})`;
@@ -3246,11 +3350,11 @@
       document.getElementById('prod-imagen-existente').value = '';
       document.getElementById('prod-es-origen-promo').value = 'false';
 
-      const cats = comercio?.categorias || [comercio?.categoria];
-      const esEmpanadas = cats.includes('Empanadas');
-      const esHeladeria = cats.includes('Heladerías');
+      const subs = comercio?.subcategorias || comercio?.categorias || [comercio?.categoria];
+      const esEmpanadas = subs.includes('Empanadas');
+      const esHeladeria = subs.includes('Heladerías');
       const esGastronomiaConSabores = esHeladeria || esEmpanadas;
-      const esComercioRetail = cats.some(c => CATEGORIAS_INDUMENTARIA.includes(c));
+      const esComercioRetail = subs.some(s => CATEGORIAS_INDUMENTARIA.includes(s));
 
       const boxSaboresProd = document.getElementById('box-check-sabores-prod');
       const boxCoccionProd = document.getElementById('box-check-coccion-prod');
@@ -3437,9 +3541,11 @@
       const logoInput = document.getElementById('logo-input');
       const portadaInput = document.getElementById('portada-input');
 
-      const categorias = obtenerCategoriasSeleccionadasModal();
-      if (categorias.length === 0) {
-        alert("Elegí al menos 1 categoría.");
+      const catPrincipalVal = document.getElementById('comercio-cat-principal').value;
+      const subcategoriasVal = obtenerSubcategoriasSeleccionadasModal();
+      
+      if (subcategoriasVal.length === 0) {
+        alert("Elegí al menos 1 subcategoría.");
         return;
       }
 
@@ -3491,8 +3597,9 @@
         alias_mp: aliasMpVal,
         titular_alias: titularAliasVal,
         direccion: document.getElementById('direccion').value.trim(),
-        categoria: categorias[0],
-        categorias: categorias,
+        categoria_principal: catPrincipalVal,
+        categoria: subcategoriasVal[0],
+        subcategorias: subcategoriasVal,
         hace_envios: document.getElementById('envios').checked,
         envio_gratis: document.getElementById('envio-gratis').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
