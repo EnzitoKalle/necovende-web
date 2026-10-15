@@ -368,7 +368,7 @@
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Hasta <strong>1 comercio</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Hasta <strong>5 productos</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Pedidos directo a WhatsApp</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Link propio para compartir</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Sin links en perfil</li>
             </ul>
           </div>
           <button onclick="solicitarPlanWhatsApp('Gratis')" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-xl text-xs transition">
@@ -385,8 +385,8 @@
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-sky-200">
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Hasta <strong>2 comercios</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Hasta <strong>10 productos</strong></li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Insignia 🔵 Perfil Pro</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Enlaces de Redes Sociales</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Insignia ✓ Perfil Pro</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> <strong>1 Link</strong> de Red Social / Web</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Posicionamiento Prioritario</li>
             </ul>
           </div>
@@ -404,8 +404,8 @@
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-amber-200">
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Comercios <strong>Ilimitados</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Productos <strong>Ilimitados</strong></li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Insignia 🟡 Perfil Ultra</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Armador de Promos / Combos</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Insignia ✓✓ Perfil Ultra</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Hasta <strong>3 Links</strong> de Redes / Web</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Portada y Colores Custom</li>
             </ul>
           </div>
@@ -426,7 +426,7 @@
           <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
             <i data-lucide="shield-check" class="w-5 h-5 text-amber-600"></i> Panel de Administración
           </h3>
-          <p class="text-xs text-slate-500 mt-0.5">Gestión de planes de comercios de NecoVende.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Gestión y activación de comercios de NecoVende.</p>
         </div>
         <button onclick="cerrarModal('modal-admin')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -456,7 +456,7 @@
     </div>
   </div>
 
-  <!-- MODAL: SELECCIONAR SABORES Y OPCIONES (CON SELECTOR DE CANTIDAD SUPERIOR) -->
+  <!-- MODAL: SELECCIONAR SABORES Y OPCIONES -->
   <div id="modal-sabores" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
@@ -514,7 +514,6 @@
         <div id="contenedor-check-opciones-custom" class="space-y-2"></div>
       </div>
 
-      <!-- Aca se inyectan dinamicamente los boxes de sabores por cada unidad/kilo -->
       <div id="contenedor-bloques-unidades" class="space-y-4"></div>
 
       <div>
@@ -611,7 +610,7 @@
 
         <p id="view-prod-descripcion" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto"></p>
 
-        <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+        <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-brand-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
       </div>
@@ -746,6 +745,11 @@
         </div>
 
         <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Titular del Alias / CBU</label>
+          <input type="text" id="titular-alias" placeholder="Ej: Juan Carlos Pérez" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+        </div>
+
+        <div>
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Dirección / Zona</label>
           <input type="text" id="direccion" placeholder="Ej: Calle 59 N° 3400, Necochea" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
         </div>
@@ -796,7 +800,7 @@
           </label>
           
           <div class="space-y-2.5">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2" id="box-enlace-1">
               <select id="red-tipo-1" class="clean-input px-2.5 py-2 rounded-xl text-xs font-bold w-32">
                 <option value="instagram">Instagram</option>
                 <option value="facebook">Facebook</option>
@@ -806,7 +810,7 @@
               <input type="text" id="red-url-1" placeholder="Ej: instagram.com/micomercio" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
             </div>
 
-            <div class="flex items-center gap-2 ultra-enlace-input hidden">
+            <div class="flex items-center gap-2 ultra-enlace-input hidden" id="box-enlace-2">
               <select id="red-tipo-2" class="clean-input px-2.5 py-2 rounded-xl text-xs font-bold w-32">
                 <option value="facebook">Facebook</option>
                 <option value="instagram">Instagram</option>
@@ -816,7 +820,7 @@
               <input type="text" id="red-url-2" placeholder="Ej: facebook.com/micomercio" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
             </div>
 
-            <div class="flex items-center gap-2 ultra-enlace-input hidden">
+            <div class="flex items-center gap-2 ultra-enlace-input hidden" id="box-enlace-3">
               <select id="red-tipo-3" class="clean-input px-2.5 py-2 rounded-xl text-xs font-bold w-32">
                 <option value="web">Sitio Web</option>
                 <option value="instagram">Instagram</option>
@@ -899,7 +903,7 @@
 
         <div class="flex gap-3 pt-3">
           <button onclick="cerrarModal('modal-registro')" type="button" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold text-xs transition">Cancelar</button>
-          <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white py-3.5 rounded-xl font-black text-xs shadow-md shadow-brand-500/25 transition">Guardar Local</button>
+          <button type="submit" id="btn-guardar-comercio" class="w-1/2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-brand-600 text-white py-3.5 rounded-xl font-black text-xs shadow-md shadow-brand-500/25 transition">Solicitar Alta</button>
         </div>
 
         <div id="contenedor-btn-eliminar-comercio" class="hidden pt-2 border-t border-slate-100">
@@ -1015,7 +1019,7 @@
 
         <div class="flex gap-3 pt-3">
           <button onclick="cerrarModal('modal-producto')" type="button" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold text-xs transition">Cancelar</button>
-          <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white py-3.5 rounded-xl font-black text-xs shadow-md shadow-brand-500/25 transition">Publicar Producto</button>
+          <button type="submit" id="btn-guardar-producto" class="w-1/2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-brand-600 text-white py-3.5 rounded-xl font-black text-xs shadow-md shadow-brand-500/25 transition">Publicar Producto</button>
         </div>
       </form>
     </div>
@@ -1098,7 +1102,7 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const EMAIL_ADMIN = "administracion@necovende.com";
-    const WHATSAPP_SOPORTE_PLANES = "542262541305"; // Numero para solicitudes de aumento de plan
+    const WHATSAPP_SOPORTE_PLANES = "542262541305";
 
     const CATEGORIAS_DISPONIBLES = [
       "Favoritos ❤️", "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", "Rotisería", 
@@ -1519,17 +1523,21 @@
       } else {
         comerciosGlobales.forEach(c => {
           const planActual = c.plan || 'gratis';
+          const estaActivo = c.activo === true;
           lista.innerHTML += `
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
               <div class="truncate">
-                <p class="font-black text-slate-900 truncate">${c.nombre}</p>
-                <p class="text-[10px] text-slate-400">UID: ${c.user_id ? c.user_id.substring(0,8) + '...' : 'Sin UID'}</p>
+                <p class="font-black text-slate-900 truncate">${c.nombre} <span class="text-[10px] font-bold px-2 py-0.5 rounded ${estaActivo ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${estaActivo ? 'Activo' : 'Inactivo / Pendiente'}</span></p>
+                <p class="text-[10px] text-slate-400">Titular: ${c.titular_alias || 'No especificado'}</p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
+                <button onclick="toggleActivarComercioAdmin('${c.id}', ${estaActivo})" class="px-3 py-1.5 rounded-lg font-bold text-xs ${estaActivo ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-500 text-white'}">
+                  ${estaActivo ? 'Desactivar' : 'Aprobar/Activar'}
+                </button>
                 <select onchange="cambiarPlanComercioAdmin('${c.id}', this.value)" class="clean-input px-2.5 py-1.5 rounded-lg font-bold text-xs">
                   <option value="gratis" ${planActual === 'gratis' ? 'selected' : ''}>⚪ Gratis</option>
-                  <option value="pro" ${planActual === 'pro' ? 'selected' : ''}>🔵 Pro</option>
-                  <option value="ultra" ${planActual === 'ultra' ? 'selected' : ''}>🟡 Ultra</option>
+                  <option value="pro" ${planActual === 'pro' ? 'selected' : ''}>✓ Pro</option>
+                  <option value="ultra" ${planActual === 'ultra' ? 'selected' : ''}>✓✓ Ultra</option>
                 </select>
               </div>
             </div>
@@ -1537,6 +1545,18 @@
         });
       }
       abrirModal('modal-admin');
+    }
+
+    async function toggleActivarComercioAdmin(comercioId, estadoActual) {
+      const nuevoEstado = !estadoActual;
+      const { error } = await _supabase.from('comercios').update({ activo: nuevoEstado }).eq('id', comercioId);
+      if (error) {
+        alert("Error al cambiar estado: " + error.message);
+      } else {
+        mostrarToast(`Comercio ${nuevoEstado ? 'activado' : 'desactivado'} con éxito.`);
+        await cargarComercios();
+        abrirModalAdmin();
+      }
     }
 
     async function cambiarPlanComercioAdmin(comercioId, nuevoPlan) {
@@ -1567,7 +1587,11 @@
         lista.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Aún no registraste ningún comercio.</p>`;
       } else {
         misComercios.forEach(c => {
-          const planBadge = c.plan === 'ultra' ? '🟡 Ultra' : (c.plan === 'pro' ? '🔵 Pro' : '⚪ Gratis');
+          const planBadge = c.plan === 'ultra' ? '✓✓ Ultra' : (c.plan === 'pro' ? '✓ Pro' : 'Gratis');
+          const activoBadge = c.activo === true 
+            ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Activo</span>' 
+            : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Pendiente de Aprobación</span>';
+
           lista.innerHTML += `
             <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2 shadow-sm">
               <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.slug || c.id}');">
@@ -1579,7 +1603,7 @@
                     <p class="font-bold text-xs text-slate-800 truncate">${c.nombre}</p>
                     <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${planBadge}</span>
                   </div>
-                  <p class="text-[10px] text-slate-400 truncate">${c.categoria || 'General'}</p>
+                  <div class="mt-0.5">${activoBadge}</div>
                 </div>
               </div>
               <button onclick="cerrarModal('modal-panel'); prepararModalEditarComercio('${c.id}')" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex-shrink-0" title="Editar datos">
@@ -1666,12 +1690,16 @@
       return `<svg class="w-4 h-4 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>`;
     }
 
-    function generarBotonesRedesSociales(redesArr) {
+    function generarBotonesRedesSociales(redesArr, plan) {
+      if (plan === 'gratis') return '';
       if (!redesArr || !Array.isArray(redesArr) || redesArr.length === 0) return '';
       
+      let limiteLinks = (plan === 'pro') ? 1 : 3;
+      let redesFiltradas = redesArr.slice(0, limiteLinks);
+
       let html = `<div class="flex items-center gap-2 flex-wrap pt-1">`;
       
-      redesArr.forEach(item => {
+      redesFiltradas.forEach(item => {
         if (!item || !item.url) return;
         let urlFinal = item.url.startsWith('http') ? item.url : `https://${item.url}`;
         let claseColor = 'btn-net-web';
@@ -1730,8 +1758,8 @@
       const esProOrUltra = plan === 'pro' || plan === 'ultra';
 
       let insigniaVerificado = '';
-      if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">🟡 Comercio Verificado Ultra</span>';
-      else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">🔵 Comercio Verificado Pro</span>';
+      if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">✓✓ Comercio Verificado Ultra</span>';
+      else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">✓ Comercio Verificado Pro</span>';
 
       const pagos = [];
       if (comercioActivo.pagos_efectivo) pagos.push('Efectivo');
@@ -1750,7 +1778,7 @@
       const posPortada = esUltra ? (comercioActivo.posicion_portada || 'object-center') : 'object-center';
       const direccionLocalEsc = (comercioActivo.direccion || 'Necochea').replace(/'/g, "\\'");
 
-      const redesHtml = generarBotonesRedesSociales(comercioActivo.redes_sociales);
+      const redesHtml = generarBotonesRedesSociales(comercioActivo.redes_sociales, plan);
 
       let horariosHtml = `
         <div class="flex items-center justify-between">
@@ -1912,7 +1940,6 @@
       return 0;
     }
 
-    // RENDERIZADO UNIFORME DE PRODUCTOS EN EL MENÚ DEL LOCAL
     function renderizarProductosComercio(productos, esDuenio = false, colorBoton = '#f97316') {
       const container = document.getElementById('productos-container');
       
@@ -2124,7 +2151,6 @@
       renderizarBloquesModalSabores();
     }
 
-    // GENERADOR DINÁMICO DE BOXES DE SABORES SEGÚN LA CANTIDAD DEL MODAL
     function renderizarBloquesModalSabores() {
       if (!productoPendienteSabores) return;
 
@@ -2731,9 +2757,12 @@
       const counter = document.getElementById('total-comercios');
       container.innerHTML = '';
 
-      counter.innerText = `${lista.length} locales encontrados`;
+      // Filtramos en la vista pública solo los comercios que están ACTIVOS (aprobados por el admin)
+      const listaActivos = lista.filter(c => c.activo === true);
 
-      if (lista.length === 0) {
+      counter.innerText = `${listaActivos.length} locales encontrados`;
+
+      if (listaActivos.length === 0) {
         container.innerHTML = `
           <div class="p-10 clean-card rounded-3xl text-center space-y-3">
             <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto border border-slate-200">
@@ -2746,7 +2775,7 @@
         return;
       }
 
-      lista.forEach(c => {
+      listaActivos.forEach(c => {
         const abierto = estaAbierto(c);
         const identificador = c.slug || c.id;
         const esFav = obtenerFavoritos().includes(c.id);
@@ -2757,8 +2786,8 @@
         const esProOrUltra = plan === 'pro' || plan === 'ultra';
 
         let insigniaVerificado = '';
-        if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">🟡 Perfil Verificado Ultra</span>';
-        else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">🔵 Perfil Verificado Pro</span>';
+        if (esUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">✓✓ Perfil Verificado Ultra</span>';
+        else if (esProOrUltra) insigniaVerificado = '<span class="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">✓ Perfil Verificado Pro</span>';
 
         const listaCats = c.categorias && c.categorias.length > 0 
           ? c.categorias 
@@ -2890,7 +2919,7 @@
     async function buscarProductosGlobales(query) {
       const { data: productos, error } = await _supabase
         .from('productos')
-        .select('*, comercios(nombre, slug, logo_url)')
+        .select('*, comercios(nombre, slug, logo_url, activo)')
         .ilike('titulo', `%${query}%`)
         .eq('disponible', true)
         .limit(10);
@@ -2899,16 +2928,19 @@
       const container = document.getElementById('container-productos-busqueda');
       const counter = document.getElementById('total-prods-busqueda');
 
-      if (error || !productos || productos.length === 0) {
+      // Filtramos solo los productos de comercios activos
+      const productosValidos = (productos || []).filter(p => p.comercios && p.comercios.activo === true);
+
+      if (error || productosValidos.length === 0) {
         secProds.classList.add('hidden');
         return;
       }
 
       secProds.classList.remove('hidden');
-      counter.innerText = `${productos.length} productos`;
+      counter.innerText = `${productosValidos.length} productos`;
       container.innerHTML = '';
 
-      productos.forEach(p => {
+      productosValidos.forEach(p => {
         const nomComercio = p.comercios?.nombre || 'Local';
         const slugComercio = p.comercios?.slug || p.comercio_id;
 
@@ -2989,6 +3021,31 @@
       return Array.from(checkboxes).map(cb => cb.value);
     }
 
+    function actualizarVisibilidadCamposSegunPlanRegistro() {
+      const planElegido = document.getElementById('comercio-plan-select').value;
+      const secEnlaces = document.getElementById('seccion-enlaces-form');
+      const boxEnlace1 = document.getElementById('box-enlace-1');
+      const inputsUltraExtra = document.querySelectorAll('.ultra-enlace-input');
+      const secUltraVisual = document.getElementById('seccion-ultra-visual');
+
+      if (planElegido === 'gratis') {
+        secEnlaces.classList.add('hidden');
+        secUltraVisual.classList.add('hidden');
+      } else if (planElegido === 'pro') {
+        secEnlaces.classList.remove('hidden');
+        boxEnlace1.classList.remove('hidden');
+        inputsUltraExtra.forEach(el => el.classList.add('hidden'));
+        secUltraVisual.classList.add('hidden');
+      } else if (planElegido === 'ultra') {
+        secEnlaces.classList.remove('hidden');
+        boxEnlace1.classList.remove('hidden');
+        inputsUltraExtra.forEach(el => el.classList.remove('hidden'));
+        secUltraVisual.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('comercio-plan-select').addEventListener('change', actualizarVisibilidadCamposSegunPlanRegistro);
+
     function prepararModalNuevoComercio() {
       document.getElementById('form-comercio').reset();
       document.getElementById('comercio-edit-id').value = '';
@@ -2996,12 +3053,13 @@
       document.getElementById('comercio-portada-existente').value = '';
       document.getElementById('modal-comercio-head-title').innerText = 'Registrar mi Comercio';
       document.getElementById('modal-comercio-head-sub').innerText = 'Sumá tu negocio a NecoVende.';
-      document.getElementById('btn-guardar-comercio').innerText = 'Guardar Local';
+      document.getElementById('btn-guardar-comercio').innerText = 'Solicitar Alta';
       document.getElementById('help-logo-edit').innerText = '';
       document.getElementById('help-portada-edit').innerText = '';
       document.getElementById('contenedor-btn-eliminar-comercio').classList.add('hidden');
 
       document.getElementById('box-plan-registro').classList.remove('hidden');
+      document.getElementById('comercio-plan-select').value = 'gratis';
 
       document.getElementById('envios').checked = true;
       document.getElementById('envio-gratis').checked = false;
@@ -3012,12 +3070,10 @@
       document.getElementById('comercio-color-acento').value = "#ea580c";
       document.getElementById('comercio-posicion-portada').value = "object-center";
 
-      document.getElementById('seccion-ultra-visual').classList.add('hidden');
-      document.getElementById('seccion-enlaces-form').classList.add('hidden');
-
       document.getElementById('pago-efectivo').checked = true;
       document.getElementById('pago-transferencia').checked = true;
 
+      actualizarVisibilidadCamposSegunPlanRegistro();
       renderizarGrillaHorarios({});
       renderizarOpcionesCategoriasModal([]);
       evaluarCamposEspecialesSegunCategoria();
@@ -3038,6 +3094,7 @@
       document.getElementById('nombre').value = c.nombre;
       document.getElementById('telefono').value = c.telefono_whatsapp;
       document.getElementById('alias-mp').value = c.alias_mp || '';
+      document.getElementById('titular-alias').value = c.titular_alias || '';
       document.getElementById('direccion').value = c.direccion || '';
       
       document.getElementById('envios').checked = Boolean(c.hace_envios);
@@ -3054,36 +3111,41 @@
 
       const plan = c.plan || 'gratis';
       const secEnlaces = document.getElementById('seccion-enlaces-form');
+      const boxEnlace1 = document.getElementById('box-enlace-1');
       const secUltraVisual = document.getElementById('seccion-ultra-visual');
       const inputsUltraExtra = document.querySelectorAll('.ultra-enlace-input');
 
-      if (plan === 'pro' || plan === 'ultra') {
+      if (plan === 'pro') {
         secEnlaces.classList.remove('hidden');
+        boxEnlace1.classList.remove('hidden');
+        inputsUltraExtra.forEach(el => el.classList.add('hidden'));
+        secUltraVisual.classList.add('hidden');
         const redes = c.redes_sociales || [];
         if (redes[0]) {
           document.getElementById('red-tipo-1').value = redes[0].tipo || 'instagram';
           document.getElementById('red-url-1').value = redes[0].url || '';
         }
-        if (plan === 'ultra') {
-          if (redes[1]) {
-            document.getElementById('red-tipo-2').value = redes[1].tipo || 'facebook';
-            document.getElementById('red-url-2').value = redes[1].url || '';
-          }
-          if (redes[2]) {
-            document.getElementById('red-tipo-3').value = redes[2].tipo || 'web';
-            document.getElementById('red-url-3').value = redes[2].url || '';
-          }
+      } else if (plan === 'ultra') {
+        secEnlaces.classList.remove('hidden');
+        boxEnlace1.classList.remove('hidden');
+        inputsUltraExtra.forEach(el => el.classList.remove('hidden'));
+        secUltraVisual.classList.remove('hidden');
+        const redes = c.redes_sociales || [];
+        if (redes[0]) {
+          document.getElementById('red-tipo-1').value = redes[0].tipo || 'instagram';
+          document.getElementById('red-url-1').value = redes[0].url || '';
+        }
+        if (redes[1]) {
+          document.getElementById('red-tipo-2').value = redes[1].tipo || 'facebook';
+          document.getElementById('red-url-2').value = redes[1].url || '';
+        }
+        if (redes[2]) {
+          document.getElementById('red-tipo-3').value = redes[2].tipo || 'web';
+          document.getElementById('red-url-3').value = redes[2].url || '';
         }
       } else {
         secEnlaces.classList.add('hidden');
-      }
-
-      if (plan === 'ultra') {
-        secUltraVisual.classList.remove('hidden');
-        inputsUltraExtra.forEach(el => el.classList.remove('hidden'));
-      } else {
         secUltraVisual.classList.add('hidden');
-        inputsUltraExtra.forEach(el => el.classList.add('hidden'));
       }
 
       document.getElementById('pago-efectivo').checked = Boolean(c.pagos_efectivo);
@@ -3396,25 +3458,31 @@
       const horariosGrillaVal = obtenerHorariosFormulario();
 
       let redesArray = [];
-      if (planElegidoVal === 'pro' || planElegidoVal === 'ultra') {
+      let limitePermitidoLinks = (planElegidoVal === 'ultra') ? 3 : ((planElegidoVal === 'pro') ? 1 : 0);
+
+      if (limitePermitidoLinks >= 1) {
         const url1 = document.getElementById('red-url-1').value.trim();
         if (url1) redesArray.push({ tipo: document.getElementById('red-tipo-1').value, url: url1 });
-
-        if (planElegidoVal === 'ultra') {
-          const url2 = document.getElementById('red-url-2').value.trim();
-          const url3 = document.getElementById('red-url-3').value.trim();
-          if (url2) redesArray.push({ tipo: document.getElementById('red-tipo-2').value, url: url2 });
-          if (url3) redesArray.push({ tipo: document.getElementById('red-tipo-3').value, url: url3 });
-        }
       }
+      if (limitePermitidoLinks >= 3) {
+        const url2 = document.getElementById('red-url-2').value.trim();
+        const url3 = document.getElementById('red-url-3').value.trim();
+        if (url2) redesArray.push({ tipo: document.getElementById('red-tipo-2').value, url: url2 });
+        if (url3) redesArray.push({ tipo: document.getElementById('red-tipo-3').value, url: url3 });
+      }
+
+      const aliasMpVal = document.getElementById('alias-mp').value.trim();
+      const titularAliasVal = document.getElementById('titular-alias').value.trim();
+      const telefonoVal = document.getElementById('telefono').value.trim();
 
       const datosComercio = {
         user_id: usuarioActual.id,
         nombre: nombreVal,
         slug: slugVal,
         plan: planElegidoVal,
-        telefono_whatsapp: document.getElementById('telefono').value.trim(),
-        alias_mp: document.getElementById('alias-mp').value.trim(),
+        telefono_whatsapp: telefonoVal,
+        alias_mp: aliasMpVal,
+        titular_alias: titularAliasVal,
         direccion: document.getElementById('direccion').value.trim(),
         categoria: categorias[0],
         categorias: categorias,
@@ -3434,7 +3502,8 @@
         redes_sociales: redesArray,
         tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
         logo_url,
-        portada_url
+        portada_url,
+        activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false // Se crea inactivo por defecto si es nuevo
       };
 
       let res;
@@ -3449,7 +3518,15 @@
       } else {
         cerrarModal('modal-registro');
         await cargarComercios();
-        if (editId) abrirVistaComercio(slugVal || editId, false);
+
+        // Si es un comercio nuevo, redirigimos automáticamente a WhatsApp con el mensaje estructurado
+        if (!editId) {
+          const planTxt = planElegidoVal.toUpperCase();
+          const mensajeAlta = `¡Hola! Solicito el alta del comercio *${nombreVal}*, plan *${planTxt}*. El alias del comercio es *${aliasMpVal || 'No especificado'}*, titular del alias: *${titularAliasVal || 'No especificado'}*. ¿Qué me faltaría para que activen mi comercio?`;
+          window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(mensajeAlta)}`, '_blank');
+        } else {
+          abrirVistaComercio(slugVal || editId, false);
+        }
       }
     });
 
