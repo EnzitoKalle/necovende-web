@@ -786,11 +786,13 @@
             <div id="grid-subcategorias-form" class="grid grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto"></div>
           </div>
 
-          <!-- BOTÓN PARA SOLICITAR CATEGORÍA NUEVA -->
-          <div class="pt-2 border-t border-slate-200 text-right">
-            <button type="button" onclick="solicitarCategoriaNuevaWhatsApp()" class="text-[11px] font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 ml-auto">
-              <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> ¿No encontrás tu categoría? Solicitá una nueva
-            </button>
+          <!-- CAMPO PARA SOLICITAR / ESCRIBIR CATEGORÍA NUEVA -->
+          <div class="pt-2 border-t border-slate-200 space-y-1.5">
+            <label class="block text-xs font-bold text-brand-700 flex items-center gap-1">
+              <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> ¿No encontrás tu categoría? Escribila acá abajo:
+            </label>
+            <input type="text" id="comercio-categoria-nueva" placeholder="Ej: Alquiler de Kayaks o Cabañas" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold bg-white">
+            <p class="text-[10px] text-slate-400">Al solicitar el alta, esta categoría se incluirá automáticamente en el mensaje de WhatsApp para que los administradores la creen.</p>
           </div>
         </div>
 
@@ -1190,11 +1192,6 @@
 
     function solicitarPlanWhatsApp(nombrePlan) {
       const msg = `¡Hola! Quisiera solicitar o aumentar mi plan en *NecoVende* al *Plan ${nombrePlan}*. ¿Me dan información para activar mi comercio?`;
-      window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    function solicitarCategoriaNuevaWhatsApp() {
-      const msg = `¡Hola! Quisiera solicitar el alta de una *nueva categoría o subcategoría* para sumar en *NecoVende*. ¿Me ayudan con esto?`;
       window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -3555,9 +3552,10 @@
 
       const catPrincipalVal = document.getElementById('comercio-cat-principal').value;
       const subcategoriasVal = obtenerSubcategoriasSeleccionadasModal();
+      const categoriaNuevaEscrita = document.getElementById('comercio-categoria-nueva').value.trim();
       
-      if (subcategoriasVal.length === 0) {
-        alert("Elegí al menos 1 subcategoría.");
+      if (subcategoriasVal.length === 0 && !categoriaNuevaEscrita) {
+        alert("Elegí al menos 1 subcategoría o escribí una categoría nueva.");
         return;
       }
 
@@ -3610,7 +3608,7 @@
         titular_alias: titularAliasVal,
         direccion: document.getElementById('direccion').value.trim(),
         categoria_principal: catPrincipalVal,
-        categoria: subcategoriasVal[0],
+        categoria: subcategoriasVal[0] || categoriaNuevaEscrita || 'General',
         subcategorias: subcategoriasVal,
         hace_envios: document.getElementById('envios').checked,
         envio_gratis: document.getElementById('envio-gratis').checked,
@@ -3647,7 +3645,17 @@
 
         if (!editId) {
           const planTxt = planElegidoVal.toUpperCase();
-          const mensajeAlta = `¡Hola! Solicito el alta del comercio *${nombreVal}*, plan *${planTxt}*. El alias del comercio es *${aliasMpVal || 'No especificado'}*, titular del alias: *${titularAliasVal || 'No especificado'}*. ¿Qué me faltaría para que activen mi comercio?`;
+          let mensajeAlta = `¡Hola! Solicito el alta del comercio *${nombreVal}*, plan *${planTxt}*.\n`;
+          mensajeAlta += `• Categoría Principal: *${catPrincipalVal}*\n`;
+          if (subcategoriasVal.length > 0) {
+            mensajeAlta += `• Subcategorías elegidas: *${subcategoriasVal.join(', ')}*\n`;
+          }
+          if (categoriaNuevaEscrita) {
+            mensajeAlta += `• 📌 SOLICITO CATEGORÍA NUEVA: *${categoriaNuevaEscrita}*\n`;
+          }
+          mensajeAlta += `• Alias de pago: *${aliasMpVal || 'No especificado'}*\n`;
+          mensajeAlta += `• Titular: *${titularAliasVal || 'No especificado'}*\n\n¿Qué me faltaría para que activen mi comercio?`;
+
           window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(mensajeAlta)}`, '_blank');
         } else {
           abrirVistaComercio(slugVal || editId, false);
