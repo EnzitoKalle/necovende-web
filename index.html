@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0a2433">
   <title>NecoVende | Marketplace Digital de Necochea & Quequén</title>
   
   <!-- Tailwind CSS, Lucide Icons, Supabase & Google Fonts -->
@@ -13,7 +12,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -21,35 +20,17 @@
         extend: {
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            display: ['"Bricolage Grotesque"', '"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          borderRadius: {
-            'xl': '0.85rem',
-            '2xl': '1.15rem',
-            '3xl': '1.65rem',
           },
           colors: {
             brand: {
-              50: '#fff4ec',
-              100: '#ffe4d0',
-              200: '#ffc9a1',
-              300: '#ffa766',
-              400: '#fb8337',
-              500: '#f26a1b',
-              600: '#d9540e',
-              700: '#b0420c',
-            },
-            slate: {
-              50: '#f3f7f9',
-              100: '#e7eef2',
-              200: '#d6e1e7',
-              300: '#b4c3cd',
-              400: '#8398a6',
-              500: '#5a7587',
-              600: '#3f5d71',
-              700: '#274659',
-              800: '#143247',
-              900: '#0a2433',
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
             }
           }
         }
@@ -139,162 +120,6 @@
         max-height: 88vh !important;
       }
     }
-
-    /* ============================================================
-       CAPA VISUAL "COSTA" — solo estética, no altera funciones
-       ============================================================ */
-    :root {
-      --ink: #0a2433;
-      --ink-2: #143247;
-      --mar: #eef3f5;
-      --linea: #d6e1e7;
-      --sol: #f26a1b;
-      --sombra: 10, 36, 51;
-    }
-
-    body {
-      background-color: var(--mar);
-      color: var(--ink-2);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    h1, h2, h3, h4, h5 {
-      font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
-      letter-spacing: -0.012em;
-    }
-
-    /* Etiquetas: sentence case y espaciado natural */
-    .uppercase { text-transform: none; }
-    .tracking-widest, .tracking-wider { letter-spacing: 0.01em; }
-
-    /* Navegación */
-    .clean-nav {
-      background: rgba(255, 255, 255, 0.86);
-      backdrop-filter: blur(16px) saturate(1.3);
-      -webkit-backdrop-filter: blur(16px) saturate(1.3);
-      border-bottom: 1px solid var(--linea);
-    }
-
-    /* Tarjetas */
-    .clean-card {
-      background: #ffffff;
-      border: 1px solid var(--linea);
-      box-shadow: 0 1px 0 rgba(var(--sombra), 0.03), 0 14px 26px -18px rgba(var(--sombra), 0.28);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .clean-card:hover {
-      border-color: #b4c3cd;
-      box-shadow: 0 1px 0 rgba(var(--sombra), 0.03), 0 18px 30px -16px rgba(var(--sombra), 0.34);
-    }
-
-    /* Modales */
-    .clean-modal {
-      background: #ffffff;
-      border: 1px solid var(--linea);
-      box-shadow: 0 30px 60px -20px rgba(var(--sombra), 0.45);
-      scrollbar-width: thin;
-      scrollbar-color: #b4c3cd transparent;
-    }
-    .modal-bottom-sheet { background: rgba(10, 36, 51, 0.5) !important; }
-
-    /* Campos */
-    .clean-input {
-      background: #f3f7f9;
-      border: 1px solid #c9d8e0;
-      color: var(--ink);
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-    .clean-input:focus {
-      border-color: var(--sol);
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(242, 106, 27, 0.18);
-    }
-    .clean-input::placeholder { color: #8398a6; }
-
-    /* Foco visible para teclado */
-    button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
-      outline: 2px solid var(--sol);
-      outline-offset: 2px;
-    }
-
-    /* Logo */
-    .logo-tile {
-      background: var(--ink);
-      color: #ffa766;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 6px 14px -6px rgba(var(--sombra), 0.6);
-    }
-
-    /* ---------- HERO COSTERO ---------- */
-    .hero-costa {
-      background: var(--ink);
-      color: #fff;
-      isolation: isolate;
-      box-shadow: 0 24px 40px -24px rgba(var(--sombra), 0.7);
-    }
-    .hero-costa::before {
-      content: "";
-      position: absolute;
-      right: -40px;
-      top: -60px;
-      width: 190px;
-      height: 190px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ffb27a 0%, #f26a1b 55%, #d9540e 100%);
-      opacity: 0.95;
-      z-index: -1;
-    }
-    .hero-olas {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 74px;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .hero-olas .ola-a { animation: olaDeriva 14s ease-in-out infinite alternate; }
-    .hero-olas .ola-b { animation: olaDeriva 19s ease-in-out infinite alternate-reverse; }
-    @keyframes olaDeriva {
-      from { transform: translateX(-3%); }
-      to { transform: translateX(3%); }
-    }
-    .hero-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 11px;
-      font-weight: 700;
-      color: #e7eef2;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 0.3rem 0.75rem;
-      border-radius: 999px;
-    }
-    .hero-clima {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    /* Rubros */
-    #grid-categorias-principales > button:first-child {
-      background: var(--ink) !important;
-      border-color: var(--ink);
-      color: #fff;
-    }
-    #grid-categorias-principales > button:first-child > div:first-child { background: rgba(242, 106, 27, 0.9); }
-
-    /* Subcategorías */
-    .btn-subcat { font-size: 12px; }
-
-    /* Scroll suave y respeto por movimiento reducido */
-    @media (prefers-reduced-motion: reduce) {
-      .hero-olas .ola-a, .hero-olas .ola-b { animation: none; }
-      * { scroll-behavior: auto !important; }
-    }
   </style>
 </head>
 <body class="antialiased pb-28 min-h-screen selection:bg-brand-500 selection:text-white">
@@ -318,12 +143,12 @@
       
       <!-- Brand Logo -->
       <div class="flex items-center gap-1.5 cursor-pointer group flex-shrink-0" onclick="mostrarInicio()">
-        <div class="logo-tile w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-lg group-hover:scale-105 transition duration-300">
+        <div class="w-9 h-9 bg-gradient-to-tr from-brand-600 via-amber-500 to-orange-400 rounded-xl flex items-center justify-center font-black text-white text-lg shadow-md shadow-brand-500/20 group-hover:scale-105 transition duration-300">
           N
         </div>
         <div>
           <h1 class="text-sm sm:text-lg font-black tracking-tight leading-none text-slate-900 flex items-center gap-0.5">
-            Neco<span class="text-brand-500">Vende</span>
+            Neco<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-500">Vende</span>
           </h1>
           <p class="text-[8px] text-slate-400 font-extrabold tracking-widest uppercase mt-0.5">Marketplace</p>
         </div>
@@ -385,38 +210,34 @@
   <main id="vista-inicio" class="max-w-2xl mx-auto px-4 pt-6 space-y-6 relative z-10">
     
     <!-- CABECERA ESTÉTICA CON CLIMA Y HORA -->
-    <div class="hero-costa rounded-3xl p-5 sm:p-7 pb-14 relative overflow-hidden">
-      <svg class="hero-olas" viewBox="0 0 400 74" preserveAspectRatio="none" aria-hidden="true">
-        <path class="ola-a" d="M-20 40 C 40 20, 90 60, 150 40 S 270 20, 330 42 S 400 50, 430 36 L430 80 L-20 80 Z" fill="rgba(255,255,255,0.08)"/>
-        <path class="ola-b" d="M-20 54 C 50 36, 110 70, 180 54 S 290 38, 350 56 S 410 60, 430 50 L430 80 L-20 80 Z" fill="rgba(242,106,27,0.35)"/>
-        <path d="M0 66 C 70 56, 130 74, 200 66 S 330 58, 400 68 L400 80 L0 80 Z" fill="#eef3f5"/>
-      </svg>
-
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5 relative z-10">
-        <div class="space-y-3 max-w-md">
-          <span class="hero-chip">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Marketplace digital
+    <div class="clean-card rounded-3xl p-5 sm:p-6 relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-orange-50/40">
+      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div class="space-y-2">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest text-brand-600 uppercase bg-brand-50 border border-brand-200 px-3 py-1 rounded-full shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Marketplace Digital
           </span>
-          <h2 class="font-display text-[1.65rem] sm:text-3xl font-extrabold text-white tracking-tight leading-[1.1]">
-            Necochea &amp; Quequén, las mejores playas de Argentina
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+            Necochea & Quequén, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-500">las mejores playas de Argentina</span>
           </h2>
-          <p class="text-xs sm:text-[13px] text-slate-200 font-medium leading-relaxed">Comprá o pedí directo a los comercios locales sin intermediarios.</p>
+          <p class="text-xs text-slate-500 font-medium">Comprá o pedí directo a los comercios locales sin intermediarios.</p>
         </div>
 
-        <div class="hero-clima flex items-center gap-3 px-4 py-3 rounded-2xl flex-shrink-0 self-start sm:self-auto">
-          <div class="text-amber-300">
+        <div class="flex items-center gap-3 bg-white border border-slate-200 px-4 py-3 rounded-2xl shadow-sm flex-shrink-0 self-start sm:self-auto">
+          <div class="text-brand-500">
             <i data-lucide="cloud-sun" class="w-7 h-7"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-black text-white" id="widget-clima-temp">11°C</span>
-              <span class="text-[10px] font-bold text-white/90 bg-white/15 px-2 py-0.5 rounded-md border border-white/20" id="widget-clima-estado">Nublado</span>
+              <span class="text-sm font-black text-slate-900" id="widget-clima-temp">11°C</span>
+              <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200" id="widget-clima-estado">Nublado</span>
             </div>
             <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+              <span class="text-[11px] font-bold text-amber-600 flex items-center gap-1">
                 <i data-lucide="clock" class="w-3 h-3"></i> <span id="widget-hora-actual">--:--</span> hs
               </span>
-              <span class="text-[10px] text-slate-200">Necochea</span>
+              <span class="text-[10px] text-slate-400">Necochea</span>
             </div>
           </div>
         </div>
@@ -427,6 +248,12 @@
     <div class="relative">
       <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
       <input type="text" id="input-buscar" placeholder="Buscar por local, empanadas, ropa, helados..." class="w-full clean-input pl-11 pr-4 py-3.5 rounded-2xl text-xs font-medium shadow-sm transition placeholder:text-slate-400">
+    </div>
+
+    <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar -mt-2 pb-1">
+      <button type="button" id="chip-abierto" onclick="toggleFiltroRapido('abierto')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🟢 Abierto ahora</button>
+      <button type="button" id="chip-envio" onclick="toggleFiltroRapido('envio')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🚚 Envío gratis</button>
+      <button type="button" id="chip-populares" onclick="toggleFiltroRapido('populares')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🔥 Más populares</button>
     </div>
 
     <!-- GRILLA DE CATEGORÍAS PRINCIPALES (TARJETAS VISUALES) -->
@@ -1220,6 +1047,12 @@
           </div>
         </div>
 
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Sección del menú (Opcional)</label>
+          <input type="text" id="prod-seccion" list="lista-secciones" maxlength="40" placeholder="Ej: Pizzas, Bebidas, Postres" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+          <datalist id="lista-secciones"></datalist>
+        </div>
+
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
           <label class="block text-xs font-bold text-slate-800">Opciones del Producto</label>
           
@@ -1357,6 +1190,12 @@
         </div>
 
         <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Válida hasta (opcional)</label>
+          <input type="date" id="promo-vence" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+          <p class="text-[10px] text-slate-400 mt-1">Pasada esa fecha la promo deja de mostrarse a los clientes.</p>
+        </div>
+
+        <div>
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Foto de la Promo (Opcional)</label>
           <input type="file" id="promo-imagen" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-700 cursor-pointer">
         </div>
@@ -1440,6 +1279,9 @@
     let carrito = [];
     let usuarioActual = null;
     let modoEstrictoEnlace = false;
+    let filtroAbierto = false, filtroEnvio = false, ordenPopulares = false;
+    let limiteComercios = 12, ultimaListaComercios = [];
+    let carritoListo = false, _tGuardarCarrito = null;
     let maxComerciosUsuario = 1;
     let perfilCargadoParaId = null;
     let perfilUsuarioPromise = Promise.resolve();
@@ -1473,6 +1315,10 @@
         favs.push(comercioId);
       }
       localStorage.setItem('necovende_favoritos', JSON.stringify(favs));
+      if (usuarioActual) {
+        if (favs.includes(comercioId)) _supabase.from('favoritos_usuario').upsert({ user_id: usuarioActual.id, comercio_id: comercioId }).then(() => {});
+        else _supabase.from('favoritos_usuario').delete().eq('user_id', usuarioActual.id).eq('comercio_id', comercioId).then(() => {});
+      }
       aplicarFiltros();
       if (comercioActivo && comercioActivo.id === comercioId) {
         abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
@@ -1871,6 +1717,7 @@
       if (user && perfilCargadoParaId !== user.id) {
         perfilCargadoParaId = user.id;
         perfilUsuarioPromise = cargarPerfilUsuario(user);
+        sincronizarCuenta(user);
       } else if (!user) {
         perfilCargadoParaId = null;
         maxComerciosUsuario = 1;
@@ -2000,6 +1847,7 @@
                     <p class="font-bold text-xs text-slate-800 truncate">${c.nombre}</p>
                     <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${planBadge}</span>
                   </div>
+                  <div id="stats-${c.id}" class="mt-1 text-[10px] text-slate-500 font-semibold">Cargando estadísticas...</div>
                   <div class="mt-0.5">${activoBadge}${c.plan_vencido ? ' <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">Plan vencido: volviste a Gratis</span>' : (c.plan_vence ? ' <span class="text-[9px] text-slate-400">Vence ' + new Date(c.plan_vence).toLocaleDateString('es-AR') + '</span>' : '')}</div>
                 </div>
               </div>
@@ -2013,6 +1861,7 @@
 
       abrirModal('modal-panel');
       if (window.lucide) lucide.createIcons();
+      cargarEstadisticasPanel(misComercios);
     }
 
     async function intentarAbrirRegistroComercio() {
@@ -2151,6 +2000,92 @@
       abrirModal('modal-legal');
     }
 
+    function toggleFiltroRapido(tipo) {
+      if (tipo === 'abierto') filtroAbierto = !filtroAbierto;
+      if (tipo === 'envio') filtroEnvio = !filtroEnvio;
+      if (tipo === 'populares') ordenPopulares = !ordenPopulares;
+      const estados = { 'chip-abierto': filtroAbierto, 'chip-envio': filtroEnvio, 'chip-populares': ordenPopulares };
+      Object.entries(estados).forEach(([id, on]) => {
+        document.getElementById(id).className = 'chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border shadow-sm transition ' +
+          (on ? 'bg-brand-500 text-white border-brand-500' : 'bg-white text-slate-600 border-slate-200');
+      });
+      aplicarFiltros();
+    }
+
+    function mostrarMasComercios() {
+      limiteComercios += 12;
+      renderizarComercios(ultimaListaComercios);
+    }
+
+    async function cargarEstadisticasPanel(lista) {
+      const desde = new Date(Date.now() - 30 * 864e5).toISOString();
+      for (const c of lista) {
+        const el = document.getElementById('stats-' + c.id);
+        if (!el) continue;
+        let visitas = null, solicitudes = 0, top = '';
+        try {
+          const v = await _supabase.from('visitas_comercio').select('id', { count: 'exact', head: true }).eq('comercio_id', c.id).gte('creado_en', desde);
+          if (!v.error) visitas = v.count || 0;
+          const { data } = await _supabase.from('productos').select('titulo, solicitudes_count').eq('comercio_id', c.id);
+          const prods = (data || []).filter(p => (p.solicitudes_count || 0) > 0).sort((a, b) => b.solicitudes_count - a.solicitudes_count);
+          solicitudes = prods.reduce((s, p) => s + p.solicitudes_count, 0);
+          if (prods[0]) top = ` · Más pedido: ${escSeccion(prods[0].titulo)} (${prods[0].solicitudes_count})`;
+        } catch (e) {}
+        el.innerHTML = `${visitas !== null ? '👁 ' + visitas + ' visitas (30 días) · ' : ''}👍 ${c.likes_count || 0} · 🛒 ${solicitudes} solicitudes${top}`;
+      }
+    }
+
+    async function sincronizarCuenta(user) {
+      try {
+        const { data } = await _supabase.from('favoritos_usuario').select('comercio_id').eq('user_id', user.id);
+        if (data) {
+          const remotos = data.map(f => f.comercio_id);
+          const union = [...new Set([...remotos, ...obtenerFavoritos()])];
+          const faltan = union.filter(id => !remotos.includes(id));
+          if (faltan.length) await _supabase.from('favoritos_usuario').upsert(faltan.map(id => ({ user_id: user.id, comercio_id: id })));
+          localStorage.setItem('necovende_favoritos', JSON.stringify(union));
+          if (comerciosGlobales.length) aplicarFiltros();
+        }
+      } catch (e) { console.warn('No se pudieron sincronizar favoritos:', e); }
+      await restaurarCarrito();
+    }
+
+    async function restaurarCarrito() {
+      if (!comerciosGlobales.length) return;
+      if (carrito.length > 0) { carritoListo = true; return; }
+      let guardado = null;
+      try {
+        if (usuarioActual) {
+          const { data } = await _supabase.from('carritos_usuario').select('comercio_id, items').eq('user_id', usuarioActual.id).maybeSingle();
+          if (data && Array.isArray(data.items) && data.items.length) guardado = { comercioId: data.comercio_id, items: data.items };
+        }
+        if (!guardado) guardado = JSON.parse(localStorage.getItem('necovende_carrito') || 'null');
+      } catch (e) {}
+      carritoListo = true;
+      if (!guardado || !guardado.items || !guardado.items.length || carrito.length > 0) return;
+      const c = comerciosGlobales.find(x => String(x.id) === String(guardado.comercioId));
+      if (!c || c.activo !== true) return;
+      carrito = guardado.items;
+      comercioCarrito = c;
+      actualizarCarrito();
+    }
+
+    function guardarCarrito() {
+      if (!carritoListo) return;
+      try {
+        if (carrito.length && comercioCarrito) localStorage.setItem('necovende_carrito', JSON.stringify({ comercioId: comercioCarrito.id, items: carrito }));
+        else localStorage.removeItem('necovende_carrito');
+      } catch (e) {}
+      if (!usuarioActual) return;
+      clearTimeout(_tGuardarCarrito);
+      _tGuardarCarrito = setTimeout(async () => {
+        try {
+          if (carrito.length && comercioCarrito) await _supabase.from('carritos_usuario').upsert({ user_id: usuarioActual.id, comercio_id: comercioCarrito.id, items: carrito, updated_at: new Date().toISOString() });
+          else await _supabase.from('carritos_usuario').delete().eq('user_id', usuarioActual.id);
+        } catch (e) {}
+      }, 800);
+    }
+
     function abrirModal(id) { 
       if (id === 'modal-historial') renderizarHistorialModal();
       document.getElementById(id).classList.remove('hidden'); 
@@ -2251,6 +2186,14 @@
         .order('orden', { ascending: true });
 
       comercioActivo.productos = prods || [];
+      try {
+        const _esDuenioVisita = usuarioActual && comercioActivo.user_id === usuarioActual.id;
+        const _kVis = 'necovende_vis_' + comercioActivo.id;
+        if (!_esDuenioVisita && !sessionStorage.getItem(_kVis)) {
+          sessionStorage.setItem(_kVis, '1');
+          _supabase.from('visitas_comercio').insert({ comercio_id: comercioActivo.id }).then(() => {});
+        }
+      } catch (e) {}
 
       const inputSearchComercio = document.getElementById('input-buscar-comercio');
       if (inputSearchComercio) inputSearchComercio.value = '';
@@ -2418,7 +2361,9 @@
       const idx = prods.findIndex(p => p.id === prodId);
 
       if (idx === -1) return;
-      const targetIdx = direccion === 'arriba' ? idx - 1 : idx + 1;
+      const paso = direccion === 'arriba' ? -1 : 1;
+      let targetIdx = idx;
+      do { targetIdx += paso; } while (targetIdx >= 0 && targetIdx < prods.length && (prods[targetIdx].seccion || '') !== (prods[idx].seccion || ''));
       if (targetIdx < 0 || targetIdx >= prods.length) return;
 
       const actual = prods[idx];
@@ -2468,6 +2413,16 @@
       });
     }
 
+    function promoVencida(p) {
+      if (!p || !p.es_combo || !p.promo_vence) return false;
+      const hoy = new Date();
+      const hoyISO = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+      return String(p.promo_vence).slice(0, 10) < hoyISO;
+    }
+    function escSeccion(t) {
+      return String(t == null ? '' : t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
     function renderizarProductosComercio(productos, esDuenio = false, colorBoton = '#f97316') {
       const container = document.getElementById('productos-container');
       
@@ -2475,7 +2430,7 @@
       
       let productosFiltrados = esDuenio 
         ? productos 
-        : productos.filter(p => !p.es_solo_promo);
+        : productos.filter(p => !p.es_solo_promo && !promoVencida(p));
 
       if (plan === 'gratis') {
         productosFiltrados = productosFiltrados.filter(p => !p.es_combo);
@@ -2483,6 +2438,13 @@
       } else if (plan === 'pro') {
         productosFiltrados = productosFiltrados.slice(0, 10);
       }
+
+      const _ordenSec = [];
+      productosFiltrados.forEach(p => { const s = p.seccion || ''; if (!_ordenSec.includes(s)) _ordenSec.push(s); });
+      productosFiltrados = [...productosFiltrados].sort((a, b) => _ordenSec.indexOf(a.seccion || '') - _ordenSec.indexOf(b.seccion || ''));
+      const hayVariasSecciones = _ordenSec.some(s => s !== '');
+      const dl = document.getElementById('lista-secciones');
+      if (dl) dl.innerHTML = [...new Set((productos || []).map(p => p.seccion).filter(Boolean))].map(s => `<option value="${escSeccion(s)}"></option>`).join('');
 
       if (productosFiltrados.length === 0) {
         container.innerHTML = `
@@ -2498,6 +2460,9 @@
       let htmlAcc = '';
 
       productosFiltrados.forEach((p, idx) => {
+        if (hayVariasSecciones && (idx === 0 || (p.seccion || '') !== (productosFiltrados[idx - 1].seccion || ''))) {
+          htmlAcc += `<h4 class="text-xs font-black text-slate-700 pt-2 px-1 flex items-center gap-2"><span class="w-1.5 h-4 rounded-full bg-brand-500"></span>${escSeccion(p.seccion || 'Otros')}</h4>`;
+        }
         const stockNum = (!p.es_combo && p.stock !== null && p.stock !== undefined) ? parseInt(p.stock) : null;
         const esAgotadoPorStock = p.es_combo ? promoTieneProductoAgotado(p) : (stockNum !== null && stockNum <= 0);
         const estaDisponible = (p.disponible !== false) && !esAgotadoPorStock;
@@ -2532,6 +2497,7 @@
                   <h4 class="font-bold text-base text-slate-900 truncate group-hover:text-brand-600 transition">${p.titulo}</h4>
                   ${esCombo ? '<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
                   ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
+                  ${promoVencida(p) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">VENCIDA</span>' : ''}
                   ${badgeStock}
                   ${(!estaDisponible && !esAgotadoPorStock) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">PAUSADO</span>' : ''}
                 </div>
@@ -3126,6 +3092,7 @@
     }
 
     function actualizarCarrito() {
+      guardarCarrito();
       const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
       const totalPrecio = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
@@ -3321,6 +3288,7 @@
         }
       });
       actualizarBadgeAdmin();
+      restaurarCarrito();
       renderizarCategoriasPrincipales();
       aplicarFiltros();
 
@@ -3425,6 +3393,7 @@
     function renderizarComercios(lista) {
       const container = document.getElementById('comercios-container');
       const counter = document.getElementById('total-comercios');
+      ultimaListaComercios = lista;
       container.innerHTML = '';
 
       const listaActivos = lista.filter(c => c.activo === true);
@@ -3444,7 +3413,7 @@
         return;
       }
 
-      listaActivos.forEach(c => {
+      listaActivos.slice(0, limiteComercios).forEach(c => {
         const abierto = estaAbierto(c);
         const identificador = c.slug || c.id;
         const esFav = obtenerFavoritos().includes(c.id);
@@ -3524,11 +3493,15 @@
           </div>
         `;
       });
+      if (listaActivos.length > limiteComercios) {
+        container.innerHTML += `<button type="button" onclick="mostrarMasComercios()" class="clean-card rounded-2xl py-3.5 text-xs font-black text-brand-600 hover:bg-brand-50 transition">Mostrar más locales (${listaActivos.length - limiteComercios} restantes)</button>`;
+      }
 
       if (window.lucide) lucide.createIcons();
     }
 
     function aplicarFiltros() {
+      limiteComercios = 12;
       const texto = document.getElementById('input-buscar').value.toLowerCase().trim();
       let resultado = [...comerciosGlobales];
 
@@ -3560,7 +3533,10 @@
         );
       }
 
-      resultado.sort((a, b) => {
+      if (filtroAbierto) resultado = resultado.filter(c => estaAbierto(c));
+      if (filtroEnvio) resultado = resultado.filter(c => c.envio_gratis);
+      if (ordenPopulares) resultado.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+      else resultado.sort((a, b) => {
         const planPesa = { 'ultra': 3, 'pro': 2, 'gratis': 1 };
         const pesoA = planPesa[a.plan || 'gratis'] || 1;
         const pesoB = planPesa[b.plan || 'gratis'] || 1;
@@ -3597,7 +3573,7 @@
       const container = document.getElementById('container-productos-busqueda');
       const counter = document.getElementById('total-prods-busqueda');
 
-      const productosValidos = (productos || []).filter(p => p.comercios && p.comercios.activo === true);
+      const productosValidos = (productos || []).filter(p => p.comercios && p.comercios.activo === true && !promoVencida(p));
 
       if (error || productosValidos.length === 0) {
         secProds.classList.add('hidden');
@@ -3971,6 +3947,7 @@
       document.getElementById('prod-titulo').value = p.titulo;
       document.getElementById('prod-precio').value = p.precio;
       document.getElementById('prod-stock').value = (p.stock !== null && p.stock !== undefined) ? p.stock : '';
+      document.getElementById('prod-seccion').value = p.seccion || '';
       document.getElementById('prod-descripcion').value = p.descripcion || '';
       document.getElementById('prod-imagen-existente').value = p.imagen_url || '';
       document.getElementById('prod-requiere-sabores').checked = Boolean(p.requiere_sabores);
@@ -4082,6 +4059,7 @@
       document.getElementById('promo-titulo').value = p.titulo;
       document.getElementById('promo-precio-final').value = p.precio;
       document.getElementById('promo-descripcion').value = p.descripcion || '';
+      document.getElementById('promo-vence').value = p.promo_vence ? String(p.promo_vence).slice(0, 10) : '';
 
       promoItemsSeleccionados = {};
       if (p.items_combo) {
@@ -4296,6 +4274,7 @@
         talles_disponibles: tallesTxt ? tallesTxt.split(',').map(x => x.trim()).filter(Boolean) : [],
         colores_disponibles: coloresTxt ? coloresTxt.split(',').map(x => x.trim()).filter(Boolean) : [],
         es_solo_promo: document.getElementById('prod-solo-promo').checked,
+        seccion: (document.getElementById('prod-seccion').value || '').trim() || null,
         es_combo: false,
         disponible: true,
         imagen_url
@@ -4352,12 +4331,14 @@
         precio: parseFloat(document.getElementById('promo-precio-final').value),
         descripcion: document.getElementById('promo-descripcion').value.trim(),
         es_combo: true,
+        promo_vence: document.getElementById('promo-vence').value || null,
         items_combo: itemsArray,
         stock: null,
         disponible: true,
         orden: 0,
         imagen_url
       };
+      if (promoEditId && !imagen_url) delete datosPromo.imagen_url;
 
       let res;
       if (promoEditId) {
