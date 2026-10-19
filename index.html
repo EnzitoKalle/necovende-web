@@ -381,7 +381,6 @@
             <h4 class="text-lg font-black text-slate-900">Plan Gratis</h4>
             <div class="text-2xl font-black text-slate-900">$0 <span class="text-xs text-slate-400 font-semibold">/ mes</span></div>
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-slate-200">
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Hasta <strong>1 comercio</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <strong>Hasta 5 productos</strong> · Lo más importante</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Pedidos directo a WhatsApp</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Sin links en perfil</li>
@@ -399,7 +398,6 @@
             <h4 class="text-lg font-black text-slate-900">Plan Pro</h4>
             <div class="text-2xl font-black text-sky-600">$5.900 <span class="text-xs text-slate-500 font-semibold">/ mes</span></div>
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-sky-200">
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Hasta <strong>1 comercio</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> <strong>Hasta 10 productos</strong> · Lo más importante</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Insignia Tilde Azul ✓</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> <strong>1 Link</strong> de Red Social / Web</li>
@@ -418,7 +416,6 @@
             <h4 class="text-lg font-black text-slate-900">Plan Ultra</h4>
             <div class="text-2xl font-black text-amber-600">$9.900 <span class="text-xs text-slate-500 font-semibold">/ mes</span></div>
             <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-amber-200">
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Hasta <strong>3 comercios</strong></li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> <strong>Productos ilimitados</strong> · Lo más importante</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Insignia Tilde Dorada ✓✓</li>
               <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Hasta <strong>3 Links</strong> de Redes / Web</li>
@@ -429,6 +426,23 @@
             Quiero este plan
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SOLICITAR OTRO COMERCIO -->
+  <div id="modal-otro-comercio" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl text-slate-800">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 bg-brand-50 rounded-2xl flex items-center justify-center mx-auto">
+          <i data-lucide="store" class="w-6 h-6 text-brand-500"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-900">¿Querés solicitar otro comercio?</h3>
+        <p class="text-xs text-slate-500">Tu cuenta ya alcanzó el límite de comercios habilitados. Podés pedirnos uno más por WhatsApp.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button type="button" onclick="cerrarModal('modal-otro-comercio')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition">No</button>
+        <button type="button" onclick="solicitarOtroComercioWhatsApp()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-xs shadow-md transition">Sí</button>
       </div>
     </div>
   </div>
@@ -447,6 +461,14 @@
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
+
+      <!-- USUARIOS REGISTRADOS: LÍMITE DE COMERCIOS -->
+      <div class="space-y-2 bg-slate-50 border border-slate-200 rounded-2xl p-3">
+        <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider">Usuarios registrados</h4>
+        <input type="text" id="admin-usuarios-buscar" oninput="buscarUsuariosAdmin()" placeholder="Buscar por email o nombre..." class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+        <div id="admin-usuarios-resultados" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+      </div>
+      <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider pt-1">Comercios</h4>
 
       <div class="space-y-3" id="admin-comercios-lista"></div>
     </div>
@@ -743,9 +765,9 @@
         <div id="box-plan-registro">
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Plan de Suscripción Seleccionado</label>
           <select id="comercio-plan-select" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-bold text-amber-700 bg-amber-50 border-amber-200">
-            <option value="gratis">Plan Gratis ($0) - Hasta 1 comercio</option>
-            <option value="pro">Plan Pro ($5.900/mes) - Hasta 1 comercio</option>
-            <option value="ultra">Plan Ultra ($9.900/mes) - Hasta 3 comercios</option>
+            <option value="gratis">Plan Gratis ($0) - 5 productos</option>
+            <option value="pro">Plan Pro ($5.900/mes) - 10 productos</option>
+            <option value="ultra">Plan Ultra ($9.900/mes) - Productos ilimitados</option>
           </select>
         </div>
 
@@ -1152,6 +1174,28 @@
     </div>
   </div>
 
+  <!--
+  ============ SQL PARA CORRER UNA VEZ EN SUPABASE (SQL Editor) ============
+  create table if not exists public.perfiles_usuarios (
+    user_id uuid primary key references auth.users(id) on delete cascade,
+    email text,
+    nombre text,
+    max_comercios int not null default 1,
+    creado_en timestamptz default now()
+  );
+  alter table public.perfiles_usuarios enable row level security;
+
+  create policy "perfil: ver propio o admin" on public.perfiles_usuarios for select
+    using (auth.uid() = user_id or (auth.jwt() ->> 'email') = 'enzitohkallepremium@gmail.com');
+  create policy "perfil: crear el propio" on public.perfiles_usuarios for insert
+    with check (auth.uid() = user_id and max_comercios = 1);
+  create policy "perfil: admin inserta" on public.perfiles_usuarios for insert
+    with check ((auth.jwt() ->> 'email') = 'enzitohkallepremium@gmail.com');
+  create policy "perfil: admin actualiza" on public.perfiles_usuarios for update
+    using ((auth.jwt() ->> 'email') = 'enzitohkallepremium@gmail.com')
+    with check ((auth.jwt() ->> 'email') = 'enzitohkallepremium@gmail.com');
+  ==========================================================================
+-->
   <script>
     const SUPABASE_URL = "https://itpkfuprqihmclsqjfki.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_sW8WBd-hoa155VOla5xj8A__0X494yO";
@@ -1201,6 +1245,9 @@
     let carrito = [];
     let usuarioActual = null;
     let modoEstrictoEnlace = false;
+    let maxComerciosUsuario = 1;
+    let perfilCargadoParaId = null;
+    let perfilUsuarioPromise = Promise.resolve();
 
     let productoPendienteSabores = null;
     let cantidadSeleccionadaModalSabores = 1;
@@ -1626,6 +1673,13 @@
 
     function actualizarInterfazUsuario(user) {
       usuarioActual = user;
+      if (user && perfilCargadoParaId !== user.id) {
+        perfilCargadoParaId = user.id;
+        perfilUsuarioPromise = cargarPerfilUsuario(user);
+      } else if (!user) {
+        perfilCargadoParaId = null;
+        maxComerciosUsuario = 1;
+      }
       const btnLogin = document.getElementById('btn-login-google');
       const menuPerfil = document.getElementById('user-profile-menu');
       const imgAvatar = document.getElementById('user-avatar');
@@ -1686,6 +1740,7 @@
           `;
         });
       }
+      buscarUsuariosAdmin();
       abrirModal('modal-admin');
     }
 
@@ -1760,30 +1815,110 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function intentarAbrirRegistroComercio() {
+    async function intentarAbrirRegistroComercio() {
       if (!usuarioActual) {
         alert("Debés iniciar sesión con Google para registrar un comercio.");
         return;
       }
 
+      await perfilUsuarioPromise;
       const misComercios = comerciosGlobales.filter(c => c.user_id === usuarioActual.id);
-      
-      let maxComerciosPermitidos = 1;
-      let tieneUltra = misComercios.some(c => c.plan === 'ultra');
-      let tienePro = misComercios.some(c => c.plan === 'pro');
 
-      if (tieneUltra) maxComerciosPermitidos = 3;
-      else if (tienePro) maxComerciosPermitidos = 1;
-
-      if (misComercios.length >= maxComerciosPermitidos) {
-        const confirmarUpgrade = confirm(`⚠️ Alcanzaste el límite de ${maxComerciosPermitidos} comercio(s) de tu plan actual.\n\n• Plan Gratis: 1 Comercio\n• Plan Pro: 1 Comercio\n• Plan Ultra: 3 Comercios\n\n¿Querés ver los planes para solicitar un aumento?`);
-        if (confirmarUpgrade) {
-          abrirModal('modal-planes');
-        }
+      if (misComercios.length >= maxComerciosUsuario) {
+        abrirModal('modal-otro-comercio');
+        if (window.lucide) lucide.createIcons();
         return;
       }
 
       prepararModalNuevoComercio();
+    }
+
+    function solicitarOtroComercioWhatsApp() {
+      let msg = 'quiero solicitar otro comercio';
+      if (usuarioActual && usuarioActual.email) msg += `\n(Mi cuenta: ${usuarioActual.email})`;
+      window.open(`https://wa.me/${WHATSAPP_SOPORTE_PLANES}?text=${encodeURIComponent(msg)}`, '_blank');
+      cerrarModal('modal-otro-comercio');
+    }
+
+    // ===== PERFILES DE USUARIO (límite de comercios por cuenta) =====
+    function escHtmlPerfil(t) {
+      return String(t == null ? '' : t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    async function cargarPerfilUsuario(user) {
+      try {
+        await _supabase.from('perfiles_usuarios').upsert(
+          { user_id: user.id, email: user.email || null, nombre: user.user_metadata?.full_name || null },
+          { onConflict: 'user_id', ignoreDuplicates: true }
+        );
+        const { data, error } = await _supabase.from('perfiles_usuarios').select('max_comercios').eq('user_id', user.id).maybeSingle();
+        if (!error && data && Number(data.max_comercios) >= 1) maxComerciosUsuario = Number(data.max_comercios);
+      } catch (e) {
+        console.warn('No se pudo cargar el perfil del usuario:', e);
+      }
+    }
+
+    async function buscarUsuariosAdmin() {
+      if (!esAdministrador()) return;
+      const cont = document.getElementById('admin-usuarios-resultados');
+      if (!cont) return;
+      const q = (document.getElementById('admin-usuarios-buscar').value || '').trim().toLowerCase();
+      cont.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">Cargando...</p>';
+
+      const { data, error } = await _supabase.from('perfiles_usuarios').select('*').order('creado_en', { ascending: false }).limit(500);
+      if (error) {
+        cont.innerHTML = `<p class="text-[11px] text-rose-600 py-2">No se pudo cargar la lista. ¿Ya creaste la tabla perfiles_usuarios en Supabase? (${escHtmlPerfil(error.message)})</p>`;
+        return;
+      }
+
+      let usuarios = (data || []).map(u => ({ ...u }));
+      const conocidos = new Set(usuarios.map(u => u.user_id));
+      comerciosGlobales.forEach(c => {
+        if (c.user_id && !conocidos.has(c.user_id)) {
+          conocidos.add(c.user_id);
+          usuarios.push({ user_id: c.user_id, email: null, nombre: c.titular_alias || c.nombre, max_comercios: 1, sinPerfil: true });
+        }
+      });
+
+      if (q) usuarios = usuarios.filter(u => ((u.email || '') + ' ' + (u.nombre || '')).toLowerCase().includes(q));
+
+      if (usuarios.length === 0) {
+        cont.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">No se encontraron usuarios.</p>';
+        return;
+      }
+
+      cont.innerHTML = usuarios.map(u => {
+        const cant = comerciosGlobales.filter(c => c.user_id === u.user_id).length;
+        const lim = Number(u.max_comercios) >= 1 ? Number(u.max_comercios) : 1;
+        return `
+          <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
+            <div class="min-w-0">
+              <p class="font-black text-slate-900 truncate">${escHtmlPerfil(u.nombre || 'Sin nombre')}</p>
+              <p class="text-[10px] text-slate-400 truncate">${escHtmlPerfil(u.email || 'Email no disponible aún (se completa cuando vuelva a iniciar sesión)')}</p>
+              <p class="text-[10px] font-bold text-slate-500 mt-0.5">Comercios cargados: ${cant}</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <input type="number" min="1" max="50" id="limite-com-${u.user_id}" value="${lim}" class="clean-input w-14 px-2 py-1.5 rounded-lg font-bold text-xs text-center" title="Cantidad de comercios permitidos">
+              <button type="button" onclick="guardarLimiteComerciosAdmin('${u.user_id}')" class="px-3 py-1.5 rounded-lg font-bold text-xs bg-emerald-500 text-white">Guardar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function guardarLimiteComerciosAdmin(userId) {
+      if (!esAdministrador()) return;
+      const input = document.getElementById('limite-com-' + userId);
+      const nuevo = parseInt(input ? input.value : '1');
+      if (!nuevo || nuevo < 1) { alert('Ingresá un número válido (mínimo 1).'); return; }
+      const { error } = await _supabase.from('perfiles_usuarios').upsert({ user_id: userId, max_comercios: nuevo }, { onConflict: 'user_id' });
+      if (error) {
+        alert('Error al guardar el límite: ' + error.message);
+      } else {
+        mostrarToast(`Límite actualizado: ${nuevo} comercio(s) para este usuario.`);
+        if (usuarioActual && usuarioActual.id === userId) maxComerciosUsuario = nuevo;
+        buscarUsuariosAdmin();
+      }
     }
 
     function abrirModal(id) { 
@@ -2088,6 +2223,21 @@
       return 0;
     }
 
+    // Una promo solo figura agotada si alguno de los productos que incluye se quedó sin stock
+    function promoTieneProductoAgotado(promo) {
+      if (!promo || !promo.items_combo || !comercioActivo || !comercioActivo.productos) return false;
+      let items = [];
+      try {
+        items = typeof promo.items_combo === 'string' ? JSON.parse(promo.items_combo) : promo.items_combo;
+      } catch (e) { return false; }
+      if (!Array.isArray(items)) return false;
+      return items.some(it => {
+        const prod = comercioActivo.productos.find(x => String(x.id) === String(it.prodId));
+        if (!prod || prod.stock === null || prod.stock === undefined) return false;
+        return parseInt(prod.stock) <= 0;
+      });
+    }
+
     function renderizarProductosComercio(productos, esDuenio = false, colorBoton = '#f97316') {
       const container = document.getElementById('productos-container');
       
@@ -2118,8 +2268,8 @@
       let htmlAcc = '';
 
       productosFiltrados.forEach((p, idx) => {
-        const stockNum = (p.stock !== null && p.stock !== undefined) ? parseInt(p.stock) : null;
-        const esAgotadoPorStock = stockNum !== null && stockNum <= 0;
+        const stockNum = (!p.es_combo && p.stock !== null && p.stock !== undefined) ? parseInt(p.stock) : null;
+        const esAgotadoPorStock = p.es_combo ? promoTieneProductoAgotado(p) : (stockNum !== null && stockNum <= 0);
         const estaDisponible = (p.disponible !== false) && !esAgotadoPorStock;
         
         const esCombo = Boolean(p.es_combo);
@@ -3963,6 +4113,7 @@
         descripcion: document.getElementById('promo-descripcion').value.trim(),
         es_combo: true,
         items_combo: itemsArray,
+        stock: null,
         disponible: true,
         orden: 0,
         imagen_url
