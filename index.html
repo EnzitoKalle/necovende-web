@@ -158,7 +158,7 @@
       <div class="flex items-center gap-1.5">
         
         <!-- BOTÓN PLANES -->
-        <button onclick="abrirModal('modal-planes')" type="button" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold px-2.5 py-2 rounded-xl transition duration-200 flex items-center gap-1 active:scale-95 shadow-sm" title="Planes y Suscripciones">
+        <button id="btn-header-planes" onclick="abrirModal('modal-planes')" type="button" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold px-2.5 py-2 rounded-xl transition duration-200 flex items-center gap-1 active:scale-95 shadow-sm" title="Planes y Suscripciones">
           <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-600"></i>
           <span class="hidden sm:inline">Planes</span>
         </button>
@@ -303,7 +303,7 @@
   <!-- VISTA DETALLE COMERCIO -->
   <main id="vista-comercio" class="max-w-2xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 space-y-5 hidden relative z-10">
     <div class="flex items-center justify-between gap-2">
-      <button onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm transition">
+      <button id="btn-volver-comercios" onclick="mostrarInicio()" class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm transition">
         <i data-lucide="arrow-left" class="w-4 h-4 text-brand-500"></i> Volver a comercios
       </button>
 
@@ -524,7 +524,7 @@
         </div>
       </div>
 
-      <div id="box-opciones-personalizadas-prod" class="hidden space-y-2.5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+      <div id="box-oppciones-personalizadas-prod" class="hidden space-y-2.5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
         <label class="block text-xs font-bold text-brand-600">Opciones / Personalizaciones</label>
         <div id="contenedor-check-opciones-custom" class="space-y-2"></div>
       </div>
@@ -866,8 +866,24 @@
           </div>
         </div>
 
-        <div class="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-          <label class="block text-xs font-bold text-slate-800">Horarios de Atención Día por Día</label>
+        <!-- GESTIÓN AVANZADA DE HORARIOS DÍA POR DÍA -->
+        <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+            <label class="block text-xs font-bold text-slate-800">Horarios de Atención Día por Día</label>
+            <div class="flex items-center gap-2">
+              <select id="modal-tipo-horario" onchange="cambiarTipoModalHorarios()" class="clean-input px-2 py-1 rounded-lg text-xs font-bold">
+                <option value="corrido">Horario Corrido</option>
+                <option value="cortado">Horario Cortado (2 turnos)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex justify-end">
+            <button type="button" onclick="autocompletarHorariosMismo()" class="bg-brand-50 hover:bg-brand-100 text-brand-600 border border-brand-200 font-bold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1 shadow-sm">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Llenar todos los días con el mismo horario
+            </button>
+          </div>
+
           <div id="grilla-horarios-dias" class="space-y-2 text-xs"></div>
         </div>
 
@@ -976,9 +992,15 @@
           <input type="text" id="prod-titulo" placeholder="Ej: Pote 1 Kg" required class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Precio ($)</label>
-          <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 12000" required class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Precio ($)</label>
+            <input type="number" step="0.01" id="prod-precio" placeholder="Ej: 12000" required class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Stock Numérico (Opcional)</label>
+            <input type="number" min="0" id="prod-stock" placeholder="Ej: 10 (Sin límite si vacío)" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+          </div>
         </div>
 
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
@@ -1178,6 +1200,7 @@
     let comercioCarrito = null;
     let carrito = [];
     let usuarioActual = null;
+    let modoEstrictoEnlace = false;
 
     let productoPendienteSabores = null;
     let cantidadSeleccionadaModalSabores = 1;
@@ -1428,12 +1451,62 @@
       });
     }
 
-    function renderizarGrillaHorarios(horariosGuardados = {}) {
+    function cambiarTipoModalHorarios() {
+      const tipo = document.getElementById('modal-tipo-horario').value;
+      const horariosActuales = obtenerHorariosFormulario();
+      renderizarGrillaHorarios(horariosActuales, tipo);
+    }
+
+    function autocompletarHorariosMismo() {
+      const tipo = document.getElementById('modal-tipo-horario').value;
+      const d1Cerrado = document.getElementById(`chk-cerrado-lun`).checked;
+      const d1Desde = document.getElementById(`horario-desde-lun`).value.trim();
+      const d1Hasta = document.getElementById(`horario-hasta-lun`).value.trim();
+      
+      let d1Desde2 = '', d1Hasta2 = '';
+      if (tipo === 'cortado') {
+        const elD2 = document.getElementById(`horario-desde2-lun`);
+        const elH2 = document.getElementById(`horario-hasta2-lun`);
+        if (elD2) d1Desde2 = elD2.value.trim();
+        if (elH2) d1Hasta2 = elH2.value.trim();
+      }
+
+      DIAS_SEMANA.forEach(d => {
+        const chk = document.getElementById(`chk-cerrado-${d.id}`);
+        if (chk) chk.checked = d1Cerrado;
+        
+        const inD1 = document.getElementById(`horario-desde-${d.id}`);
+        if (inD1) inD1.value = d1Desde;
+        
+        const inH1 = document.getElementById(`horario-hasta-${d.id}`);
+        if (inH1) inH1.value = d1Hasta;
+
+        if (tipo === 'cortado') {
+          const inD2 = document.getElementById(`horario-desde2-${d.id}`);
+          if (inD2) inD2.value = d1Desde2;
+          const inH2 = document.getElementById(`horario-hasta2-${d.id}`);
+          if (inH2) inH2.value = d1Hasta2;
+        }
+
+        toggleCheckDiaCerrado(d.id);
+      });
+      mostrarToast("¡Horarios aplicados a todos los días!");
+    }
+
+    function renderizarGrillaHorarios(horariosGuardados = {}, tipoHorarioPredeterminado = 'corrido') {
       const container = document.getElementById('grilla-horarios-dias');
       container.innerHTML = '';
 
+      let esCortado = tipoHorarioPredeterminado === 'cortado';
+      if (horariosGuardados && Object.keys(horariosGuardados).length > 0) {
+        esCortado = Object.values(horariosGuardados).some(h => h.tipo === 'cortado' || (h.desde2 && h.hasta2));
+      }
+      
+      const selectTipo = document.getElementById('modal-tipo-horario');
+      if (selectTipo) selectTipo.value = esCortado ? 'cortado' : 'corrido';
+
       DIAS_SEMANA.forEach(d => {
-        const datosDia = horariosGuardados[d.id] || { cerrado: false, desde: '09:00', hasta: '13:00' };
+        const datosDia = horariosGuardados[d.id] || { cerrado: false, desde: '09:00', hasta: '13:00', desde2: '17:00', hasta2: '21:00' };
         
         container.innerHTML += `
           <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
@@ -1444,10 +1517,20 @@
                 Cerrado
               </label>
             </div>
-            <div class="flex items-center gap-1.5">
-              <input type="text" id="horario-desde-${d.id}" value="${datosDia.desde || '09:00'}" placeholder="09:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-20 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
-              <span class="text-slate-400 text-xs">a</span>
-              <input type="text" id="horario-hasta-${d.id}" value="${datosDia.hasta || '13:00'}" placeholder="13:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-20 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+            <div class="flex flex-col sm:flex-row items-center gap-1.5">
+              <div class="flex items-center gap-1">
+                <input type="text" id="horario-desde-${d.id}" value="${datosDia.desde || '09:00'}" placeholder="09:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-16 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+                <span class="text-slate-400 text-xs">a</span>
+                <input type="text" id="horario-hasta-${d.id}" value="${datosDia.hasta || '13:00'}" placeholder="13:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-16 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+              </div>
+              ${esCortado ? `
+                <span class="hidden sm:inline text-slate-300">|</span>
+                <div class="flex items-center gap-1">
+                  <input type="text" id="horario-desde2-${d.id}" value="${datosDia.desde2 || '17:00'}" placeholder="17:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-16 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+                  <span class="text-slate-400 text-xs">a</span>
+                  <input type="text" id="horario-hasta2-${d.id}" value="${datosDia.hasta2 || '21:00'}" placeholder="21:00" class="clean-input horario-inputs-${d.id} px-2 py-1 rounded-lg text-xs font-semibold w-16 text-center ${datosDia.cerrado ? 'opacity-40 bg-slate-100' : ''}" ${datosDia.cerrado ? 'disabled' : ''}>
+                </div>
+              ` : ''}
             </div>
           </div>
         `;
@@ -1456,11 +1539,19 @@
 
     function obtenerHorariosFormulario() {
       let obj = {};
+      const tipo = document.getElementById('modal-tipo-horario')?.value || 'corrido';
       DIAS_SEMANA.forEach(d => {
         const cerrado = document.getElementById(`chk-cerrado-${d.id}`).checked;
         const desde = document.getElementById(`horario-desde-${d.id}`).value.trim();
         const hasta = document.getElementById(`horario-hasta-${d.id}`).value.trim();
-        obj[d.id] = { cerrado, desde, hasta };
+        let desde2 = '', hasta2 = '';
+        if (tipo === 'cortado') {
+          const elD2 = document.getElementById(`horario-desde2-${d.id}`);
+          const elH2 = document.getElementById(`horario-hasta2-${d.id}`);
+          if (elD2) desde2 = elD2.value.trim();
+          if (elH2) hasta2 = elH2.value.trim();
+        }
+        obj[d.id] = { cerrado, desde, hasta, desde2, hasta2, tipo };
       });
       return obj;
     }
@@ -1474,7 +1565,10 @@
       const configHoy = horariosGrilla[diaHoy];
       if (!configHoy || configHoy.cerrado) return false;
 
-      return estaEnRango(configHoy.desde, configHoy.hasta);
+      let abiertoTurno1 = estaEnRango(configHoy.desde, configHoy.hasta);
+      let abiertoTurno2 = (configHoy.desde2 && configHoy.hasta2) ? estaEnRango(configHoy.desde2, configHoy.hasta2) : false;
+
+      return abiertoTurno1 || abiertoTurno2;
     }
 
     function estaEnRango(hApertura, hCierre) {
@@ -1508,6 +1602,9 @@
       const config = c.horarios_dias[diaHoy];
 
       if (!config || config.cerrado) return "Cerrado hoy";
+      if (config.desde2 && config.hasta2) {
+        return `${config.desde} a ${config.hasta} hs y ${config.desde2} a ${config.hasta2} hs`;
+      }
       return `${config.desde} a ${config.hasta} hs`;
     }
 
@@ -1696,6 +1793,7 @@
     function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     function mostrarInicio() {
+      if (modoEstrictoEnlace) return;
       window.history.pushState({}, '', window.location.pathname);
       document.getElementById('vista-comercio').classList.add('hidden');
       document.getElementById('vista-inicio').classList.remove('hidden');
@@ -1988,11 +2086,20 @@
     function renderizarProductosComercio(productos, esDuenio = false, colorBoton = '#f97316') {
       const container = document.getElementById('productos-container');
       
-      const productosVisibles = esDuenio 
+      const plan = comercioActivo?.plan || 'gratis';
+      
+      let productosFiltrados = esDuenio 
         ? productos 
         : productos.filter(p => !p.es_solo_promo);
 
-      if (productosVisibles.length === 0) {
+      if (plan === 'gratis') {
+        productosFiltrados = productosFiltrados.filter(p => !p.es_combo);
+        productosFiltrados = productosFiltrados.slice(0, 5);
+      } else if (plan === 'pro') {
+        productosFiltrados = productosFiltrados.slice(0, 10);
+      }
+
+      if (productosFiltrados.length === 0) {
         container.innerHTML = `
           <div class="p-10 clean-card rounded-3xl text-center text-slate-400 space-y-3">
             <i data-lucide="package-open" class="w-10 h-10 mx-auto text-slate-400"></i>
@@ -2005,8 +2112,11 @@
 
       let htmlAcc = '';
 
-      productosVisibles.forEach((p, idx) => {
-        const estaDisponible = p.disponible !== false;
+      productosFiltrados.forEach((p, idx) => {
+        const stockNum = (p.stock !== null && p.stock !== undefined) ? parseInt(p.stock) : null;
+        const esAgotadoPorStock = stockNum !== null && stockNum <= 0;
+        const estaDisponible = (p.disponible !== false) && !esAgotadoPorStock;
+        
         const esCombo = Boolean(p.es_combo);
         const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
 
@@ -2017,6 +2127,13 @@
         const requiereOpcionesModal = esCombo || Boolean(p.requiere_sabores) || Boolean(p.requiere_coccion) || Boolean(p.talles_disponibles) || Boolean(p.colores_disponibles) || Boolean(p.opciones_custom && p.opciones_custom.length > 0) || esHeladeria || esEmpanadas;
 
         const textoBotonAccion = requiereOpcionesModal ? 'Elegir opciones' : 'Agregar';
+
+        let badgeStock = '';
+        if (esAgotadoPorStock) {
+          badgeStock = '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">AGOTADO</span>';
+        } else if (stockNum !== null && stockNum <= 5) {
+          badgeStock = `<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">Últimas ${stockNum} unidades</span>`;
+        }
 
         htmlAcc += `
           <div class="clean-card rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group transition duration-300 overflow-hidden ${!estaDisponible ? 'opacity-60 bg-slate-50' : ''} ${p.es_solo_promo ? 'border-dashed border-amber-300 bg-amber-50/40' : ''}">
@@ -2030,7 +2147,8 @@
                   <h4 class="font-bold text-base text-slate-900 truncate group-hover:text-brand-600 transition">${p.titulo}</h4>
                   ${esCombo ? '<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
                   ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
-                  ${!estaDisponible ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
+                  ${badgeStock}
+                  ${(!estaDisponible && !esAgotadoPorStock) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">PAUSADO</span>' : ''}
                 </div>
                 <p class="text-xs text-slate-500 truncate mt-0.5">${p.descripcion || 'Tocar para ver detalles'}</p>
                 
@@ -2047,11 +2165,11 @@
                   <button onclick="cambiarOrdenProducto('${p.id}', 'arriba')" title="Subir" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}">
                     <i data-lucide="arrow-up" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="cambiarOrdenProducto('${p.id}', 'abajo')" title="Bajar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition ${idx === productosVisibles.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}">
+                  <button onclick="cambiarOrdenProducto('${p.id}', 'abajo')" title="Bajar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition ${idx === productosFiltrados.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}">
                     <i data-lucide="arrow-down" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="toggleStockExpress('${p.id}', ${estaDisponible})" title="Cambiar Disponibilidad" class="text-[10px] font-black px-2 py-1 rounded-lg border transition ${estaDisponible ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-rose-50 hover:text-rose-600' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-emerald-50 hover:text-emerald-600'}">
-                    ${estaDisponible ? 'Pausar' : 'Activar'}
+                  <button onclick="toggleStockExpress('${p.id}', ${p.disponible !== false})" title="Cambiar Disponibilidad" class="text-[10px] font-black px-2 py-1 rounded-lg border transition ${p.disponible !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-rose-50 hover:text-rose-600' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-emerald-50 hover:text-emerald-600'}">
+                    ${p.disponible !== false ? 'Pausar' : 'Activar'}
                   </button>
                   <button onclick="${esCombo ? `prepararEditarPromo('${p.id}')` : `prepararEditarProducto('${p.id}')`}" title="Editar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
@@ -2067,7 +2185,7 @@
                   <i data-lucide="plus" class="w-4 h-4"></i> ${textoBotonAccion}
                 </button>
               ` : `
-                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-2 rounded-xl">No disponible</span>
+                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-2 rounded-xl">${esAgotadoPorStock ? 'Agotado' : 'No disponible'}</span>
               `}
             </div>
           </div>
@@ -2129,7 +2247,7 @@
       document.getElementById('modal-sabores-titulo').innerText = p.titulo;
       document.getElementById('modal-sabores-sub').innerText = 'Elegí cantidad y personalizá las opciones.';
 
-      const boxCustom = document.getElementById('box-opciones-personalizadas-prod');
+      const boxCustom = document.getElementById('box-oppciones-personalizadas-prod');
       const containerCustom = document.getElementById('contenedor-check-opciones-custom');
       containerCustom.innerHTML = '';
 
@@ -2514,7 +2632,7 @@
         comercioCarrito = comercioActivo;
       }
 
-      const existe = carrito.find(item => item.titulo === titulo);
+      const existe = carrito.find(item => item.titulo === titulo && item.id === id);
       if (existe) {
         existe.cantidad += cantidadAAgregar;
       } else {
@@ -2677,7 +2795,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function enviarPedidoWhatsApp() {
+    async function enviarPedidoWhatsApp() {
       if (carrito.length === 0) return;
       if (!comercioCarrito) return;
 
@@ -2703,12 +2821,19 @@
       let total = 0;
       let itemsGuardarHistorial = [];
 
-      carrito.forEach(item => {
+      for (const item of carrito) {
         const subtotal = item.precio * item.cantidad;
         total += subtotal;
         mensaje += `• *${item.cantidad}x* ${item.titulo} ($${subtotal})\n`;
         itemsGuardarHistorial.push({ id: item.id, titulo: item.titulo, precio: item.precio, cantidad: item.cantidad });
-      });
+
+        const prodOriginal = comercioCarrito.productos?.find(p => p.id === item.id);
+        if (prodOriginal && prodOriginal.stock !== null && prodOriginal.stock !== undefined) {
+          const nuevoStock = Math.max(0, parseInt(prodOriginal.stock) - item.cantidad);
+          prodOriginal.stock = nuevoStock;
+          await _supabase.from('productos').update({ stock: nuevoStock }).eq('id', prodOriginal.id);
+        }
+      }
 
       mensaje += `\n📌 *Detalles del Pedido:*\n`;
       mensaje += `• *Medio de pago:* ${medioPago}\n`;
@@ -2737,6 +2862,10 @@
 
       cerrarModal('modal-carrito');
       mostrarToast(`Pedido enviado a ${comercioCarrito.nombre} vía WhatsApp.`);
+
+      if (comercioActivo) {
+        renderizarProductosComercio(comercioActivo.productos, usuarioActual && comercioActivo.user_id === usuarioActual.id, comercioActivo.color_acento || '#f97316');
+      }
 
       const url = `https://wa.me/${comercioCarrito.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
       window.open(url, '_blank');
@@ -2775,7 +2904,19 @@
 
       const params = new URLSearchParams(window.location.search);
       const comercioUrlId = params.get('comercio');
-      if (comercioUrlId) abrirVistaComercio(comercioUrlId, false);
+      if (comercioUrlId) {
+        modoEstrictoEnlace = true;
+        
+        const btnHeaderPlanes = document.getElementById('btn-header-planes');
+        const btnSumarComercio = document.getElementById('btn-sumar-comercio');
+        const btnVolver = document.getElementById('btn-volver-comercios');
+
+        if (btnHeaderPlanes) btnHeaderPlanes.classList.add('hidden');
+        if (btnSumarComercio) btnSumarComercio.classList.add('hidden');
+        if (btnVolver) btnVolver.classList.add('hidden');
+
+        abrirVistaComercio(comercioUrlId, false);
+      }
     }
 
     // RENDERIZADO DE LAS TARJETAS DE CATEGORÍAS PRINCIPALES EN EL INICIO
@@ -3358,6 +3499,7 @@
       document.getElementById('prod-edit-id').value = '';
       document.getElementById('prod-imagen-existente').value = '';
       document.getElementById('prod-es-origen-promo').value = 'false';
+      document.getElementById('prod-stock').value = '';
 
       const subs = comercio?.subcategorias || comercio?.categorias || [comercio?.categoria];
       const esEmpanadas = subs.includes('Empanadas');
@@ -3406,6 +3548,7 @@
       document.getElementById('prod-comercio-id').value = comercioActivo.id;
       document.getElementById('prod-titulo').value = p.titulo;
       document.getElementById('prod-precio').value = p.precio;
+      document.getElementById('prod-stock').value = (p.stock !== null && p.stock !== undefined) ? p.stock : '';
       document.getElementById('prod-descripcion').value = p.descripcion || '';
       document.getElementById('prod-imagen-existente').value = p.imagen_url || '';
       document.getElementById('prod-es-origen-promo').value = 'false';
@@ -3688,10 +3831,14 @@
         else maxSaboresFinal = maxSaboresVal ? parseInt(maxSaboresVal) : null;
       }
 
+      const stockVal = document.getElementById('prod-stock').value.trim();
+      const stockFinal = stockVal !== '' ? parseInt(stockVal) : null;
+
       const datosProducto = {
         comercio_id: comercioId,
         titulo: document.getElementById('prod-titulo').value.trim(),
         precio: parseFloat(document.getElementById('prod-precio').value),
+        stock: stockFinal,
         descripcion: document.getElementById('prod-descripcion').value.trim(),
         requiere_sabores: requiereSabores,
         requiere_coccion: document.getElementById('prod-requiere-coccion').checked,
@@ -3788,6 +3935,7 @@
     });
 
     window.onpopstate = () => {
+      if (modoEstrictoEnlace) return;
       const params = new URLSearchParams(window.location.search);
       const idUrl = params.get('comercio');
       if (idUrl) {
