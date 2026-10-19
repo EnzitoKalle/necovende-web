@@ -487,7 +487,7 @@
       </div>
 
       <!-- SELECTOR DE CANTIDAD DENTRO DEL MODAL DE SABORES -->
-      <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-center justify-between">
+      <div id="selector-cantidad-modal-sabores" class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-center justify-between">
         <div>
           <span class="block text-xs font-black text-slate-800">Cantidad a encargar:</span>
           <span class="text-[10px] text-slate-400 font-semibold" id="lbl-sub-cantidad-unidades">Se abrirá 1 box de sabores por cada unidad.</span>
@@ -2250,6 +2250,7 @@
         requiereSabores,
         requiereCoccion,
         maxSabores: p.max_sabores || 0,
+        saboresIlimitados: p.max_sabores === 0 || p.max_sabores === 999,
         listaSaboresUsar,
         talles: p.talles_disponibles || [],
         colores: p.colores_disponibles || [],
@@ -2257,7 +2258,11 @@
       };
 
       document.getElementById('modal-sabores-titulo').innerText = p.titulo;
-      document.getElementById('modal-sabores-sub').innerText = 'Elegí cantidad y personalizá las opciones.';
+      document.getElementById('modal-sabores-sub').innerText = 'Elegí las opciones de tu preferencia.';
+      const selectorCantidadSabores = document.getElementById('selector-cantidad-modal-sabores');
+      if (selectorCantidadSabores) {
+        selectorCantidadSabores.classList.toggle('hidden', Boolean(requiereSabores && (p.max_sabores === 0 || p.max_sabores === 999)));
+      }
 
       const boxCustom = document.getElementById('box-oppciones-personalizadas-prod');
       const containerCustom = document.getElementById('contenedor-check-opciones-custom');
@@ -2535,6 +2540,18 @@
 
       const totalBloques = Object.keys(estadoSaboresPorUnidad).length;
       let resumenUnidadesTexto = [];
+      let cantidadPorSaboresIlimitados = 0;
+      if (productoPendienteSabores.saboresIlimitados && productoPendienteSabores.requiereSabores) {
+        for (const saboresU of Object.values(estadoSaboresPorUnidad)) {
+          for (const [sabor, cant] of Object.entries(saboresU || {})) {
+            if (!sabor.startsWith('_') && Number(cant) > 0) cantidadPorSaboresIlimitados += Number(cant);
+          }
+        }
+        if (cantidadPorSaboresIlimitados < 1) {
+          alert('Elegí al menos una unidad de sabor para continuar.');
+          return;
+        }
+      }
 
       let varianteTexto = "";
       if (productoPendienteSabores.talles && productoPendienteSabores.talles.length > 0) {
@@ -2585,7 +2602,10 @@
 
       const tituloFinal = especificacion ? `${productoPendienteSabores.titulo} - ${especificacion}` : productoPendienteSabores.titulo;
 
-      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadSeleccionadaModalSabores);
+      const cantidadAgregar = (productoPendienteSabores.saboresIlimitados && productoPendienteSabores.requiereSabores)
+        ? cantidadPorSaboresIlimitados
+        : cantidadSeleccionadaModalSabores;
+      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAgregar);
       cerrarModal('modal-sabores');
       productoPendienteSabores = null;
     }
