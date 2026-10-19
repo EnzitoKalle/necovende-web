@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0a2433">
   <title>NecoVende | Marketplace Digital de Necochea & Quequén</title>
   
   <!-- Tailwind CSS, Lucide Icons, Supabase & Google Fonts -->
@@ -13,7 +12,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -21,35 +20,17 @@
         extend: {
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            display: ['"Bricolage Grotesque"', '"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          borderRadius: {
-            'xl': '0.85rem',
-            '2xl': '1.15rem',
-            '3xl': '1.65rem',
           },
           colors: {
             brand: {
-              50: '#fff4ec',
-              100: '#ffe4d0',
-              200: '#ffc9a1',
-              300: '#ffa766',
-              400: '#fb8337',
-              500: '#f26a1b',
-              600: '#d9540e',
-              700: '#b0420c',
-            },
-            slate: {
-              50: '#f3f7f9',
-              100: '#e7eef2',
-              200: '#d6e1e7',
-              300: '#b4c3cd',
-              400: '#8398a6',
-              500: '#5a7587',
-              600: '#3f5d71',
-              700: '#274659',
-              800: '#143247',
-              900: '#0a2433',
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
             }
           }
         }
@@ -139,162 +120,6 @@
         max-height: 88vh !important;
       }
     }
-
-    /* ============================================================
-       CAPA VISUAL "COSTA" — solo estética, no altera funciones
-       ============================================================ */
-    :root {
-      --ink: #0a2433;
-      --ink-2: #143247;
-      --mar: #eef3f5;
-      --linea: #d6e1e7;
-      --sol: #f26a1b;
-      --sombra: 10, 36, 51;
-    }
-
-    body {
-      background-color: var(--mar);
-      color: var(--ink-2);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    h1, h2, h3, h4, h5 {
-      font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
-      letter-spacing: -0.012em;
-    }
-
-    /* Etiquetas: sentence case y espaciado natural */
-    .uppercase { text-transform: none; }
-    .tracking-widest, .tracking-wider { letter-spacing: 0.01em; }
-
-    /* Navegación */
-    .clean-nav {
-      background: rgba(255, 255, 255, 0.86);
-      backdrop-filter: blur(16px) saturate(1.3);
-      -webkit-backdrop-filter: blur(16px) saturate(1.3);
-      border-bottom: 1px solid var(--linea);
-    }
-
-    /* Tarjetas */
-    .clean-card {
-      background: #ffffff;
-      border: 1px solid var(--linea);
-      box-shadow: 0 1px 0 rgba(var(--sombra), 0.03), 0 14px 26px -18px rgba(var(--sombra), 0.28);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .clean-card:hover {
-      border-color: #b4c3cd;
-      box-shadow: 0 1px 0 rgba(var(--sombra), 0.03), 0 18px 30px -16px rgba(var(--sombra), 0.34);
-    }
-
-    /* Modales */
-    .clean-modal {
-      background: #ffffff;
-      border: 1px solid var(--linea);
-      box-shadow: 0 30px 60px -20px rgba(var(--sombra), 0.45);
-      scrollbar-width: thin;
-      scrollbar-color: #b4c3cd transparent;
-    }
-    .modal-bottom-sheet { background: rgba(10, 36, 51, 0.5) !important; }
-
-    /* Campos */
-    .clean-input {
-      background: #f3f7f9;
-      border: 1px solid #c9d8e0;
-      color: var(--ink);
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-    .clean-input:focus {
-      border-color: var(--sol);
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(242, 106, 27, 0.18);
-    }
-    .clean-input::placeholder { color: #8398a6; }
-
-    /* Foco visible para teclado */
-    button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
-      outline: 2px solid var(--sol);
-      outline-offset: 2px;
-    }
-
-    /* Logo */
-    .logo-tile {
-      background: var(--ink);
-      color: #ffa766;
-      font-family: 'Bricolage Grotesque', sans-serif;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 6px 14px -6px rgba(var(--sombra), 0.6);
-    }
-
-    /* ---------- HERO COSTERO ---------- */
-    .hero-costa {
-      background: var(--ink);
-      color: #fff;
-      isolation: isolate;
-      box-shadow: 0 24px 40px -24px rgba(var(--sombra), 0.7);
-    }
-    .hero-costa::before {
-      content: "";
-      position: absolute;
-      right: -40px;
-      top: -60px;
-      width: 190px;
-      height: 190px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ffb27a 0%, #f26a1b 55%, #d9540e 100%);
-      opacity: 0.95;
-      z-index: -1;
-    }
-    .hero-olas {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 74px;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .hero-olas .ola-a { animation: olaDeriva 14s ease-in-out infinite alternate; }
-    .hero-olas .ola-b { animation: olaDeriva 19s ease-in-out infinite alternate-reverse; }
-    @keyframes olaDeriva {
-      from { transform: translateX(-3%); }
-      to { transform: translateX(3%); }
-    }
-    .hero-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 11px;
-      font-weight: 700;
-      color: #e7eef2;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 0.3rem 0.75rem;
-      border-radius: 999px;
-    }
-    .hero-clima {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    /* Rubros */
-    #grid-categorias-principales > button:first-child {
-      background: var(--ink) !important;
-      border-color: var(--ink);
-      color: #fff;
-    }
-    #grid-categorias-principales > button:first-child > div:first-child { background: rgba(242, 106, 27, 0.9); }
-
-    /* Subcategorías */
-    .btn-subcat { font-size: 12px; }
-
-    /* Scroll suave y respeto por movimiento reducido */
-    @media (prefers-reduced-motion: reduce) {
-      .hero-olas .ola-a, .hero-olas .ola-b { animation: none; }
-      * { scroll-behavior: auto !important; }
-    }
   </style>
 </head>
 <body class="antialiased pb-28 min-h-screen selection:bg-brand-500 selection:text-white">
@@ -318,12 +143,12 @@
       
       <!-- Brand Logo -->
       <div class="flex items-center gap-1.5 cursor-pointer group flex-shrink-0" onclick="mostrarInicio()">
-        <div class="logo-tile w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-lg group-hover:scale-105 transition duration-300">
+        <div class="w-9 h-9 bg-gradient-to-tr from-brand-600 via-amber-500 to-orange-400 rounded-xl flex items-center justify-center font-black text-white text-lg shadow-md shadow-brand-500/20 group-hover:scale-105 transition duration-300">
           N
         </div>
         <div>
           <h1 class="text-sm sm:text-lg font-black tracking-tight leading-none text-slate-900 flex items-center gap-0.5">
-            Neco<span class="text-brand-500">Vende</span>
+            Neco<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-500">Vende</span>
           </h1>
           <p class="text-[8px] text-slate-400 font-extrabold tracking-widest uppercase mt-0.5">Marketplace</p>
         </div>
@@ -384,38 +209,34 @@
   <main id="vista-inicio" class="max-w-2xl mx-auto px-4 pt-6 space-y-6 relative z-10">
     
     <!-- CABECERA ESTÉTICA CON CLIMA Y HORA -->
-    <div class="hero-costa rounded-3xl p-5 sm:p-7 pb-14 relative overflow-hidden">
-      <svg class="hero-olas" viewBox="0 0 400 74" preserveAspectRatio="none" aria-hidden="true">
-        <path class="ola-a" d="M-20 40 C 40 20, 90 60, 150 40 S 270 20, 330 42 S 400 50, 430 36 L430 80 L-20 80 Z" fill="rgba(255,255,255,0.08)"/>
-        <path class="ola-b" d="M-20 54 C 50 36, 110 70, 180 54 S 290 38, 350 56 S 410 60, 430 50 L430 80 L-20 80 Z" fill="rgba(242,106,27,0.35)"/>
-        <path d="M0 66 C 70 56, 130 74, 200 66 S 330 58, 400 68 L400 80 L0 80 Z" fill="#eef3f5"/>
-      </svg>
-
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5 relative z-10">
-        <div class="space-y-3 max-w-md">
-          <span class="hero-chip">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Marketplace digital
+    <div class="clean-card rounded-3xl p-5 sm:p-6 relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-orange-50/40">
+      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div class="space-y-2">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest text-brand-600 uppercase bg-brand-50 border border-brand-200 px-3 py-1 rounded-full shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Marketplace Digital
           </span>
-          <h2 class="font-display text-[1.65rem] sm:text-3xl font-extrabold text-white tracking-tight leading-[1.1]">
-            Necochea &amp; Quequén, las mejores playas de Argentina
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+            Necochea & Quequén, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-500">las mejores playas de Argentina</span>
           </h2>
-          <p class="text-xs sm:text-[13px] text-slate-200 font-medium leading-relaxed">Comprá o pedí directo a los comercios locales sin intermediarios.</p>
+          <p class="text-xs text-slate-500 font-medium">Comprá o pedí directo a los comercios locales sin intermediarios.</p>
         </div>
 
-        <div class="hero-clima flex items-center gap-3 px-4 py-3 rounded-2xl flex-shrink-0 self-start sm:self-auto">
-          <div class="text-amber-300">
+        <div class="flex items-center gap-3 bg-white border border-slate-200 px-4 py-3 rounded-2xl shadow-sm flex-shrink-0 self-start sm:self-auto">
+          <div class="text-brand-500">
             <i data-lucide="cloud-sun" class="w-7 h-7"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-black text-white" id="widget-clima-temp">11°C</span>
-              <span class="text-[10px] font-bold text-white/90 bg-white/15 px-2 py-0.5 rounded-md border border-white/20" id="widget-clima-estado">Nublado</span>
+              <span class="text-sm font-black text-slate-900" id="widget-clima-temp">11°C</span>
+              <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200" id="widget-clima-estado">Nublado</span>
             </div>
             <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+              <span class="text-[11px] font-bold text-amber-600 flex items-center gap-1">
                 <i data-lucide="clock" class="w-3 h-3"></i> <span id="widget-hora-actual">--:--</span> hs
               </span>
-              <span class="text-[10px] text-slate-200">Necochea</span>
+              <span class="text-[10px] text-slate-400">Necochea</span>
             </div>
           </div>
         </div>
