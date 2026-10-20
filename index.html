@@ -164,7 +164,7 @@
         </button>
 
         <!-- BOTÓN HISTORIAL -->
-        <button onclick="abrirModal('modal-historial')" type="button" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 p-2 rounded-xl transition duration-200 flex items-center justify-center active:scale-95 shadow-sm" title="Historial de Pedidos">
+        <button id="btn-historial" onclick="abrirModal('modal-historial')" type="button" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 p-2 rounded-xl transition duration-200 flex items-center justify-center active:scale-95 shadow-sm" title="Historial de Pedidos">
           <i data-lucide="history" class="w-4 h-4 text-brand-500"></i>
         </button>
 
@@ -1279,6 +1279,7 @@
     let carrito = [];
     let usuarioActual = null;
     let modoEstrictoEnlace = false;
+    let comercioBloqueadoId = null;
     let filtroAbierto = false, filtroEnvio = false, ordenPopulares = false;
     let limiteComercios = 12, ultimaListaComercios = [];
     let carritoListo = false, _tGuardarCarrito = null;
@@ -1292,6 +1293,9 @@
 
     let promoItemsSeleccionados = {};
     let timeoutBusquedaGlobal = null;
+
+    function esc(t) { return escSeccion(t); }
+    function slugSeguro(t) { return String(t == null ? '' : t).replace(/[^a-zA-Z0-9_-]/g, ''); }
 
     function esAdministrador() {
       return usuarioActual && usuarioActual.email === EMAIL_ADMIN;
@@ -1340,8 +1344,9 @@
       const c = comerciosGlobales.find(x => x.id === comercioId);
       if (!c) return;
 
-      const likesActuales = (c.likes_count || 0) + 1;
-      const { error } = await _supabase.from('comercios').update({ likes_count: likesActuales }).eq('id', comercioId);
+      
+      const { data: likesNuevos, error } = await _supabase.rpc('dar_like', { p_comercio: String(comercioId) });
+      const likesActuales = (typeof likesNuevos === 'number') ? likesNuevos : (c.likes_count || 0) + 1;
       
       if (!error) {
         c.likes_count = likesActuales;
@@ -1371,6 +1376,7 @@
       const pedido = historial[index];
       if (!pedido) return;
 
+      if (modoEstrictoEnlace && String(pedido.comercioId) !== String(comercioBloqueadoId)) return;
       const comercioDestino = comerciosGlobales.find(c => c.id === pedido.comercioId);
       if (!comercioDestino) {
         alert("El comercio de este pedido ya no se encuentra disponible.");
@@ -1401,10 +1407,10 @@
         container.innerHTML += `
           <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
             <div class="flex justify-between items-center text-xs">
-              <span class="font-black text-slate-900">${ped.comercioNombre}</span>
+              <span class="font-black text-slate-900">${esc(ped.comercioNombre)}</span>
               <span class="text-[10px] text-slate-400 font-bold">${ped.fecha || ''}</span>
             </div>
-            <p class="text-xs text-slate-600 truncate">${itemsTxt}</p>
+            <p class="text-xs text-slate-600 truncate">${esc(itemsTxt)}</p>
             <div class="flex justify-between items-center pt-1">
               <span class="font-black text-brand-600 text-xs">$${ped.total}</span>
               <button onclick="repetirPedidoHistorial(${idx})" class="bg-brand-50 hover:bg-brand-100 text-brand-600 border border-brand-200 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 shadow-sm">
@@ -1456,7 +1462,7 @@
               }
             } else {
               if (height > maxAlto) {
-                width = Math.round((height * maxAlto) / height);
+                width = Math.round((width * maxAlto) / height);
                 height = maxAlto;
               }
             }
@@ -1502,7 +1508,7 @@
     function compartirOlinkComercio() {
       if (!comercioActivo) return;
       const identificador = comercioActivo.slug || comercioActivo.id;
-      const url = `${window.location.origin}${window.location.pathname}?comercio=${identificador}`;
+      const url = `${window.location.origin}${window.location.pathname}?menu=${identificador}`;
 
       if (navigator.share) {
         navigator.share({
@@ -1766,8 +1772,8 @@
           lista.innerHTML += `
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
               <div class="truncate">
-                <p class="font-black text-slate-900 truncate">${c.nombre} <span class="text-[10px] font-bold px-2 py-0.5 rounded ${estaActivo ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${estaActivo ? 'Activo' : 'Inactivo / Pendiente'}</span></p>
-                <p class="text-[10px] text-slate-400">Titular: ${c.titular_alias || 'No especificado'} | Plan: ${planActual.toUpperCase()}${c.plan_vencido ? ' (VENCIDO)' : ''}${c.plan_vence ? ' · vence ' + new Date(c.plan_vence).toLocaleDateString('es-AR') : ''}</p>
+                <p class="font-black text-slate-900 truncate">${esc(c.nombre)} <span class="text-[10px] font-bold px-2 py-0.5 rounded ${estaActivo ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${estaActivo ? 'Activo' : 'Inactivo / Pendiente'}</span></p>
+                <p class="text-[10px] text-slate-400">Titular: ${esc(c.titular_alias || 'No especificado')} | Plan: ${planActual.toUpperCase()}${c.plan_vencido ? ' (VENCIDO)' : ''}${c.plan_vence ? ' · vence ' + new Date(c.plan_vence).toLocaleDateString('es-AR') : ''}</p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="toggleActivarComercioAdmin('${c.id}', ${estaActivo})" class="px-3 py-1.5 rounded-lg font-bold text-xs ${estaActivo ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-500 text-white'}">
@@ -1838,13 +1844,13 @@
 
           lista.innerHTML += `
             <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2 shadow-sm">
-              <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${c.slug || c.id}');">
+              <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${slugSeguro(c.slug || c.id)}');">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">` 
-                  : `<div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-brand-600 text-xs flex-shrink-0">${c.nombre.charAt(0)}</div>`}
+                  ? `<img src="${esc(c.logo_url)}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">` 
+                  : `<div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-brand-600 text-xs flex-shrink-0">${esc(c.nombre.charAt(0))}</div>`}
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5">
-                    <p class="font-bold text-xs text-slate-800 truncate">${c.nombre}</p>
+                    <p class="font-bold text-xs text-slate-800 truncate">${esc(c.nombre)}</p>
                     <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${planBadge}</span>
                   </div>
                   <div id="stats-${c.id}" class="mt-1 text-[10px] text-slate-500 font-semibold">Cargando estadísticas...</div>
@@ -2094,7 +2100,8 @@
 
     function mostrarInicio() {
       if (modoEstrictoEnlace) return;
-      window.history.pushState({}, '', window.location.pathname);
+      if (history.state && history.state.vistaComercio) { history.back(); return; }
+      window.history.replaceState({}, '', window.location.pathname);
       document.getElementById('vista-comercio').classList.add('hidden');
       document.getElementById('vista-inicio').classList.remove('hidden');
       document.body.style.backgroundColor = '#f8fafc';
@@ -2162,7 +2169,7 @@
         const iconSvg = obtenerIconoSVGRed(item.tipo);
 
         html += `
-          <a href="${urlFinal}" target="_blank" class="${claseColor} text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-2 shadow-sm active:scale-95">
+          <a href="${esc(urlFinal)}" target="_blank" rel="noopener noreferrer" class="${claseColor} text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-2 shadow-sm active:scale-95">
             ${iconSvg} <span>${nombreRed}</span>
           </a>
         `;
@@ -2172,12 +2179,26 @@
       return html;
     }
 
+    function mostrarCatalogoNoDisponible() {
+      document.getElementById('vista-inicio').classList.add('hidden');
+      document.getElementById('vista-comercio').classList.remove('hidden');
+      document.getElementById('detalle-comercio-header').innerHTML = '<div class="p-10 text-center space-y-2"><p class="text-sm font-black text-slate-800">Este cat\u00e1logo no est\u00e1 disponible</p><p class="text-xs text-slate-500">Puede que el comercio est\u00e9 pausado o que el link no sea correcto.</p></div>';
+      document.getElementById('productos-container').innerHTML = '';
+    }
+
     async function abrirVistaComercio(identificador, cambiarUrl = true) {
-      comercioActivo = comerciosGlobales.find(c => c.slug === identificador || c.id === identificador);
-      if (!comercioActivo) return;
+      const objetivo = comerciosGlobales.find(c => c.slug === identificador || String(c.id) === String(identificador));
+      if (!objetivo) return;
+      if (modoEstrictoEnlace && comercioBloqueadoId && String(objetivo.id) !== String(comercioBloqueadoId)) return;
+      if (objetivo.activo !== true && !(usuarioActual && (objetivo.user_id === usuarioActual.id || esAdministrador()))) {
+        if (modoEstrictoEnlace) mostrarCatalogoNoDisponible();
+        else alert('Este comercio no est\u00e1 disponible por el momento.');
+        return;
+      }
+      comercioActivo = objetivo;
 
       const slugOId = comercioActivo.slug || comercioActivo.id;
-      if (cambiarUrl) window.history.pushState({}, '', `${window.location.pathname}?comercio=${slugOId}`);
+      if (cambiarUrl) window.history.pushState({ vistaComercio: true }, '', `${window.location.pathname}?comercio=${slugOId}`);
 
       const { data: prods } = await _supabase
         .from('productos')
@@ -2226,7 +2247,7 @@
       const colorFondo = esUltra ? (comercioActivo.color_primario || '#f8fafc') : '#f8fafc';
       document.body.style.backgroundColor = colorFondo;
       const colorAcentoBtn = esUltra ? (comercioActivo.color_acento || '#f97316') : '#f97316';
-      const posPortada = esUltra ? (comercioActivo.posicion_portada || 'object-center') : 'object-center';
+      const posPortada = (esUltra && ['object-center', 'object-top', 'object-bottom'].includes(comercioActivo.posicion_portada)) ? comercioActivo.posicion_portada : 'object-center';
       const direccionLocalEsc = (comercioActivo.direccion || 'Necochea').replace(/'/g, "\\'");
 
       const redesHtml = generarBotonesRedesSociales(comercioActivo.redes_sociales, plan);
@@ -2234,7 +2255,7 @@
       let horariosHtml = `
         <div class="flex items-center justify-between">
           <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Horario:</span>
-          <span class="font-semibold text-slate-700">${obtenerHorarioHoyTexto(comercioActivo)}</span>
+          <span class="font-semibold text-slate-700">${esc(obtenerHorarioHoyTexto(comercioActivo))}</span>
         </div>
       `;
 
@@ -2242,7 +2263,7 @@
       header.innerHTML = `
         ${(esUltra && comercioActivo.portada_url) ? `
           <div class="h-44 sm:h-60 w-full relative overflow-hidden bg-slate-100">
-            <img src="${comercioActivo.portada_url}" class="w-full h-full ${posPortada} object-cover">
+            <img src="${esc(comercioActivo.portada_url)}" class="w-full h-full ${posPortada} object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/10 to-transparent"></div>
           </div>
         ` : ''}
@@ -2252,19 +2273,19 @@
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-4 min-w-0 flex-1">
               ${comercioActivo.logo_url 
-                ? `<img src="${comercioActivo.logo_url}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
-                : `<div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-3xl sm:text-4xl flex-shrink-0 shadow-md text-brand-600">${comercioActivo.nombre.charAt(0).toUpperCase()}</div>`
+                ? `<img src="${esc(comercioActivo.logo_url)}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0">`
+                : `<div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl border-2 border-white flex items-center justify-center font-black text-3xl sm:text-4xl flex-shrink-0 shadow-md text-brand-600">${esc(comercioActivo.nombre.charAt(0).toUpperCase())}</div>`
               }
               
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h2 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${comercioActivo.nombre}</h2>
+                  <h2 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">${esc(comercioActivo.nombre)}</h2>
                 </div>
                 
                 ${insigniaVerificado ? `<div class="mt-1">${insigniaVerificado}</div>` : ''}
 
                 <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                  ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200">${cat}</span>`).join('')}
+                  ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200">${esc(cat)}</span>`).join('')}
                 </div>
               </div>
             </div>
@@ -2282,9 +2303,9 @@
           </div>
 
           <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5">
-            <span class="text-xs text-slate-600 flex items-center gap-1.5 truncate cursor-pointer hover:text-brand-600 transition" onclick="abrirMapaDireccion('${direccionLocalEsc}')">
+            <span class="text-xs text-slate-600 flex items-center gap-1.5 truncate cursor-pointer hover:text-brand-600 transition" data-dir="${esc(comercioActivo.direccion || 'Necochea')}" onclick="abrirMapaDireccion(this.dataset.dir)">
               <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500 flex-shrink-0"></i> 
-              <span class="truncate underline decoration-dotted">${comercioActivo.direccion || 'Necochea / Quequén'}</span>
+              <span class="truncate underline decoration-dotted">${esc(comercioActivo.direccion || 'Necochea / Quequén')}</span>
             </span>
 
             <div class="flex items-center gap-2 flex-shrink-0">
@@ -2305,7 +2326,7 @@
             ${ofreceEnvios ? `
               <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-500"></i> Costo Envío:</span>
-                <span class="${comercioActivo.envio_gratis ? 'text-emerald-600 font-bold' : 'font-semibold text-slate-700'}">${comercioActivo.envio_gratis ? 'GRATIS' : (comercioActivo.costo_envio || 'A convenir')}</span>
+                <span class="${comercioActivo.envio_gratis ? 'text-emerald-600 font-bold' : 'font-semibold text-slate-700'}">${comercioActivo.envio_gratis ? 'GRATIS' : esc(comercioActivo.costo_envio || 'A convenir')}</span>
               </div>
             ` : ''}
 
@@ -2337,7 +2358,7 @@
       if (esDuenio) {
         const topSolicitados = [...(comercioActivo.productos || [])].filter(p => !p.es_combo)
           .sort((a,b) => (Number(b.solicitudes_count)||0) - (Number(a.solicitudes_count)||0)).slice(0,5);
-        header.insertAdjacentHTML('beforeend', `<div class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-brand-100 bg-brand-50/60 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-brand-700 mb-2">📈 Productos más solicitados</h3>${topSolicitados.length && topSolicitados.some(p => Number(p.solicitudes_count)>0) ? topSolicitados.map((p,i)=>`<div class="flex justify-between gap-3 py-1.5 text-xs"><span class="font-semibold text-slate-700">${i+1}. ${p.titulo}</span><strong class="text-brand-700">${Number(p.solicitudes_count)||0} solicitudes</strong></div>`).join('') : '<p class="text-xs text-slate-500">Todavía no hay solicitudes. Cada clic en “Agregar” suma al contador.</p>'}</div></div>`);
+        header.insertAdjacentHTML('beforeend', `<div class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-brand-100 bg-brand-50/60 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-brand-700 mb-2">📈 Productos más solicitados</h3>${topSolicitados.length && topSolicitados.some(p => Number(p.solicitudes_count)>0) ? topSolicitados.map((p,i)=>`<div class="flex justify-between gap-3 py-1.5 text-xs"><span class="font-semibold text-slate-700">${i+1}. ${esc(p.titulo)}</span><strong class="text-brand-700">${Number(p.solicitudes_count)||0} solicitudes</strong></div>`).join('') : '<p class="text-xs text-slate-500">Todavía no hay solicitudes. Cada clic en “Agregar” suma al contador.</p>'}</div></div>`);
       }
       renderizarProductosComercio(comercioActivo.productos, esDuenio, colorAcentoBtn);
 
@@ -2425,6 +2446,7 @@
 
     function renderizarProductosComercio(productos, esDuenio = false, colorBoton = '#f97316') {
       const container = document.getElementById('productos-container');
+      if (!/^#[0-9a-fA-F]{6}$/.test(colorBoton || '')) colorBoton = '#f97316';
       
       const plan = comercioActivo?.plan || 'gratis';
       
@@ -2474,7 +2496,7 @@
         const esHeladeria = categoriasLocal.includes('Heladerías');
         const esEmpanadas = categoriasLocal.includes('Empanadas');
 
-        const requiereOpcionesModal = esCombo || Boolean(p.requiere_sabores) || Boolean(p.requiere_coccion) || Boolean(p.talles_disponibles) || Boolean(p.colores_disponibles) || Boolean(p.opciones_custom && p.opciones_custom.length > 0) || esHeladeria || esEmpanadas;
+        const requiereOpcionesModal = esCombo || Boolean(p.requiere_sabores) || Boolean(p.requiere_coccion) || (p.talles_disponibles || []).length > 0 || (p.colores_disponibles || []).length > 0 || Boolean(p.opciones_custom && p.opciones_custom.length > 0) || (p.requiere_sabores === undefined && (esHeladeria || esEmpanadas));
 
         const textoBotonAccion = requiereOpcionesModal ? 'Elegir opciones' : 'Agregar';
 
@@ -2490,18 +2512,18 @@
             
             <div class="flex items-center gap-4 overflow-hidden cursor-pointer flex-1 z-10" onclick="abrirVerProducto('${p.id}')">
               ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 flex-shrink-0 group-hover:scale-105 transition duration-300 shadow-sm">` 
+                ? `<img src="${esc(p.imagen_url)}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 flex-shrink-0 group-hover:scale-105 transition duration-300 shadow-sm">` 
                 : `<div class="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="${esCombo ? 'tag' : 'package'}" class="w-7 h-7"></i></div>`}
               <div class="truncate">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h4 class="font-bold text-base text-slate-900 truncate group-hover:text-brand-600 transition">${p.titulo}</h4>
+                  <h4 class="font-bold text-base text-slate-900 truncate group-hover:text-brand-600 transition">${esc(p.titulo)}</h4>
                   ${esCombo ? '<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
                   ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
                   ${promoVencida(p) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">VENCIDA</span>' : ''}
                   ${badgeStock}
                   ${(!estaDisponible && !esAgotadoPorStock) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">PAUSADO</span>' : ''}
                 </div>
-                <p class="text-xs text-slate-500 truncate mt-0.5">${p.descripcion || 'Tocar para ver detalles'}</p>
+                <p class="text-xs text-slate-500 truncate mt-0.5">${esc(p.descripcion || 'Tocar para ver detalles')}</p>
                 
                 <div class="flex items-center gap-2 mt-1.5">
                   <p class="text-lg font-black text-brand-600">$${p.precio}</p>
@@ -2551,7 +2573,7 @@
       const prodContado = comercioActivo?.productos?.find(x => String(x.id) === String(prodId));
       if (prodContado) {
         prodContado.solicitudes_count = (Number(prodContado.solicitudes_count) || 0) + 1;
-        _supabase.from('productos').update({ solicitudes_count: prodContado.solicitudes_count }).eq('id', prodId)
+        _supabase.rpc('sumar_solicitud', { p_producto: String(prodId) })
           .then(({ error }) => { if (error) console.warn('No se pudo guardar el contador de solicitudes:', error.message); });
       }
 
@@ -2569,7 +2591,7 @@
         : (esHeladeria || esEmpanadas);
 
       const requiereCoccion = Boolean(p.requiere_coccion) && !esHeladeria;
-      const tieneVariantes = Boolean(p.talles_disponibles || p.colores_disponibles);
+      const tieneVariantes = (p.talles_disponibles || []).length > 0 || (p.colores_disponibles || []).length > 0;
       const tieneOpcionesCustom = Boolean(p.opciones_custom && p.opciones_custom.length > 0);
       const esCombo = Boolean(p.es_combo);
 
@@ -2605,6 +2627,9 @@
 
       document.getElementById('modal-sabores-titulo').innerText = p.titulo;
       document.getElementById('modal-sabores-sub').innerText = 'Elegí las opciones de tu preferencia.';
+      document.getElementById('cant-modal-sabores-val').innerText = '1';
+      const lblSubCantidad = document.getElementById('lbl-sub-cantidad-unidades');
+      if (lblSubCantidad) lblSubCantidad.innerText = (requiereSabores || esCombo) ? 'Se abrirá 1 box de opciones por cada unidad.' : 'Elegí cuántas unidades querés.';
       const selectorCantidadSabores = document.getElementById('selector-cantidad-modal-sabores');
       if (selectorCantidadSabores) {
         selectorCantidadSabores.classList.toggle('hidden', Boolean(requiereSabores && (p.max_sabores === 0 || p.max_sabores === 999)));
@@ -2619,8 +2644,8 @@
         p.opciones_custom.forEach(op => {
           containerCustom.innerHTML += `
             <label class="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer text-xs font-semibold text-slate-700 shadow-sm">
-              <input type="checkbox" name="opcion-custom-check" value="${op}" class="w-4 h-4 rounded border-slate-300 bg-white text-brand-500 focus:ring-brand-500">
-              <span>${op}</span>
+              <input type="checkbox" name="opcion-custom-check" value="${esc(op)}" class="w-4 h-4 rounded border-slate-300 bg-white text-brand-500 focus:ring-brand-500">
+              <span>${esc(op)}</span>
             </label>
           `;
         });
@@ -2636,14 +2661,14 @@
         boxVariantes.classList.remove('hidden');
         if (p.talles_disponibles && p.talles_disponibles.length > 0) {
           boxTalles.classList.remove('hidden');
-          document.getElementById('select-talle-opcion').innerHTML = p.talles_disponibles.map(t => `<option value="${t}">${t}</option>`).join('');
+          document.getElementById('select-talle-opcion').innerHTML = p.talles_disponibles.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
         } else {
           boxTalles.classList.add('hidden');
         }
 
         if (p.colores_disponibles && p.colores_disponibles.length > 0) {
           boxColores.classList.remove('hidden');
-          document.getElementById('select-color-opcion').innerHTML = p.colores_disponibles.map(c => `<option value="${c}">${c}</option>`).join('');
+          document.getElementById('select-color-opcion').innerHTML = p.colores_disponibles.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
         } else {
           boxColores.classList.add('hidden');
         }
@@ -2671,7 +2696,7 @@
       
       const lbl = document.getElementById('lbl-sub-cantidad-unidades');
       if (lbl) {
-        lbl.innerText = `Se abrirán ${cantidadSeleccionadaModalSabores} box(es) de opciones.`;
+        lbl.innerText = (productoPendienteSabores && (productoPendienteSabores.requiereSabores || productoPendienteSabores.esCombo)) ? `Se abrirán ${cantidadSeleccionadaModalSabores} box(es) de opciones.` : 'Elegí cuántas unidades querés.';
       }
 
       renderizarBloquesModalSabores();
@@ -2715,7 +2740,7 @@
                 <div class="bg-slate-50 p-4 rounded-2xl border border-amber-200 space-y-3">
                   <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                     <span class="text-xs font-black text-amber-700 uppercase tracking-wide">
-                      📦 Pack #${packNum}: ${prodOriginal.titulo} (x${limiteTotalComboItem})
+                      📦 Pack #${packNum}: ${esc(prodOriginal.titulo)} (x${limiteTotalComboItem})
                     </span>
                     <span id="badge-unidad-${idB}" class="text-[10px] font-black text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
                       0 / ${limiteTotalComboItem}
@@ -2730,7 +2755,7 @@
 
                 htmlBloque += `
                   <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs">
-                    <span class="font-bold text-slate-700 truncate pr-2">${saborClean}</span>
+                    <span class="font-bold text-slate-700 truncate pr-2">${esc(saborClean)}</span>
                     <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0 border border-slate-200">
                       <button type="button" onclick="modificarSaborUnidad(${idB}, decodeURIComponent('${encodeURIComponent(saborClean).replace(/'/g, '%27')}'), -1)" class="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded-md text-slate-700 font-black text-xs hover:bg-slate-50">-</button>
                       <span id="cant-sabor-u${idB}-${encodeURIComponent(saborClean).replace(/'/g, '%27')}" class="text-xs font-black text-slate-700 w-4 text-center">0</span>
@@ -2759,7 +2784,7 @@
                   <div class="bg-slate-50 p-4 rounded-2xl border border-amber-200 space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                       <span class="text-xs font-black text-amber-700 uppercase tracking-wide">
-                        📦 Pack #${packNum}: ${prodOriginal.titulo} ${itemInfo.cantidad > 1 ? `#${qty}` : ''}
+                        📦 Pack #${packNum}: ${esc(prodOriginal.titulo)} ${itemInfo.cantidad > 1 ? `#${qty}` : ''}
                       </span>
                       <span id="badge-unidad-${idB}" class="text-[10px] font-black text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
                         0 / ${maxG}
@@ -2775,7 +2800,7 @@
 
                     htmlBloque += `
                       <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs">
-                        <span class="font-bold text-slate-700 truncate pr-2">${saborClean}</span>
+                        <span class="font-bold text-slate-700 truncate pr-2">${esc(saborClean)}</span>
                         <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0 border border-slate-200">
                           <button type="button" onclick="modificarSaborUnidad(${idB}, decodeURIComponent('${encodeURIComponent(saborClean).replace(/'/g, '%27')}'), -1)" class="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded-md text-slate-700 font-black text-xs hover:bg-slate-50">-</button>
                           <span id="cant-sabor-u${idB}-${encodeURIComponent(saborClean).replace(/'/g, '%27')}" class="text-xs font-black text-slate-700 w-4 text-center">0</span>
@@ -2825,7 +2850,7 @@
 
             htmlBloque += `
               <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs">
-                <span class="font-bold text-slate-700 truncate pr-2">${saborClean}</span>
+                <span class="font-bold text-slate-700 truncate pr-2">${esc(saborClean)}</span>
                 <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0 border border-slate-200">
                   <button type="button" onclick="modificarSaborUnidad(${idB}, decodeURIComponent('${encodeURIComponent(saborClean).replace(/'/g, '%27')}'), -1)" class="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded-md text-slate-700 font-black text-xs hover:bg-slate-50">-</button>
                   <span id="cant-sabor-u${idB}-${encodeURIComponent(saborClean).replace(/'/g, '%27')}" class="text-xs font-black text-slate-700 w-4 text-center">0</span>
@@ -3159,7 +3184,7 @@
         itemsContainer.innerHTML += `
           <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
             <div class="pr-2 min-w-0 flex-1">
-              <p class="font-bold text-xs text-slate-800 leading-tight">${item.titulo}</p>
+              <p class="font-bold text-xs text-slate-800 leading-tight">${esc(item.titulo)}</p>
               <p class="text-[11px] text-brand-600 font-extrabold mt-0.5">$${item.precio * item.cantidad}</p>
             </div>
             <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1 flex-shrink-0 shadow-sm">
@@ -3210,7 +3235,7 @@
         if (prodOriginal && prodOriginal.stock !== null && prodOriginal.stock !== undefined) {
           const nuevoStock = Math.max(0, parseInt(prodOriginal.stock) - item.cantidad);
           prodOriginal.stock = nuevoStock;
-          await _supabase.from('productos').update({ stock: nuevoStock }).eq('id', prodOriginal.id);
+          await _supabase.rpc('descontar_stock', { p_producto: String(prodOriginal.id), p_cant: item.cantidad });
         }
       }
 
@@ -3293,18 +3318,17 @@
       aplicarFiltros();
 
       const params = new URLSearchParams(window.location.search);
+      const menuUrlId = params.get('menu');
       const comercioUrlId = params.get('comercio');
-      if (comercioUrlId) {
+      if (menuUrlId) {
         modoEstrictoEnlace = true;
-        
-        const btnHeaderPlanes = document.getElementById('btn-header-planes');
-        const btnSumarComercio = document.getElementById('btn-sumar-comercio');
-        const btnVolver = document.getElementById('btn-volver-comercios');
-
-        if (btnHeaderPlanes) btnHeaderPlanes.classList.add('hidden');
-        if (btnSumarComercio) btnSumarComercio.classList.add('hidden');
-        if (btnVolver) btnVolver.classList.add('hidden');
-
+        const comercioMenu = comerciosGlobales.find(c => c.slug === menuUrlId || String(c.id) === String(menuUrlId));
+        comercioBloqueadoId = comercioMenu ? comercioMenu.id : null;
+        ['btn-header-planes', 'btn-sumar-comercio', 'btn-volver-comercios', 'btn-historial']
+          .forEach(id => document.getElementById(id)?.classList.add('hidden'));
+        if (comercioMenu) abrirVistaComercio(menuUrlId, false);
+        else mostrarCatalogoNoDisponible();
+      } else if (comercioUrlId) {
         abrirVistaComercio(comercioUrlId, false);
       }
     }
@@ -3415,7 +3439,7 @@
 
       listaActivos.slice(0, limiteComercios).forEach(c => {
         const abierto = estaAbierto(c);
-        const identificador = c.slug || c.id;
+        const identificador = slugSeguro(c.slug || c.id);
         const esFav = obtenerFavoritos().includes(c.id);
         const likesCount = c.likes_count || 0;
 
@@ -3450,15 +3474,15 @@
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-start gap-3.5 min-w-0 flex-1 cursor-pointer" onclick="abrirVistaComercio('${identificador}')">
                 ${c.logo_url 
-                  ? `<img src="${c.logo_url}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-slate-100 shadow-md flex-shrink-0 group-hover:scale-105 transition duration-300">`
+                  ? `<img src="${esc(c.logo_url)}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-slate-100 shadow-md flex-shrink-0 group-hover:scale-105 transition duration-300">`
                   : `<div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-2xl group-hover:border-brand-300 transition flex-shrink-0">
-                      ${c.nombre.charAt(0).toUpperCase()}
+                      ${esc(c.nombre.charAt(0).toUpperCase())}
                     </div>`
                 }
                 
                 <div class="min-w-0 flex-1 pt-1">
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition truncate">${c.nombre}</h4>
+                    <h4 class="font-black text-slate-900 text-base sm:text-lg tracking-tight leading-snug group-hover:text-brand-600 transition truncate">${esc(c.nombre)}</h4>
                     ${insigniaTilde}
                   </div>
                   
@@ -3483,7 +3507,7 @@
 
                 ${iconoEnvioHtml}
 
-                <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200 truncate flex-shrink min-w-0">${catPrincipal}${catMasCount}</span>
+                <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200 truncate flex-shrink min-w-0">${esc(catPrincipal)}${catMasCount}</span>
               </div>
 
               <button onclick="abrirVistaComercio('${identificador}')" class="font-extrabold text-brand-600 flex-shrink-0 bg-brand-50 hover:bg-brand-100 px-3.5 py-2 rounded-xl border border-brand-200 transition text-xs shadow-sm">
@@ -3586,17 +3610,17 @@
 
       productosValidos.forEach(p => {
         const nomComercio = p.comercios?.nombre || 'Local';
-        const slugComercio = p.comercios?.slug || p.comercio_id;
+        const slugComercio = slugSeguro(p.comercios?.slug || p.comercio_id);
 
         container.innerHTML += `
           <div onclick="abrirVistaComercio('${slugComercio}'); setTimeout(() => abrirVerProducto('${p.id}'), 300);" class="clean-card rounded-2xl p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-brand-300 transition">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               ${p.imagen_url 
-                ? `<img src="${p.imagen_url}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 flex-shrink-0">` 
+                ? `<img src="${esc(p.imagen_url)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 flex-shrink-0">` 
                 : `<div class="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="min-w-0 flex-1">
-                <h4 class="font-black text-slate-900 text-sm truncate">${p.titulo}</h4>
-                <p class="text-[11px] text-slate-500 truncate">Vendido por: <strong class="text-brand-600">${nomComercio}</strong></p>
+                <h4 class="font-black text-slate-900 text-sm truncate">${esc(p.titulo)}</h4>
+                <p class="text-[11px] text-slate-500 truncate">Vendido por: <strong class="text-brand-600">${esc(nomComercio)}</strong></p>
                 <p class="text-sm font-black text-brand-600 mt-0.5">$${p.precio}</p>
               </div>
             </div>
@@ -4005,7 +4029,7 @@
         picker.innerHTML += `
           <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 text-xs shadow-sm">
             <div class="truncate pr-2 min-w-0 flex-1">
-              <span class="font-bold text-slate-700 truncate">${p.titulo}</span>
+              <span class="font-bold text-slate-700 truncate">${esc(p.titulo)}</span>
               <span class="text-[10px] text-amber-600 font-extrabold block">$${p.precio}</span>
             </div>
             <div class="flex items-center gap-2 bg-slate-100 rounded-lg px-2 py-1 flex-shrink-0 border border-slate-200">
@@ -4356,6 +4380,12 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
+      if (new URLSearchParams(location.search).get('menu')) {
+        modoEstrictoEnlace = true;
+        document.getElementById('vista-inicio').classList.add('hidden');
+        ['btn-header-planes', 'btn-sumar-comercio', 'btn-historial']
+          .forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      }
       actualizarRelojNecochea();
       const { data: { session } } = await _supabase.auth.getSession();
       actualizarInterfazUsuario(session?.user || null);
