@@ -1,0 +1,83 @@
+
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+    
+    .clean-nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .clean-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .clean-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+    }
+
+    .clean-modal {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .clean-input {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+    }
+
+    .clean-input:focus {
+      border-color: #f97316;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+      outline: none;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { display: none; }
+    .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes toastSlide {
+      0% { transform: translateY(100px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .toast-animate { animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .btn-net-instagram {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      color: white;
+    }
+    .btn-net-facebook {
+      background-color: #1877f2;
+      color: white;
+    }
+    .btn-net-whatsapp {
+      background-color: #25d366;
+      color: white;
+    }
+    .btn-net-web {
+      background-color: #0f172a;
+      color: white;
+    }
+
+    @media (max-width: 640px) {
+      .modal-bottom-sheet {
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+      .modal-bottom-sheet > div {
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        max-height: 88vh !important;
+      }
+    }
+  
