@@ -508,28 +508,45 @@
       });
     }
 
+    // Texto del aviso de envío que ve el cliente en el carrito
+    function textoEstimadoEnvio(c) {
+      const min = Number(c.envio_min), max = Number(c.envio_max);
+      const tieneMin = isFinite(min) && min > 0, tieneMax = isFinite(max) && max > 0;
+      if (tieneMin && tieneMax) return `Costo estimativo del envío: entre ${fmtPrecio(min)} y ${fmtPrecio(max)}, según la distancia. El comercio te confirma el valor exacto.`;
+      if (tieneMin) return `Costo estimativo del envío: desde ${fmtPrecio(min)}, según la distancia. El comercio te confirma el valor exacto.`;
+      if (tieneMax) return `Costo estimativo del envío: hasta ${fmtPrecio(max)}, según la distancia. El comercio te confirma el valor exacto.`;
+      const texto = (c.costo_envio || '').trim();
+      if (texto) return `Costo del envío: ${texto}. Se suma al total de los productos.`;
+      return 'El comercio te confirma el costo del envío.';
+    }
+
     function toggleDireccionCarrito() {
       const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
       const boxDireccion = document.getElementById('box-cart-direccion');
       const leyendaEnvio = document.getElementById('cart-leyenda-envio');
       const labelNombre = document.getElementById('cart-label-nombre');
       const inputNombre = document.getElementById('cart-input-nombre-retira');
+      const avisoEnvio = document.getElementById('cart-aviso-envio');
+      const labelTotal = document.getElementById('cart-label-total');
+      const envioConCosto = tipoEntrega === 'envio' && comercioCarrito && !comercioCarrito.envio_gratis;
 
       if (tipoEntrega === 'envio') {
         boxDireccion.classList.remove('hidden');
-        if (comercioCarrito && !comercioCarrito.envio_gratis) {
-          leyendaEnvio.classList.remove('hidden');
-        } else {
-          leyendaEnvio.classList.add('hidden');
-        }
         if (labelNombre) labelNombre.innerText = "Nombre de la persona que recibe";
         if (inputNombre) inputNombre.placeholder = "Ej: Juan Pérez";
       } else {
         boxDireccion.classList.add('hidden');
-        leyendaEnvio.classList.add('hidden');
         if (labelNombre) labelNombre.innerText = "Nombre de la persona que retira";
         if (inputNombre) inputNombre.placeholder = "Ej: Juan Pérez";
       }
+
+      leyendaEnvio.classList.toggle('hidden', !envioConCosto);
+      if (avisoEnvio) {
+        avisoEnvio.classList.toggle('hidden', !envioConCosto);
+        if (envioConCosto) document.getElementById('cart-aviso-envio-detalle').innerText = textoEstimadoEnvio(comercioCarrito);
+      }
+      if (labelTotal) labelTotal.innerText = envioConCosto ? 'Subtotal (sin envío):' : 'Total estimado:';
+      if (window.lucide) lucide.createIcons();
     }
 
     function actualizarCarrito() {
@@ -738,11 +755,18 @@
       mensaje += `\n📌 *Detalles del Pedido:*\n`;
       mensaje += `• *Medio de pago:* ${medioPago}\n`;
 
+      const envioPendiente = permiteEnvios && tipoEntrega === 'envio' && !comercioCarrito.envio_gratis;
+
       if (permiteEnvios && tipoEntrega === 'envio') {
         mensaje += `• *Persona que recibe:* ${nombreRetira}\n`;
         mensaje += `• *Entrega:* Envío a domicilio\n`;
         mensaje += `• *Dirección:* ${direccion}\n`;
-        mensaje += `\n*Total a pagar:* ${fmtPrecio(total)}\n`;
+        if (envioPendiente) {
+          mensaje += `\n*Subtotal de productos (sin envío):* ${fmtPrecio(total)}\n`;
+          mensaje += `• *Costo del envío:* a confirmar\n`;
+        } else {
+          mensaje += `\n*Total a pagar:* ${fmtPrecio(total)} (envío gratis)\n`;
+        }
       } else {
         mensaje += `• *Persona que retira:* ${nombreRetira}\n`;
         mensaje += `• *Horario de retiro:* ${obtenerHorarioHoyTexto(comercioCarrito)}\n`;
@@ -750,7 +774,9 @@
         mensaje += `\n*Total a pagar:* ${fmtPrecio(total)}\n`;
       }
 
-      mensaje += `\n¿Me confirman la recepción? ¡Muchas gracias!`;
+      mensaje += envioPendiente
+        ? `\n¿Me pasarías el total con el envío incluido y me confirmás la recepción del pedido? ¡Muchas gracias!`
+        : `\n¿Me confirman la recepción? ¡Muchas gracias!`;
 
       guardarPedidoEnHistorial({
         comercioId: comercioCarrito.id,

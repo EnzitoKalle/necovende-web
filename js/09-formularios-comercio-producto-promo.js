@@ -114,6 +114,8 @@
       toggleCampoCostoEnvio();
 
       document.getElementById('costo-envio').value = "A convenir según zona";
+      document.getElementById('envio-min').value = "";
+      document.getElementById('envio-max').value = "";
       document.getElementById('comercio-color-primario').value = "#f8fafc";
       document.getElementById('comercio-color-acento').value = "#ea580c";
       document.getElementById('comercio-posicion-portada').value = "object-center";
@@ -149,6 +151,8 @@
       toggleCampoCostoEnvio();
 
       document.getElementById('costo-envio').value = c.costo_envio || "";
+      document.getElementById('envio-min').value = c.envio_min != null ? c.envio_min : "";
+      document.getElementById('envio-max').value = c.envio_max != null ? c.envio_max : "";
       document.getElementById('comercio-color-primario').value = c.color_primario || "#f8fafc";
       document.getElementById('comercio-color-acento').value = c.color_acento || "#ea580c";
       document.getElementById('comercio-posicion-portada').value = c.posicion_portada || "object-center";

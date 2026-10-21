@@ -649,6 +649,11 @@
           <input type="text" id="cart-input-direccion" placeholder="Ej: Calle 60 N° 2840, Depto 2" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
         </div>
 
+        <div id="cart-aviso-envio" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-1">
+          <p class="font-black text-amber-800 flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> El envío no está incluido en el total</p>
+          <p id="cart-aviso-envio-detalle" class="text-amber-700 leading-snug"></p>
+        </div>
+
         <div id="box-cart-info-retiro-directo" class="hidden bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
           <p class="font-bold text-slate-700">Horario de retiro: <span id="cart-lbl-horario-retiro" class="font-normal text-slate-600"></span></p>
           <p class="font-bold text-slate-700">Dirección: <span id="cart-lbl-dir-retiro" class="font-normal text-slate-600"></span></p>
@@ -662,10 +667,10 @@
 
       <div class="border-t border-slate-100 pt-4 space-y-4">
         <div class="flex justify-between items-baseline text-sm font-black text-slate-900">
-          <span>Total estimado:</span>
+          <span id="cart-label-total">Total estimado:</span>
           <div class="text-right">
             <span id="cart-total-precio" class="text-brand-600 text-2xl font-black">$0</span>
-            <p id="cart-leyenda-envio" class="text-[10px] text-slate-400 font-normal hidden">+ envío (el local te confirma el total final)</p>
+            <p id="cart-leyenda-envio" class="text-[10px] text-amber-600 font-bold hidden">+ costo del envío (se suma aparte)</p>
           </div>
         </div>
 
@@ -788,6 +793,15 @@
         <div id="contenedor-costo-envio">
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Costo de Envío</label>
           <input type="text" id="costo-envio" placeholder="Ej: $1500 o 'A convenir según zona'" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+
+          <div class="mt-2.5 bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+            <label class="block text-xs font-bold text-slate-700">Rango estimativo del envío <span class="font-normal text-slate-400">(opcional)</span></label>
+            <p class="text-[10px] text-slate-500 leading-snug">Si el costo depende de la distancia, poné entre cuánto suele oscilar. Se le muestra al cliente solo en el carrito, como valor estimativo.</p>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" id="envio-min" min="0" step="100" inputmode="numeric" placeholder="Desde $ (ej: 2500)" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-semibold transition">
+              <input type="number" id="envio-max" min="0" step="100" inputmode="numeric" placeholder="Hasta $ (ej: 5000)" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-semibold transition">
+            </div>
+          </div>
         </div>
 
         <div id="seccion-enlaces-form" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">

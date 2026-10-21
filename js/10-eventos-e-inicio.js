@@ -100,6 +100,20 @@
         activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false
       };
 
+      // Rango estimativo de envío (solo si aplica). Las columnas envio_min/envio_max se crean con sql/02-envio-estimado.sql
+      const pideEnvioPago = document.getElementById('envios').checked && !document.getElementById('envio-gratis').checked;
+      const envioMinVal = pideEnvioPago ? parseFloat(document.getElementById('envio-min').value) : NaN;
+      const envioMaxVal = pideEnvioPago ? parseFloat(document.getElementById('envio-max').value) : NaN;
+      if (!isNaN(envioMinVal) && !isNaN(envioMaxVal) && envioMaxVal < envioMinVal) {
+        alert("En el rango estimativo del envío, el valor \"Hasta\" tiene que ser mayor o igual que \"Desde\".");
+        return;
+      }
+      const columnaEnvioExiste = Boolean(comercioExistente && ('envio_min' in comercioExistente));
+      if (!isNaN(envioMinVal) || !isNaN(envioMaxVal) || columnaEnvioExiste) {
+        datosComercio.envio_min = isNaN(envioMinVal) ? null : envioMinVal;
+        datosComercio.envio_max = isNaN(envioMaxVal) ? null : envioMaxVal;
+      }
+
       let res;
       if (editId) {
         res = await _supabase.from('comercios').update(datosComercio).eq('id', editId);
