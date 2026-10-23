@@ -54,28 +54,43 @@
       }
     }
 
+    let filtroAdminVencimiento = false;
     function abrirModalAdmin() {
       if (!esAdministrador()) return;
       const lista = document.getElementById('admin-comercios-lista');
       lista.innerHTML = '';
 
-      if (comerciosGlobales.length === 0) {
-        lista.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No hay comercios cargados.</p>`;
+      const _infos = comerciosGlobales.map(c => ({ c, info: infoVencimientoPlan(c) }));
+      const _porVencer = _infos.filter(x => x.info && !x.info.vencido && x.info.dias <= 7).length;
+      const _vencidos = _infos.filter(x => x.info && x.info.vencido).length;
+      const _lista = filtroAdminVencimiento
+        ? _infos.filter(x => x.info && (x.info.vencido || x.info.dias <= 7)).sort((a, b) => new Date(a.c.plan_vence) - new Date(b.c.plan_vence)).map(x => x.c)
+        : comerciosGlobales;
+
+      lista.insertAdjacentHTML('beforeend', `
+        <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl p-2.5 text-[11px]">
+          <p class="font-bold text-slate-600">⏳ Por vencer (7 días): <span class="text-amber-600">${_porVencer}</span> · Vencidos: <span class="text-rose-600">${_vencidos}</span></p>
+          <button type="button" onclick="filtroAdminVencimiento = !filtroAdminVencimiento; abrirModalAdmin();" class="px-2.5 py-1.5 rounded-lg font-black ${filtroAdminVencimiento ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-700'}">${filtroAdminVencimiento ? 'Ver todos' : 'Solo por vencer'}</button>
+        </div>`);
+
+      if (_lista.length === 0) {
+        lista.insertAdjacentHTML('beforeend', `<p class="text-xs text-slate-400 text-center py-4">${comerciosGlobales.length === 0 ? 'No hay comercios cargados.' : 'No hay planes por vencer ni vencidos.'}</p>`);
       } else {
-        comerciosGlobales.forEach(c => {
+        _lista.forEach(c => {
           const planActual = c.plan || 'gratis';
           const estaActivo = c.activo === true;
           lista.innerHTML += `
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
               <div class="truncate">
                 <p class="font-black text-slate-900 truncate">${esc(c.nombre)} <span class="text-[10px] font-bold px-2 py-0.5 rounded ${estaActivo ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${estaActivo ? 'Activo' : 'Inactivo / Pendiente'}</span></p>
-                <p class="text-[10px] text-slate-400">Titular: ${esc(c.titular_alias || 'No especificado')} | Plan: ${planActual.toUpperCase()}${c.plan_vencido ? ' (VENCIDO)' : ''}${c.plan_vence ? ' · vence ' + new Date(c.plan_vence).toLocaleDateString('es-AR') : ''}</p>
+                <p class="text-[10px] text-slate-400">Titular: ${esc(c.titular_alias || 'No especificado')} | Plan: ${(c.plan_original || planActual).toUpperCase()}</p>
+                ${infoVencimientoPlan(c) ? `<p class="mt-1"><span class="inline-block text-[10px] font-black px-2 py-0.5 rounded-md border ${clasesNivelPlan(infoVencimientoPlan(c).nivel)}">${infoVencimientoPlan(c).vencido ? '⚠️ ' : '⏳ '}${infoVencimientoPlan(c).texto}</span></p>` : ''}
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="toggleActivarComercioAdmin('${c.id}', ${estaActivo})" class="px-3 py-1.5 rounded-lg font-bold text-xs ${estaActivo ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-emerald-500 text-white'}">
                   ${estaActivo ? 'Desactivar' : 'Aprobar/Activar'}
                 </button>
-                <button onclick="renovarPlanAdmin('${c.id}')" title="Renovar 30 días" class="px-2 py-1.5 rounded-lg font-bold text-xs bg-sky-50 text-sky-700 border border-sky-200">+30d</button>
+                <button onclick="renovarPlanAdmin('${c.id}')" title="Renovar 1 mes" class="px-2 py-1.5 rounded-lg font-bold text-xs bg-sky-50 text-sky-700 border border-sky-200">+1 mes</button>
                 <select onchange="cambiarPlanComercioAdmin('${c.id}', this.value)" class="clean-input px-2.5 py-1.5 rounded-lg font-bold text-xs">
                   <option value="gratis" ${planActual === 'gratis' ? 'selected' : ''}>⚪ Gratis</option>
                   <option value="pro" ${planActual === 'pro' ? 'selected' : ''}>✓ Pro</option>
@@ -93,7 +108,7 @@
     async function toggleActivarComercioAdmin(comercioId, estadoActual) {
       const nuevoEstado = !estadoActual;
       const _c = comerciosGlobales.find(x => String(x.id) === String(comercioId));
-      const _extra = (nuevoEstado && _c && _c.plan_original !== 'gratis' && !_c.plan_vence) ? { plan_vence: new Date(Date.now() + 30*864e5).toISOString() } : {};
+      const _extra = (nuevoEstado && _c && _c.plan_original !== 'gratis' && !_c.plan_vence) ? { plan_vence: sumarUnMes(Date.now()).toISOString() } : {};
       const { error } = await _supabase.from('comercios').update({ activo: nuevoEstado, ..._extra }).eq('id', comercioId);
       if (error) {
         alert("Error al cambiar estado: " + error.message);
@@ -105,7 +120,7 @@
     }
 
     async function cambiarPlanComercioAdmin(comercioId, nuevoPlan) {
-      const _venc = nuevoPlan === 'gratis' ? null : new Date(Date.now() + 30*864e5).toISOString();
+      const _venc = nuevoPlan === 'gratis' ? null : sumarUnMes(Date.now()).toISOString();
       const { error } = await _supabase.from('comercios').update({ plan: nuevoPlan, plan_vence: _venc }).eq('id', comercioId);
       if (error) {
         alert("Error al actualizar plan: " + error.message);
@@ -150,7 +165,8 @@
                     <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${planBadge}</span>
                   </div>
                   <div id="stats-${c.id}" class="mt-1 text-[10px] text-slate-500 font-semibold">Cargando estadísticas...</div>
-                  <div class="mt-0.5">${activoBadge}${c.plan_vencido ? ' <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">Plan vencido: volviste a Gratis</span>' : (c.plan_vence ? ' <span class="text-[9px] text-slate-400">Vence ' + new Date(c.plan_vence).toLocaleDateString('es-AR') + '</span>' : '')}</div>
+                  <div class="mt-0.5">${activoBadge}</div>
+                  ${htmlPlanComercio(c)}
                 </div>
               </div>
               <button onclick="cerrarModal('modal-panel'); prepararModalEditarComercio('${c.id}')" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex-shrink-0" title="Editar datos">
@@ -283,9 +299,9 @@
       const c = comerciosGlobales.find(x => String(x.id) === String(comercioId));
       if (!c || c.plan_original === 'gratis') { alert('Elegí primero un plan Pro o Ultra para este comercio.'); return; }
       const base = Math.max(Date.now(), c.plan_vence ? new Date(c.plan_vence).getTime() : 0);
-      const { error } = await _supabase.from('comercios').update({ plan: c.plan_original, plan_vence: new Date(base + 30*864e5).toISOString() }).eq('id', comercioId);
+      const { error } = await _supabase.from('comercios').update({ plan: c.plan_original, plan_vence: sumarUnMes(base).toISOString() }).eq('id', comercioId);
       if (error) { alert('Error al renovar: ' + error.message); return; }
-      mostrarToast('Plan renovado por 30 días.');
+      mostrarToast('Plan renovado por 1 mes.');
       await cargarComercios();
       abrirModalAdmin();
     }

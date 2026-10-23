@@ -1,4 +1,49 @@
     function esc(t) { return escSeccion(t); }
+    // Suma exactamente un mes de calendario (15/10 -> 15/11; 31/01 -> 28/02)
+    function sumarUnMes(base) {
+      const d = new Date(base);
+      const dia = d.getDate();
+      d.setMonth(d.getMonth() + 1);
+      if (d.getDate() !== dia) d.setDate(0);
+      return d;
+    }
+
+    // Estado del plan de pago de un comercio (null si es Gratis o todavía no tiene fecha)
+    function infoVencimientoPlan(c) {
+      const plan = c.plan_original || c.plan || 'gratis';
+      if (plan === 'gratis' || !c.plan_vence) return null;
+      const venc = new Date(c.plan_vence);
+      const fecha = venc.toLocaleDateString('es-AR');
+      const ms = venc.getTime() - Date.now();
+      if (ms <= 0) return { vencido: true, dias: 0, nivel: 'vencido', fecha, texto: `venció el ${fecha}` };
+      const dias = Math.ceil(ms / 864e5);
+      const nivel = dias <= 3 ? 'urgente' : (dias <= 7 ? 'pronto' : 'ok');
+      const texto = ms < 864e5 ? 'vence hoy' : (dias === 1 ? 'vence mañana' : `vence en ${dias} días`);
+      return { vencido: false, dias, nivel, fecha, texto: `${texto} (${fecha})` };
+    }
+
+    function clasesNivelPlan(nivel) {
+      return { ok: 'bg-emerald-50 text-emerald-700 border-emerald-200', pronto: 'bg-amber-50 text-amber-700 border-amber-200',
+               urgente: 'bg-rose-50 text-rose-700 border-rose-200', vencido: 'bg-rose-100 text-rose-800 border-rose-300' }[nivel] || 'bg-slate-50 text-slate-600 border-slate-200';
+    }
+
+    // Bloque "Mi plan ..." que ve el comerciante en su panel
+    function htmlPlanComercio(c) {
+      const plan = c.plan_original || c.plan || 'gratis';
+      const nombre = { gratis: 'Gratis', pro: 'Pro', ultra: 'Ultra' }[plan] || plan;
+      const base = 'mt-1.5 text-[10px] font-bold px-2 py-1 rounded-lg border';
+      if (plan === 'gratis') return `<div class="${base} ${clasesNivelPlan('x')}">Mi plan: Gratis</div>`;
+      const info = infoVencimientoPlan(c);
+      if (!info) {
+        const msg = c.activo === true ? 'sin fecha de vencimiento cargada' : 'empieza a contar cuando se apruebe tu comercio';
+        return `<div class="${base} ${clasesNivelPlan('x')}">Mi plan ${nombre} · ${msg}</div>`;
+      }
+      const aviso = info.vencido ? ' · hoy tu comercio está en plan Gratis' : '';
+      const boton = info.nivel !== 'ok'
+        ? ` <button type="button" onclick="event.stopPropagation(); solicitarPlanWhatsApp('${nombre}')" class="ml-1 underline font-black">Renovar</button>` : '';
+      return `<div class="${base} ${clasesNivelPlan(info.nivel)}">Mi plan ${nombre} · ${info.texto}${aviso}${boton}</div>`;
+    }
+
     // Formato de precios argentino: 12000 -> $12.000
     function fmtPrecio(n) {
       const v = Number(n);
