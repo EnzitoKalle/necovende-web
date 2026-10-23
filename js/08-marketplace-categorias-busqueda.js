@@ -44,6 +44,7 @@
       });
       actualizarBadgeAdmin();
       restaurarCarrito();
+      mostrarAvisoPlanVence();
       renderizarCategoriasPrincipales();
       aplicarFiltros();
 

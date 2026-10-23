@@ -52,6 +52,7 @@
       if (comercioActivo) {
         abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
       }
+      mostrarAvisoPlanVence();
     }
 
     let filtroAdminVencimiento = false;

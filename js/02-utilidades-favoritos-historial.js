@@ -27,6 +27,53 @@
                urgente: 'bg-rose-50 text-rose-700 border-rose-200', vencido: 'bg-rose-100 text-rose-800 border-rose-300' }[nivel] || 'bg-slate-50 text-slate-600 border-slate-200';
     }
 
+    // Cartel de plan por vencer (5 días o menos, o ya vencido). Se muestra al dueño al entrar.
+    // El admin puede probarlo sin tocar datos agregando ?simular_vencimiento=3 a la URL.
+    function mostrarAvisoPlanVence() {
+      const caja = document.getElementById('aviso-plan-vence');
+      if (!caja) return;
+      caja.classList.add('hidden');
+      if (!usuarioActual) return;
+
+      let lista = comerciosGlobales.filter(c => c.user_id === usuarioActual.id);
+      const sim = parseInt(new URLSearchParams(location.search).get('simular_vencimiento'));
+      if (esAdministrador() && !isNaN(sim)) {
+        lista = [{ id: 'simulado', nombre: (lista[0] && lista[0].nombre) || 'Comercio de prueba', plan_original: 'ultra',
+                   plan_vence: new Date(Date.now() + sim * 864e5).toISOString(), activo: true }];
+      }
+
+      const urgentes = lista
+        .map(c => ({ c, info: infoVencimientoPlan(c) }))
+        .filter(x => x.info && (x.info.vencido || x.info.dias <= 5))
+        .sort((a, b) => new Date(a.c.plan_vence) - new Date(b.c.plan_vence));
+      if (urgentes.length === 0) return;
+
+      const firma = urgentes.map(x => x.c.id + '@' + x.c.plan_vence).join('|');
+      try { if (sessionStorage.getItem('aviso_plan_cerrado') === firma) return; } catch (e) {}
+
+      const { c, info } = urgentes[0];
+      const nombrePlan = { pro: 'Pro', ultra: 'Ultra' }[c.plan_original] || c.plan_original;
+      const mas = urgentes.length > 1 ? ` (y ${urgentes.length - 1} comercio${urgentes.length > 2 ? 's' : ''} más)` : '';
+      const texto = info.vencido
+        ? `El plan ${nombrePlan} de <b>${esc(c.nombre)}</b> venció el ${info.fecha}. Hoy está en plan Gratis${mas}.`
+        : `El plan ${nombrePlan} de <b>${esc(c.nombre)}</b> ${info.texto}${mas}.`;
+
+      caja.innerHTML = `
+        <div class="max-w-2xl mx-auto px-3 sm:px-4 pt-2">
+          <div class="flex items-center gap-2 rounded-xl border px-3 py-2 shadow-md text-[11px] font-semibold ${clasesNivelPlan(info.vencido ? 'vencido' : (info.dias <= 3 ? 'urgente' : 'pronto'))}" style="background-color:#fffbeb">
+            <span class="text-base leading-none">${info.vencido ? '⚠️' : '⏳'}</span>
+            <p class="flex-1 min-w-0 leading-snug">${texto}</p>
+            <button type="button" onclick="solicitarPlanWhatsApp('${nombrePlan}')" class="flex-shrink-0 bg-brand-500 hover:bg-brand-600 text-white font-black px-2.5 py-1.5 rounded-lg">Renovar</button>
+            <button type="button" id="aviso-plan-cerrar" aria-label="Cerrar aviso" class="flex-shrink-0 text-slate-400 hover:text-slate-700 text-base leading-none px-1">✕</button>
+          </div>
+        </div>`;
+      caja.classList.remove('hidden');
+      document.getElementById('aviso-plan-cerrar').onclick = () => {
+        caja.classList.add('hidden');
+        try { sessionStorage.setItem('aviso_plan_cerrado', firma); } catch (e) {}
+      };
+    }
+
     // Bloque "Mi plan ..." que ve el comerciante en su panel
     function htmlPlanComercio(c) {
       const plan = c.plan_original || c.plan || 'gratis';
