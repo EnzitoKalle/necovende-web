@@ -7,7 +7,9 @@
     const WHATSAPP_SOPORTE_PLANES = "542262541305";
 
     // NUEVA ESTRUCTURA JERÁRQUICA DE CATEGORÍAS PRINCIPALES Y SUBCATEGORÍAS
-    const CATEGORIAS_JERARQUICAS = {
+    // Lista de RESPALDO: se usa solo si todavía no corriste sql/03-categorias.sql o si falla la conexión.
+    // Las categorías reales se administran desde el panel de admin (ver 11-categorias.js).
+    let CATEGORIAS_JERARQUICAS = {
       "Gastronomía 🍔": [
         "Heladerías", "Pizzerías", "Empanadas", "Hamburguesas", 
         "Rotisería", "Panaderías & Pastelería", "Cafetería", 
@@ -28,6 +30,16 @@
     const CATEGORIAS_INDUMENTARIA = [
       "Ropa de Niños", "Moda Hombre", "Moda Mujer", "Calzado", "Deportes", "Bazar & Hogar", "Regalería & Regalos", "Librería & Juguetería", "Cosmética & Belleza", "Tecnología & Celulares"
     ];
+
+    // Respaldo de íconos y opciones especiales por categoría (también se reemplaza con lo que viene de Supabase)
+    let CATEGORIAS_ICONOS = { "Gastronomía 🍔": "🍔", "Moda & Indumentaria 👗": "👗", "Hogar & Estilo 🏠": "🏠", "Servicios & Tecnología ⚡": "⚡" };
+    let CATEGORIAS_FLAGS = (() => {
+      const f = {};
+      CATEGORIAS_INDUMENTARIA.forEach(n => { f[n] = { sabores: false, coccion: false, talles: true }; });
+      f["Heladerías"] = { sabores: true, coccion: false, talles: false };
+      f["Empanadas"] = { sabores: true, coccion: true, talles: false };
+      return f;
+    })();
 
     const DIAS_SEMANA = [
       { id: 'lun', nombre: 'Lunes' },

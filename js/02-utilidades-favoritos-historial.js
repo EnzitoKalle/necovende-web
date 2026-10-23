@@ -1,4 +1,6 @@
     function esc(t) { return escSeccion(t); }
+    // Para meter un texto dentro de onclick="fn('...')": escapa comillas y barras y después el HTML
+    function jsStr(t) { return esc(String(t == null ? '' : t).replace(/\\/g, '\\\\').replace(/'/g, "\\'")); }
     // Suma exactamente un mes de calendario (15/10 -> 15/11; 31/01 -> 28/02)
     function sumarUnMes(base) {
       const d = new Date(base);

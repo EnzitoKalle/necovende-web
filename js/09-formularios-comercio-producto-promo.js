@@ -4,7 +4,7 @@
       selectCatPrin.innerHTML = '';
 
       Object.keys(CATEGORIAS_JERARQUICAS).forEach(catPrin => {
-        selectCatPrin.innerHTML += `<option value="${catPrin}" ${catPrincipalActual === catPrin ? 'selected' : ''}>${catPrin}</option>`;
+        selectCatPrin.innerHTML += `<option value="${esc(catPrin)}" ${catPrincipalActual === catPrin ? 'selected' : ''}>${esc(catPrin)}</option>`;
       });
 
       actualizarSubcategoriasFormulario(subcatsActuales);
@@ -15,14 +15,17 @@
       const grid = document.getElementById('grid-subcategorias-form');
       grid.innerHTML = '';
 
-      const subcategoriasDisponibles = CATEGORIAS_JERARQUICAS[selectCatPrin] || [];
+      const subcategoriasDisponibles = [...(CATEGORIAS_JERARQUICAS[selectCatPrin] || [])];
+      // Si el comercio ya tenía una subcategoría que después se ocultó, se sigue mostrando para no perderla al guardar
+      const rubroAdmin = categoriasAdmin.find(r => r.nombre === selectCatPrin);
+      if (rubroAdmin) rubroAdmin.subs.filter(s => s.activa === false && subcatsActuales.includes(s.nombre)).forEach(s => subcategoriasDisponibles.push(s.nombre));
 
       subcategoriasDisponibles.forEach(sub => {
         const isChecked = subcatsActuales.includes(sub);
         grid.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-700">
-            <input type="checkbox" name="subcat-checkbox" value="${sub}" ${isChecked ? 'checked' : ''} onchange="validarLimiteSubcategorias(this)" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500">
-            <span class="truncate">${sub}</span>
+            <input type="checkbox" name="subcat-checkbox" value="${esc(sub)}" ${isChecked ? 'checked' : ''} onchange="validarLimiteSubcategorias(this)" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500">
+            <span class="truncate">${esc(sub)}</span>
           </label>
         `;
       });
@@ -56,13 +59,14 @@
       const secSabores = document.getElementById('seccion-sabores-config');
       const secCoccion = document.getElementById('seccion-coccion-config');
 
-      if (subcats.includes('Heladerías') || subcats.includes('Empanadas')) {
+      const flagsCat = flagsDeSubcategorias(subcats);
+      if (flagsCat.sabores) {
         secSabores.classList.remove('hidden');
       } else {
         secSabores.classList.add('hidden');
       }
 
-      if (subcats.includes('Empanadas')) {
+      if (flagsCat.coccion) {
         secCoccion.classList.remove('hidden');
       } else {
         secCoccion.classList.add('hidden');
@@ -125,7 +129,7 @@
 
       actualizarVisibilidadCamposSegunPlanRegistro();
       renderizarGrillaHorarios({});
-      inicializarSelectCategoriasFormulario('Gastronomía 🍔', []);
+      inicializarSelectCategoriasFormulario(Object.keys(CATEGORIAS_JERARQUICAS)[0] || '', []);
       abrirModal('modal-registro');
     }
 
@@ -208,7 +212,7 @@
       renderizarGrillaHorarios(c.horarios_dias || {});
 
       const subcats = c.subcategorias || c.categorias || [c.categoria].filter(Boolean);
-      const catPrin = c.categoria_principal || 'Gastronomía 🍔';
+      const catPrin = c.categoria_principal || Object.keys(CATEGORIAS_JERARQUICAS)[0] || '';
       inicializarSelectCategoriasFormulario(catPrin, subcats);
 
       document.getElementById('modal-comercio-head-title').innerText = 'Editar mi Comercio';
@@ -292,10 +296,11 @@
       document.getElementById('prod-stock').value = '';
 
       const subs = comercio?.subcategorias || comercio?.categorias || [comercio?.categoria];
-      const esEmpanadas = subs.includes('Empanadas');
-      const esHeladeria = subs.includes('Heladerías');
-      const esGastronomiaConSabores = esHeladeria || esEmpanadas;
-      const esComercioRetail = subs.some(s => CATEGORIAS_INDUMENTARIA.includes(s));
+      // Las opciones (sabores / cocción / talles) se definen por categoría en el panel de admin
+      const flagsCat = flagsDeSubcategorias(subs);
+      const esEmpanadas = flagsCat.coccion;
+      const esGastronomiaConSabores = flagsCat.sabores;
+      const esComercioRetail = flagsCat.talles;
 
       const boxSaboresProd = document.getElementById('box-check-sabores-prod');
       const boxCoccionProd = document.getElementById('box-check-coccion-prod');

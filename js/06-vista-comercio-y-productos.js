@@ -368,10 +368,9 @@
         const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
 
         const categoriasLocal = comercioActivo?.subcategorias || comercioActivo?.categorias || [comercioActivo?.categoria];
-        const esHeladeria = categoriasLocal.includes('Heladerías');
-        const esEmpanadas = categoriasLocal.includes('Empanadas');
+        const flagsCat = flagsDeSubcategorias(categoriasLocal);
 
-        const requiereOpcionesModal = esCombo || Boolean(p.requiere_sabores) || Boolean(p.requiere_coccion) || (p.talles_disponibles || []).length > 0 || (p.colores_disponibles || []).length > 0 || Boolean(p.opciones_custom && p.opciones_custom.length > 0) || (p.requiere_sabores === undefined && (esHeladeria || esEmpanadas));
+        const requiereOpcionesModal = esCombo || Boolean(p.requiere_sabores) || Boolean(p.requiere_coccion) || (p.talles_disponibles || []).length > 0 || (p.colores_disponibles || []).length > 0 || Boolean(p.opciones_custom && p.opciones_custom.length > 0) || (p.requiere_sabores === undefined && flagsCat.sabores);
 
         const textoBotonAccion = requiereOpcionesModal ? 'Elegir opciones' : 'Agregar';
 

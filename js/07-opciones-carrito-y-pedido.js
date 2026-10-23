@@ -12,14 +12,13 @@
       cantidadSeleccionadaModalSabores = 1;
 
       const categoriasLocal = comercioActivo?.subcategorias || comercioActivo?.categorias || [comercioActivo?.categoria];
-      const esHeladeria = categoriasLocal.includes('Heladerías');
-      const esEmpanadas = categoriasLocal.includes('Empanadas');
+      const flagsCat = flagsDeSubcategorias(categoriasLocal);
 
       const requiereSabores = (p.requiere_sabores !== undefined) 
         ? Boolean(p.requiere_sabores) 
-        : (esHeladeria || esEmpanadas);
+        : flagsCat.sabores;
 
-      const requiereCoccion = Boolean(p.requiere_coccion) && !esHeladeria;
+      const requiereCoccion = Boolean(p.requiere_coccion) && flagsCat.coccion;
       const tieneVariantes = (p.talles_disponibles || []).length > 0 || (p.colores_disponibles || []).length > 0;
       const tieneOpcionesCustom = Boolean(p.opciones_custom && p.opciones_custom.length > 0);
       const esCombo = Boolean(p.es_combo);

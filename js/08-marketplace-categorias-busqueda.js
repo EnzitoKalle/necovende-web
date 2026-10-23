@@ -18,6 +18,7 @@
     }
 
     async function cargarComercios() {
+      await cargarCategorias();
       // Solo trae lo necesario: el público ve activos; el dueño además los suyos; el admin todo.
       let consultaComercios = _supabase.from('comercios').select('*');
       if (!esAdministrador()) {
@@ -106,13 +107,13 @@
 
       Object.keys(CATEGORIAS_JERARQUICAS).forEach(catPrincipal => {
         const isSelected = categoriaPrincipalSeleccionada === catPrincipal;
-        const icono = catPrincipal.includes('Gastronomía') ? '🍔' : (catPrincipal.includes('Moda') ? '👗' : (catPrincipal.includes('Hogar') ? '🏠' : '⚡'));
+        const icono = CATEGORIAS_ICONOS[catPrincipal] || '🏷️';
         
         grid.innerHTML += `
-          <button onclick="seleccionarCategoriaPrincipal('${catPrincipal}')" class="clean-card rounded-2xl p-3.5 text-left transition hover:border-brand-300 group flex items-center gap-3 bg-white shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg group-hover:scale-105 transition">${icono}</div>
+          <button onclick="seleccionarCategoriaPrincipal('${jsStr(catPrincipal)}')" class="clean-card rounded-2xl p-3.5 text-left transition hover:border-brand-300 group flex items-center gap-3 bg-white shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg group-hover:scale-105 transition">${esc(icono)}</div>
             <div class="truncate">
-              <h4 class="font-black text-xs text-slate-900 truncate">${catPrincipal}</h4>
+              <h4 class="font-black text-xs text-slate-900 truncate">${esc(catPrincipal)}</h4>
               <p class="text-[10px] text-slate-400">Ver variantes</p>
             </div>
           </button>
@@ -140,14 +141,14 @@
         
         barSub.innerHTML = `
           <button onclick="seleccionarSubcategoria('Todas', this)" class="btn-subcat bg-brand-500 text-white font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-sm">
-            Todas de ${catPrincipal}
+            Todas de ${esc(catPrincipal)}
           </button>
         `;
 
         subcats.forEach(sub => {
           barSub.innerHTML += `
-            <button onclick="seleccionarSubcategoria('${sub}', this)" class="btn-subcat clean-card text-slate-600 px-3 py-1.5 rounded-xl whitespace-nowrap transition hover:border-brand-300 shadow-sm">
-              ${sub}
+            <button onclick="seleccionarSubcategoria('${jsStr(sub)}', this)" class="btn-subcat clean-card text-slate-600 px-3 py-1.5 rounded-xl whitespace-nowrap transition hover:border-brand-300 shadow-sm">
+              ${esc(sub)}
             </button>
           `;
         });
