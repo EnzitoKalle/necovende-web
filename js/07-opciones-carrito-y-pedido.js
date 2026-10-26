@@ -9,6 +9,9 @@
       const p = comercioActivo?.productos?.find(item => item.id === prodId);
       if (!p) return;
 
+      // Promos "a elección" / "llevá N, pagá M": el cliente elige los productos en su propio modal
+      if (configPromo(p)) { abrirPromoEleccion(p); return; }
+
       cantidadSeleccionadaModalSabores = 1;
 
       const categoriasLocal = comercioActivo?.subcategorias || comercioActivo?.categorias || [comercioActivo?.categoria];
@@ -462,7 +465,7 @@
       const p = comercioActivo?.productos?.find(x => String(x.id) === String(prodDetalleActualId));
       if (!p) return;
       const url = linkDelProducto(comercioActivo, p.id);
-      const texto = `¡Mirá ${p.titulo} en ${comercioActivo.nombre}! ${fmtPrecio(p.precio)}`;
+      const texto = `¡Mirá ${p.titulo} en ${comercioActivo.nombre}! ${precioTextoPromo(p)}`;
       if (navigator.share) {
         navigator.share({ title: p.titulo, text: texto, url }).catch(() => {});
       } else if (navigator.clipboard) {
@@ -478,7 +481,7 @@
       prodDetalleActualId = p.id;
 
       document.getElementById('view-prod-titulo').innerText = p.titulo;
-      document.getElementById('view-prod-precio').innerText = `${fmtPrecio(p.precio)}`;
+      document.getElementById('view-prod-precio').innerText = precioTextoPromo(p);
       const oferta = ofertaDe(p, comercioActivo);
       const tachado = document.getElementById('view-prod-precio-antes');
       if (oferta) { tachado.innerText = fmtPrecio(oferta.antes); tachado.classList.remove('hidden'); }
@@ -549,6 +552,7 @@
       } else {
         const nuevo = { id, titulo, precio, cantidad: cantidadAAgregar };
         if (extra && extra.talle) nuevo.talle = extra.talle;
+        if (extra && extra.eleccion) nuevo.eleccion = extra.eleccion;
         if (extra && extra.comboTalles) { nuevo.comboTalles = extra.comboTalles; nuevo.comboBase = extra.comboBase || cantidadAAgregar; }
         if (notaNueva) nuevo.nota = notaNueva;
         carrito.push(nuevo);
@@ -807,6 +811,8 @@
       };
       carrito.forEach(item => {
         sumar(item.id, item.cantidad, item.talle);
+        // Promo a elección / NxM: se descuenta cada producto elegido (con su talle) por cada vez que se pidió la promo
+        if (item.eleccion) item.eleccion.forEach(e => sumar(e.prodId, item.cantidad, e.talle));
         const prod = (comercioCarrito.productos || []).find(p => String(p.id) === String(item.id));
         if (prod && prod.es_combo && prod.items_combo) {
           let comps = [];

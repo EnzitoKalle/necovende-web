@@ -402,6 +402,7 @@
       document.getElementById('form-promo').reset();
       document.getElementById('promo-edit-id').value = '';
       promoItemsSeleccionados = {};
+      prepararFormPromoTipo(null);
 
       renderizarPickerProductosPromo();
       calcularDescuentoPromo();
@@ -488,6 +489,7 @@
         } catch(e) { console.error(e); }
       }
 
+      prepararFormPromoTipo(p);
       renderizarPickerProductosPromo();
       calcularDescuentoPromo();
       abrirModal('modal-promo');

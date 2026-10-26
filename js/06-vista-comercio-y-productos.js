@@ -323,6 +323,7 @@
 
     // Una promo solo figura agotada si alguno de los productos que incluye se quedó sin stock
     function promoTieneProductoAgotado(promo) {
+      if (promo && configPromo(promo) && comercioActivo) return productosElegiblesPromo(configPromo(promo), true).length === 0;
       if (!promo || !promo.items_combo || !comercioActivo || !comercioActivo.productos) return false;
       let items = [];
       try {
@@ -441,7 +442,7 @@
                 <p class="text-xs text-slate-500 truncate mt-0.5">${esc(p.descripcion || 'Tocar para ver detalles')}</p>
                 
                 <div class="flex items-center gap-2 mt-1.5">
-                  <p class="text-lg font-black text-brand-600">${fmtPrecio(p.precio)}</p>
+                  <p class="text-lg font-black text-brand-600">${precioTextoPromo(p)}</p>
                   ${oferta ? `<span class="text-xs font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span>` : ''}
                   ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-md">🔥 ${porcOff}% OFF</span>` : ''}
                 </div>

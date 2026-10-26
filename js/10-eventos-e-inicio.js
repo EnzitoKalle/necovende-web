@@ -269,14 +269,25 @@
     document.getElementById('form-promo').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const tipoPromo = document.getElementById('promo-tipo').value || 'fijo';
       const itemsArray = [];
-      for (const [prodId, cant] of Object.entries(promoItemsSeleccionados)) {
-        if (cant > 0) itemsArray.push({ prodId, cantidad: cant });
-      }
+      let promoConfig = null;
+      let precioPromo = parseFloat(document.getElementById('promo-precio-final').value);
 
-      if (itemsArray.length === 0) {
-        alert("Elegí al menos 1 producto para la promo.");
-        return;
+      if (tipoPromo === 'fijo') {
+        for (const [prodId, cant] of Object.entries(promoItemsSeleccionados)) {
+          if (cant > 0) itemsArray.push({ prodId, cantidad: cant });
+        }
+        if (itemsArray.length === 0) {
+          alert("Elegí al menos 1 producto para la promo.");
+          return;
+        }
+        if (!(precioPromo > 0)) { alert('Poné el precio de la promo.'); return; }
+      } else {
+        const r = leerConfigPromoForm();
+        if (r.error) { alert(r.error); return; }
+        promoConfig = r.config;
+        precioPromo = tipoPromo === 'nxm' ? 0 : r.precio;   // en "llevá N, pagá M" el precio sale de lo que elija el cliente
       }
 
       const promoEditId = document.getElementById('promo-edit-id').value;
@@ -291,7 +302,7 @@
       const datosPromo = {
         comercio_id: comercioActivo.id,
         titulo: document.getElementById('promo-titulo').value.trim(),
-        precio: parseFloat(document.getElementById('promo-precio-final').value),
+        precio: precioPromo,
         descripcion: document.getElementById('promo-descripcion').value.trim(),
         es_combo: true,
         promo_vence: document.getElementById('promo-vence').value || null,
@@ -303,6 +314,10 @@
       };
       if (promoEditId && !imagen_url) delete datosPromo.imagen_url;
       if (promoEditId) delete datosPromo.disponible;
+      // Solo se manda la columna si hace falta (así no falla si todavía no corriste el SQL 06)
+      const promoPrevia = promoEditId ? (comercioActivo?.productos || []).find(x => String(x.id) === String(promoEditId)) : null;
+      if (promoConfig) datosPromo.promo_config = promoConfig;
+      else if (promoPrevia && promoPrevia.promo_config) datosPromo.promo_config = null;
 
       let res;
       if (promoEditId) {
@@ -312,7 +327,8 @@
       }
 
       if (res.error) {
-        alert("Error al guardar promo: " + res.error.message);
+        if (/promo_config/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/06-promos-a-eleccion.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else alert("Error al guardar promo: " + res.error.message);
       } else {
         cerrarModal('modal-promo');
         if (comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
