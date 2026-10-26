@@ -124,10 +124,25 @@
 
       let productosFiltrados = comercioActivo.productos;
       if (q !== '') {
-        productosFiltrados = productosFiltrados.filter(p => 
-          p.titulo.toLowerCase().includes(q) || 
-          (p.descripcion && p.descripcion.toLowerCase().includes(q))
-        );
+        // Talles con stock de un producto, en minúscula (ej: ['s','m','xl'] o ['38','40'])
+        const tallesConStock = p => {
+          const st = p.stock_talles && typeof p.stock_talles === 'object' ? p.stock_talles : null;
+          return (p.talles_disponibles || [])
+            .filter(t => !st || !Object.prototype.hasOwnProperty.call(st, t) || Number(st[t]) > 0)
+            .map(t => String(t).toLowerCase().trim());
+        };
+        const coincideTexto = (p, t) => p.titulo.toLowerCase().includes(t) || (p.descripcion && p.descripcion.toLowerCase().includes(t)) || (p.colores_disponibles || []).some(c => String(c).toLowerCase().includes(t));
+        const tokens = q.split(/\s+/);
+        productosFiltrados = productosFiltrados.filter(p => {
+          const talles = tallesConStock(p);
+          // Cada palabra buscada debe coincidir: o es un talle que hay con stock, o aparece en el nombre/descripción.
+          // Una palabra corta que es un talle (ej "m", "xl", "42") se busca solo como talle, para no traer todo lo que la contenga.
+          return tokens.every(t => {
+            const esTalleDelLocal = comercioActivo.productos.some(x => (x.talles_disponibles || []).some(tt => String(tt).toLowerCase().trim() === t));
+            if (esTalleDelLocal && t.length <= 3) return talles.includes(t);
+            return coincideTexto(p, t) || talles.includes(t);
+          });
+        });
       }
 
       renderizarProductosComercio(productosFiltrados, esDuenio, colorAcentoBtn);
