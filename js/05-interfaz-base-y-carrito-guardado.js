@@ -12,11 +12,25 @@
       if (tipo === 'abierto') filtroAbierto = !filtroAbierto;
       if (tipo === 'envio') filtroEnvio = !filtroEnvio;
       if (tipo === 'populares') ordenPopulares = !ordenPopulares;
-      const estados = { 'chip-abierto': filtroAbierto, 'chip-envio': filtroEnvio, 'chip-populares': ordenPopulares };
+      if (tipo === 'ofertas') {
+        filtroOfertas = !filtroOfertas;
+        // En modo Ofertas el buscador pasa a buscar solo entre las ofertas y promos
+        document.getElementById('input-buscar').placeholder = filtroOfertas ? 'Buscar entre las ofertas...' : 'Buscar por local, empanadas, ropa, helados...';
+        document.getElementById('seccion-locales').classList.toggle('hidden', filtroOfertas);
+        document.getElementById('seccion-rubros').classList.toggle('hidden', filtroOfertas);
+        if (filtroOfertas) document.getElementById('seccion-subcategorias').classList.add('hidden');
+        else if (categoriaPrincipalSeleccionada !== 'Todas' && categoriaPrincipalSeleccionada !== 'Favoritos ❤️') document.getElementById('seccion-subcategorias').classList.remove('hidden');
+      }
+      const estados = { 'chip-ofertas': filtroOfertas, 'chip-abierto': filtroAbierto, 'chip-envio': filtroEnvio, 'chip-populares': ordenPopulares };
       Object.entries(estados).forEach(([id, on]) => {
         document.getElementById(id).className = 'chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border shadow-sm transition ' +
           (on ? 'bg-brand-500 text-white border-brand-500' : 'bg-white text-slate-600 border-slate-200');
       });
+      aplicarFiltros();
+    }
+
+    function cambiarOrdenPrecio(valor) {
+      ordenPrecio = valor === 'asc' || valor === 'desc' ? valor : '';
       aplicarFiltros();
     }
 
@@ -26,20 +40,31 @@
     }
 
     async function cargarEstadisticasPanel(lista) {
-      const desde = new Date(Date.now() - 30 * 864e5).toISOString();
+      const hace = d => new Date(Date.now() - d * 864e5).toISOString();
+      const desde7 = hace(7), desde30 = hace(30);
       for (const c of lista) {
         const el = document.getElementById('stats-' + c.id);
         if (!el) continue;
-        let visitas = null, solicitudes = 0, top = '';
+        let vis7 = null, vis30 = null, ped7 = null, ped30 = null, solicitudes = 0, top = '';
+        const contar = async (tabla, desde) => {
+          const r = await _supabase.from(tabla).select('id', { count: 'exact', head: true }).eq('comercio_id', c.id).gte('creado_en', desde);
+          return r.error ? null : (r.count || 0);
+        };
         try {
-          const v = await _supabase.from('visitas_comercio').select('id', { count: 'exact', head: true }).eq('comercio_id', c.id).gte('creado_en', desde);
-          if (!v.error) visitas = v.count || 0;
+          [vis7, vis30, ped7, ped30] = await Promise.all([
+            contar('visitas_comercio', desde7), contar('visitas_comercio', desde30),
+            contar('pedidos_comercio', desde7), contar('pedidos_comercio', desde30)
+          ]);
           const { data } = await _supabase.from('productos').select('titulo, solicitudes_count').eq('comercio_id', c.id);
           const prods = (data || []).filter(p => (p.solicitudes_count || 0) > 0).sort((a, b) => b.solicitudes_count - a.solicitudes_count);
           solicitudes = prods.reduce((s, p) => s + p.solicitudes_count, 0);
           if (prods[0]) top = ` · Más pedido: ${escSeccion(prods[0].titulo)} (${prods[0].solicitudes_count})`;
         } catch (e) {}
-        el.innerHTML = `${visitas !== null ? '👁 ' + visitas + ' visitas (30 días) · ' : ''}👍 ${c.likes_count || 0} · 🛒 ${solicitudes} solicitudes${top}`;
+        const linea7 = vis7 !== null
+          ? `<div class="mt-1 inline-block bg-brand-50 border border-brand-100 text-brand-700 rounded-lg px-2.5 py-1 font-black">Esta semana: 👁 ${vis7} ${vis7 === 1 ? 'visita' : 'visitas'}${ped7 !== null ? ` · 🧾 ${ped7} ${ped7 === 1 ? 'pedido' : 'pedidos'} por WhatsApp` : ''}</div><br>`
+          : '';
+        const mes = `${vis30 !== null ? '30 días: 👁 ' + vis30 + (ped30 !== null ? ' · 🧾 ' + ped30 : '') + ' · ' : ''}`;
+        el.innerHTML = `${linea7}${mes}👍 ${c.likes_count || 0} · 🛒 ${solicitudes} solicitudes${top}`;
       }
     }
 

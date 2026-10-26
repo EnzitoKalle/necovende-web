@@ -263,10 +263,18 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // "Agotado con un toque": cambia al instante en pantalla (sin recargar ni volver arriba) y guarda en segundo plano
     async function toggleStockExpress(prodId, estadoActual) {
+      const prod = comercioActivo?.productos?.find(x => String(x.id) === String(prodId));
       const nuevoEstado = !estadoActual;
+      if (prod) { prod.disponible = nuevoEstado; filtrarProductosComercioActual(); }
       const { error } = await _supabase.from('productos').update({ disponible: nuevoEstado }).eq('id', prodId);
-      if (!error && comercioActivo) abrirVistaComercio(comercioActivo.slug || comercioActivo.id, false);
+      if (error) {
+        if (prod) { prod.disponible = estadoActual; filtrarProductosComercioActual(); }
+        alert('No se pudo cambiar: ' + error.message);
+        return;
+      }
+      mostrarToast(nuevoEstado ? 'Listo: vuelve a estar a la venta.' : 'Listo: marcado como agotado.');
     }
 
     async function cambiarOrdenProducto(prodId, direccion) {
@@ -326,6 +334,15 @@
         if (!prod || prod.stock === null || prod.stock === undefined) return false;
         return parseInt(prod.stock) <= 0;
       });
+    }
+
+    // Oferta = precio anterior tachado. Solo se muestra si el local tiene hoy plan Ultra
+    // (si se le venció el plan, las ofertas dejan de verse solas).
+    function ofertaDe(p, comercio) {
+      if (!p || p.es_combo || !comercio || comercio.plan !== 'ultra') return null;
+      const antes = Number(p.precio_anterior), ahora = Number(p.precio);
+      if (!(antes > ahora) || !(ahora >= 0)) return null;
+      return { antes, pct: Math.round(((antes - ahora) / antes) * 100) };
     }
 
     function promoVencida(p) {
@@ -388,7 +405,8 @@
         const estaDisponible = (p.disponible !== false) && !esAgotadoPorStock;
         
         const esCombo = Boolean(p.es_combo);
-        const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : 0;
+        const oferta = ofertaDe(p, comercioActivo);
+        const porcOff = esCombo ? calcularAhorroPorcentualCombo(p) : (oferta ? oferta.pct : 0);
 
         const categoriasLocal = comercioActivo?.subcategorias || comercioActivo?.categorias || [comercioActivo?.categoria];
         const flagsCat = flagsDeSubcategorias(categoriasLocal);
@@ -418,12 +436,13 @@
                   ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
                   ${promoVencida(p) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">VENCIDA</span>' : ''}
                   ${badgeStock}
-                  ${(!estaDisponible && !esAgotadoPorStock) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">PAUSADO</span>' : ''}
+                  ${(!estaDisponible && !esAgotadoPorStock) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
                 </div>
                 <p class="text-xs text-slate-500 truncate mt-0.5">${esc(p.descripcion || 'Tocar para ver detalles')}</p>
                 
                 <div class="flex items-center gap-2 mt-1.5">
                   <p class="text-lg font-black text-brand-600">${fmtPrecio(p.precio)}</p>
+                  ${oferta ? `<span class="text-xs font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span>` : ''}
                   ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-md">🔥 ${porcOff}% OFF</span>` : ''}
                 </div>
               </div>
@@ -438,8 +457,8 @@
                   <button onclick="cambiarOrdenProducto('${p.id}', 'abajo')" title="Bajar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition ${idx === productosFiltrados.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}">
                     <i data-lucide="arrow-down" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="toggleStockExpress('${p.id}', ${p.disponible !== false})" title="Cambiar Disponibilidad" class="text-[10px] font-black px-2 py-1 rounded-lg border transition ${p.disponible !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-rose-50 hover:text-rose-600' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-emerald-50 hover:text-emerald-600'}">
-                    ${p.disponible !== false ? 'Pausar' : 'Activar'}
+                  <button onclick="toggleStockExpress('${p.id}', ${p.disponible !== false})" title="Cambiar disponibilidad" class="text-[10px] font-black px-2.5 py-1.5 rounded-lg border transition whitespace-nowrap ${p.disponible !== false ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-rose-50 hover:text-rose-600' : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-emerald-50 hover:text-emerald-700'}">
+                    ${p.disponible !== false ? 'Marcar agotado' : 'Volver a vender'}
                   </button>
                   <button onclick="${esCombo ? `prepararEditarPromo('${p.id}')` : `prepararEditarProducto('${p.id}')`}" title="Editar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
@@ -455,7 +474,7 @@
                   <i data-lucide="plus" class="w-4 h-4"></i> ${textoBotonAccion}
                 </button>
               ` : `
-                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-2 rounded-xl">${esAgotadoPorStock ? 'Agotado' : 'No disponible'}</span>
+                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-2 rounded-xl">Agotado</span>
               `}
             </div>
           </div>

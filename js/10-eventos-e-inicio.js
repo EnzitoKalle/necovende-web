@@ -220,6 +220,20 @@
         imagen_url
       };
 
+      // Oferta: solo si el campo está habilitado (plan Ultra). Vacío = sin oferta.
+      const campoAntes = document.getElementById('prod-precio-anterior');
+      if (!campoAntes.disabled) {
+        const antes = parseFloat(campoAntes.value);
+        if (campoAntes.value !== '' && !(antes > datosProducto.precio)) {
+          alert('El precio anterior tiene que ser mayor al precio actual (el de oferta).');
+          return;
+        }
+        const prevExistente = (comercioActivo?.productos || []).find(x => String(x.id) === String(prodEditId));
+        // Solo se manda la columna si hay algo que guardar o borrar (así no falla si todavía no corriste el SQL 05)
+        if (campoAntes.value !== '') datosProducto.precio_anterior = antes;
+        else if (prevExistente && prevExistente.precio_anterior) datosProducto.precio_anterior = null;
+      }
+
       // Stock por talle (columna de sql/04-extras-comercios.sql)
       const stockTalles = leerStockTalles(datosProducto.talles_disponibles);
       if (!stockTalles.ok) { alert(stockTalles.error); return; }
@@ -229,13 +243,15 @@
 
       let res;
       if (prodEditId) {
+        delete datosProducto.disponible;   // editar no debe reactivar un producto que se marcó como agotado
         res = await _supabase.from('productos').update(datosProducto).eq('id', prodEditId);
       } else {
         res = await _supabase.from('productos').insert([datosProducto]).select();
       }
 
       if (res.error) {
-        alert("Error al guardar producto: " + res.error.message);
+        if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else alert("Error al guardar producto: " + res.error.message);
       } else {
         cerrarModal('modal-producto');
         if (esOrigenPromo && res.data && res.data[0]) {
@@ -286,6 +302,7 @@
         imagen_url
       };
       if (promoEditId && !imagen_url) delete datosPromo.imagen_url;
+      if (promoEditId) delete datosPromo.disponible;
 
       let res;
       if (promoEditId) {

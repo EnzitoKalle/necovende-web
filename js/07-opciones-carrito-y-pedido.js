@@ -405,15 +405,40 @@
       productoPendienteSabores = null;
     }
 
-    function abrirVerProducto(prodId) {
-      const p = comercioActivo?.productos?.find(item => item.id === prodId);
+    let prodDetalleActualId = null;
+    // Link directo a un producto: abre el local y, arriba, el detalle de ese producto
+    function linkDelProducto(c, prodId) {
+      return `${window.location.origin}${window.location.pathname}?menu=${encodeURIComponent(c.slug || c.id)}&producto=${encodeURIComponent(prodId)}`;
+    }
+
+    function compartirProductoActual() {
+      const p = comercioActivo?.productos?.find(x => String(x.id) === String(prodDetalleActualId));
       if (!p) return;
+      const url = linkDelProducto(comercioActivo, p.id);
+      const texto = `¡Mirá ${p.titulo} en ${comercioActivo.nombre}! ${fmtPrecio(p.precio)}`;
+      if (navigator.share) {
+        navigator.share({ title: p.titulo, text: texto, url }).catch(() => {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => mostrarToast('Link del producto copiado.'), () => prompt('Copiá este link:', url));
+      } else {
+        prompt('Copiá este link:', url);
+      }
+    }
+
+    function abrirVerProducto(prodId) {
+      const p = comercioActivo?.productos?.find(item => String(item.id) === String(prodId));
+      if (!p) return;
+      prodDetalleActualId = p.id;
 
       document.getElementById('view-prod-titulo').innerText = p.titulo;
       document.getElementById('view-prod-precio').innerText = `${fmtPrecio(p.precio)}`;
+      const oferta = ofertaDe(p, comercioActivo);
+      const tachado = document.getElementById('view-prod-precio-antes');
+      if (oferta) { tachado.innerText = fmtPrecio(oferta.antes); tachado.classList.remove('hidden'); }
+      else tachado.classList.add('hidden');
       document.getElementById('view-prod-descripcion').innerText = p.descripcion || 'Sin descripción adicional.';
 
-      const porcOff = p.es_combo ? calcularAhorroPorcentualCombo(p) : 0;
+      const porcOff = p.es_combo ? calcularAhorroPorcentualCombo(p) : (oferta ? oferta.pct : 0);
       const badgeOff = document.getElementById('view-prod-badge-off');
 
       if (porcOff > 0) {
@@ -907,6 +932,9 @@
       if (comercioActivo) {
         renderizarProductosComercio(comercioActivo.productos, usuarioActual && comercioActivo.user_id === usuarioActual.id, comercioActivo.color_acento || '#f97316');
       }
+
+      // Se anota el pedido para las estadísticas del comerciante (si falta el SQL 05 simplemente no se cuenta)
+      try { _supabase.rpc('registrar_pedido', { p_comercio: String(comercioCarrito.id), p_monto: total }).then(() => {}, () => {}); } catch (e) {}
 
       const url = `https://wa.me/${comercioCarrito.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
       const ventana = window.open(url, '_blank');

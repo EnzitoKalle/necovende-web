@@ -61,6 +61,7 @@
     let modoEstrictoEnlace = false;
     let comercioBloqueadoId = null;
     let filtroAbierto = false, filtroEnvio = false, ordenPopulares = false;
+    let filtroOfertas = false, ordenPrecio = '';   // ordenPrecio: '' | 'asc' | 'desc' (aplica a los productos encontrados)
     let limiteComercios = 12, ultimaListaComercios = [];
     let carritoListo = false, _tGuardarCarrito = null;
     let maxComerciosUsuario = 1;

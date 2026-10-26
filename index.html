@@ -154,13 +154,14 @@
     </div>
 
     <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar -mt-2 pb-1">
+      <button type="button" id="chip-ofertas" onclick="toggleFiltroRapido('ofertas')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🏷️ Ofertas</button>
       <button type="button" id="chip-abierto" onclick="toggleFiltroRapido('abierto')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🟢 Abierto ahora</button>
       <button type="button" id="chip-envio" onclick="toggleFiltroRapido('envio')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🚚 Envío gratis</button>
       <button type="button" id="chip-populares" onclick="toggleFiltroRapido('populares')" class="chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border bg-white text-slate-600 border-slate-200 shadow-sm transition">🔥 Más populares</button>
     </div>
 
     <!-- GRILLA DE CATEGORÍAS PRINCIPALES (TARJETAS VISUALES) -->
-    <section class="space-y-3">
+    <section id="seccion-rubros" class="space-y-3">
       <div class="flex justify-between items-center px-1">
         <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Rubros y Categorías Principales</h3>
         <span id="categoria-activa" class="text-xs font-bold text-brand-600">Todas</span>
@@ -185,15 +186,23 @@
     <section id="seccion-resultados-productos" class="space-y-3 hidden">
       <div class="flex justify-between items-center px-1">
         <h3 class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
-          <i data-lucide="package-search" class="w-4 h-4 text-brand-500"></i> Productos Encontrados
+          <i data-lucide="package-search" class="w-4 h-4 text-brand-500"></i> <span id="titulo-prods-busqueda">Productos Encontrados</span>
         </h3>
         <span class="text-[11px] font-bold text-slate-400" id="total-prods-busqueda">0 productos</span>
+      </div>
+      <div class="flex items-center gap-2 px-1">
+        <label for="orden-precio" class="text-[11px] font-bold text-slate-500">Ordenar:</label>
+        <select id="orden-precio" onchange="cambiarOrdenPrecio(this.value)" class="text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
+          <option value="">Más relevantes</option>
+          <option value="asc">Menor precio</option>
+          <option value="desc">Mayor precio</option>
+        </select>
       </div>
       <div id="container-productos-busqueda" class="grid grid-cols-1 gap-3"></div>
     </section>
 
     <!-- Lista de Comercios -->
-    <section class="space-y-4 pt-1">
+    <section id="seccion-locales" class="space-y-4 pt-1">
       <div class="flex justify-between items-center px-1">
         <h3 class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
           <i data-lucide="sparkles" class="w-4 h-4 text-brand-500"></i> Locales Destacados
@@ -640,6 +649,7 @@
             <h3 id="view-prod-titulo" class="text-xl font-black text-slate-900 leading-snug"></h3>
             <div class="flex items-center gap-2 mt-1">
               <p id="view-prod-precio" class="text-2xl font-black text-brand-600"></p>
+              <span id="view-prod-precio-antes" class="hidden text-sm font-bold text-slate-400 line-through"></span>
               <span id="view-prod-badge-off" class="hidden text-xs font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-lg"></span>
             </div>
           </div>
@@ -654,6 +664,9 @@
 
         <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
+        </button>
+        <button type="button" onclick="compartirProductoActual()" class="w-full text-xs font-bold text-slate-500 hover:text-brand-600 py-1 transition flex items-center justify-center gap-1.5">
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Compartir este producto
         </button>
       </div>
     </div>
@@ -1059,6 +1072,12 @@
             <label class="block text-xs font-bold text-slate-700 mb-1.5">Stock Numérico (Opcional)</label>
             <input type="number" min="0" id="prod-stock" placeholder="Ej: 10 (Sin límite si vacío)" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
           </div>
+        </div>
+
+        <div id="box-prod-oferta">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">🏷️ Precio anterior, para mostrar la oferta <span class="font-normal text-slate-400">(opcional)</span></label>
+          <input type="number" step="0.01" min="0" id="prod-precio-anterior" placeholder="Ej: 15000 (el de arriba queda como precio de oferta)" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+          <p id="prod-oferta-ayuda" class="text-[10px] text-slate-400 mt-1">Se muestra tachado y con el % de descuento. Dejalo vacío si no es oferta.</p>
         </div>
 
         <div>

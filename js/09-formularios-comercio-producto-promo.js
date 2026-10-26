@@ -324,6 +324,7 @@
 
       if (plan === 'ultra') boxSoloPromoWrapper.classList.remove('hidden');
       else boxSoloPromoWrapper.classList.add('hidden');
+      ajustarCampoOferta(plan);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio} (${plan.toUpperCase()})`;
@@ -340,6 +341,18 @@
       document.getElementById('prod-es-origen-promo').value = 'true';
     }
 
+    // La oferta (precio anterior tachado) es exclusiva del plan Ultra
+    function ajustarCampoOferta(plan) {
+      const input = document.getElementById('prod-precio-anterior');
+      const ayuda = document.getElementById('prod-oferta-ayuda');
+      const esUltra = plan === 'ultra';
+      input.disabled = !esUltra;
+      if (!esUltra) input.value = '';
+      ayuda.innerText = esUltra
+        ? 'Se muestra tachado y con el % de descuento. Dejalo vacío si no es oferta.'
+        : '🔒 Las ofertas con precio tachado son del plan Ultra.';
+    }
+
     function prepararEditarProducto(prodId) {
       const p = comercioActivo?.productos?.find(item => item.id === prodId);
       if (!p) return;
@@ -350,6 +363,7 @@
       document.getElementById('prod-titulo').value = p.titulo;
       document.getElementById('prod-precio').value = p.precio;
       document.getElementById('prod-stock').value = (p.stock !== null && p.stock !== undefined) ? p.stock : '';
+      document.getElementById('prod-precio-anterior').value = p.precio_anterior || '';
       document.getElementById('prod-seccion').value = p.seccion || '';
       document.getElementById('prod-descripcion').value = p.descripcion || '';
       document.getElementById('prod-imagen-existente').value = p.imagen_url || '';
@@ -370,6 +384,7 @@
       const boxSoloPromoWrapper = document.getElementById('box-solo-promo-wrapper');
       if (plan === 'ultra') boxSoloPromoWrapper.classList.remove('hidden');
       else boxSoloPromoWrapper.classList.add('hidden');
+      ajustarCampoOferta(plan);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Modificando: ${p.titulo}`;

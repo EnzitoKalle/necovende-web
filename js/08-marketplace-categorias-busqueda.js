@@ -58,11 +58,14 @@
         comercioBloqueadoId = comercioMenu ? comercioMenu.id : null;
         ['btn-header-planes', 'btn-sumar-comercio', 'btn-volver-comercios', 'btn-historial']
           .forEach(id => document.getElementById(id)?.classList.add('hidden'));
-        if (comercioMenu) abrirVistaComercio(menuUrlId, false);
+        if (comercioMenu) await abrirVistaComercio(menuUrlId, false);
         else mostrarCatalogoNoDisponible();
       } else if (comercioUrlId) {
-        abrirVistaComercio(comercioUrlId, false);
+        await abrirVistaComercio(comercioUrlId, false);
       }
+      // Link directo a un producto (?menu=local&producto=ID): abre su detalle
+      const productoUrlId = params.get('producto');
+      if (productoUrlId && comercioActivo && (menuUrlId || comercioUrlId)) abrirVerProducto(productoUrlId);
     }
 
     // RENDERIZADO DE LAS TARJETAS DE CATEGORÍAS PRINCIPALES EN EL INICIO
@@ -346,50 +349,75 @@
       renderizarComercios(resultado);
 
       clearTimeout(timeoutBusquedaGlobal);
-      if (texto.length >= 2) {
+      if (texto.length >= 2 || filtroOfertas) {
         timeoutBusquedaGlobal = setTimeout(() => buscarProductosGlobales(texto), 300);
       } else {
         document.getElementById('seccion-resultados-productos').classList.add('hidden');
       }
     }
 
+    let _tokenBusquedaProductos = 0;
     async function buscarProductosGlobales(query) {
-      const { data: productos, error } = await _supabase
-        .from('productos')
-        .select('*, comercios(nombre, slug, logo_url, activo)')
-        .ilike('titulo', `%${query}%`)
-        .eq('disponible', true)
-        .limit(10);
+      const token = ++_tokenBusquedaProductos;
+      const campos = '*, comercios(id, nombre, slug, logo_url, activo)';
+      const armar = (soloPromos) => {
+        let q = _supabase.from('productos').select(campos).eq('disponible', true);
+        if (query) q = q.ilike('titulo', `%${query}%`);
+        if (filtroOfertas) q = soloPromos ? q.eq('es_combo', true) : q.or('precio_anterior.not.is.null,es_combo.eq.true');
+        if (ordenPrecio) q = q.order('precio', { ascending: ordenPrecio === 'asc' });
+        return q.limit(60);
+      };
+      let { data: productos, error } = await armar(false);
+      // Si todavía no corriste el SQL 05 (no existe precio_anterior), en Ofertas se muestran solo las promos
+      if (error && filtroOfertas) ({ data: productos, error } = await armar(true));
+      if (token !== _tokenBusquedaProductos) return;   // llegó una búsqueda más nueva
 
       const secProds = document.getElementById('seccion-resultados-productos');
       const container = document.getElementById('container-productos-busqueda');
       const counter = document.getElementById('total-prods-busqueda');
+      document.getElementById('titulo-prods-busqueda').innerText = filtroOfertas ? 'Ofertas y promos' : 'Productos Encontrados';
 
-      const productosValidos = (productos || []).filter(p => p.comercios && p.comercios.activo === true && !promoVencida(p));
+      const datos = [];
+      (productos || []).forEach(p => {
+        const c = p.comercios && comerciosGlobales.find(x => String(x.id) === String(p.comercios.id));
+        if (!c || c.activo !== true || promoVencida(p) || p.es_solo_promo) return;
+        if (p.stock !== null && p.stock !== undefined && !p.es_combo && parseInt(p.stock) <= 0) return;
+        if (filtroAbierto && !estaAbierto(c)) return;
+        const oferta = ofertaDe(p, c);
+        if (filtroOfertas && !oferta && !(p.es_combo && c.plan !== 'gratis')) return;
+        if (p.es_combo && c.plan === 'gratis') return;
+        datos.push({ p, c, oferta });
+      });
+      // Sin orden elegido: primero los locales abiertos y, en Ofertas, las de mayor descuento
+      if (!ordenPrecio) datos.sort((a, b) => (Number(estaAbierto(b.c)) - Number(estaAbierto(a.c))) || ((b.oferta?.pct || 0) - (a.oferta?.pct || 0)));
+      else datos.sort((a, b) => ordenPrecio === 'asc' ? a.p.precio - b.p.precio : b.p.precio - a.p.precio);
 
-      if (error || productosValidos.length === 0) {
-        secProds.classList.add('hidden');
+      if (!datos.length) {
+        if (filtroOfertas) {
+          secProds.classList.remove('hidden');
+          counter.innerText = '0 productos';
+          container.innerHTML = `<div class="clean-card rounded-2xl p-6 text-center text-xs text-slate-500">${query ? 'No hay ofertas que coincidan con tu búsqueda.' : 'Todavía no hay ofertas cargadas. ¡Volvé pronto!'}</div>`;
+        } else secProds.classList.add('hidden');
         return;
       }
 
       secProds.classList.remove('hidden');
-      counter.innerText = `${productosValidos.length} productos`;
+      counter.innerText = `${datos.length} ${datos.length === 1 ? 'producto' : 'productos'}`;
       container.innerHTML = '';
 
-      productosValidos.forEach(p => {
-        const nomComercio = p.comercios?.nombre || 'Local';
-        const slugComercio = slugSeguro(p.comercios?.slug || p.comercio_id);
-
+      datos.slice(0, 40).forEach(({ p, c, oferta }) => {
+        const slugComercio = slugSeguro(c.slug || c.id);
+        const abierto = estaAbierto(c);
         container.innerHTML += `
-          <div onclick="intentarAbrirComercio('${slugComercio}', '${p.id}')" class="clean-card rounded-2xl p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-brand-300 transition">
+          <div onclick="intentarAbrirComercio('${slugComercio}', '${slugSeguro(p.id)}')" class="clean-card rounded-2xl p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-brand-300 transition">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               ${p.imagen_url 
                 ? `<img loading="lazy" decoding="async" src="${esc(p.imagen_url)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 flex-shrink-0">` 
                 : `<div class="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="min-w-0 flex-1">
-                <h4 class="font-black text-slate-900 text-sm truncate">${esc(p.titulo)}</h4>
-                <p class="text-[11px] text-slate-500 truncate">Vendido por: <strong class="text-brand-600">${esc(nomComercio)}</strong></p>
-                <p class="text-sm font-black text-brand-600 mt-0.5">${fmtPrecio(p.precio)}</p>
+                <h4 class="font-black text-slate-900 text-sm truncate">${esc(p.titulo)}${p.es_combo ? ' <span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full align-middle">PROMO</span>' : ''}</h4>
+                <p class="text-[11px] text-slate-500 truncate">Vendido por: <strong class="text-brand-600">${esc(c.nombre)}</strong> · <span class="${abierto ? 'text-emerald-600' : 'text-slate-400'} font-bold">${abierto ? '🟢 Abierto' : '🔴 Cerrado'}</span></p>
+                <p class="text-sm font-black text-brand-600 mt-0.5">${fmtPrecio(p.precio)}${oferta ? ` <span class="text-[11px] font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span> <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${oferta.pct}% OFF</span>` : ''}</p>
               </div>
             </div>
             <button class="bg-brand-50 text-brand-600 hover:bg-brand-500 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition flex-shrink-0 border border-brand-200">
