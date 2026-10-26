@@ -213,11 +213,17 @@
                 const idB = indexBloqueGlobal++;
                 const maxG = prodOriginal.max_sabores || 0;
 
+                const tallesComp = prodOriginal.talles_disponibles || [];
+                const coloresComp = prodOriginal.colores_disponibles || [];
+                const pideSabores = Boolean(listSab.length > 0 && prodOriginal.requiere_sabores);
                 estadoSaboresPorUnidad[idB] = { 
                   _max: maxG, 
                   _esIlimitado: false,
                   _pack: packNum,
-                  _titulo: `${prodOriginal.titulo} (${qty}/${itemInfo.cantidad})`
+                  _titulo: `${prodOriginal.titulo} (${qty}/${itemInfo.cantidad})`,
+                  _prodId: prodOriginal.id,
+                  _conTalle: tallesComp.length > 0,
+                  _conColor: coloresComp.length > 0
                 };
 
                 let htmlBloque = `
@@ -226,21 +232,36 @@
                       <span class="text-xs font-black text-amber-700 uppercase tracking-wide">
                         📦 Pack #${packNum}: ${esc(prodOriginal.titulo)} ${itemInfo.cantidad > 1 ? `#${qty}` : ''}
                       </span>
-                      <span id="badge-unidad-${idB}" class="text-[10px] font-black text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
+                      <span id="badge-unidad-${idB}" class="${pideSabores ? '' : 'hidden '}text-[10px] font-black text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
                         0 / ${maxG}
                       </span>
                     </div>
-                    <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
                 `;
 
-                if (listSab.length > 0 && prodOriginal.requiere_sabores) {
+                // Talle y color de ESTA unidad (ej: cada zapatilla de la promo puede ir en un talle distinto)
+                if (tallesComp.length || coloresComp.length) {
+                  const stockT = (prodOriginal.stock_talles && typeof prodOriginal.stock_talles === 'object') ? prodOriginal.stock_talles : {};
+                  const opcTalles = tallesComp.map(t => {
+                    const n = Object.prototype.hasOwnProperty.call(stockT, t) ? parseInt(stockT[t]) : null;
+                    if (n !== null && n <= 0) return `<option value="${esc(t)}" disabled>${esc(t)} (sin stock)</option>`;
+                    return `<option value="${esc(t)}">${esc(t)}${n !== null && n <= 3 ? ` (quedan ${n})` : ''}</option>`;
+                  });
+                  const primero = tallesComp.findIndex(t => { const n = Object.prototype.hasOwnProperty.call(stockT, t) ? parseInt(stockT[t]) : null; return !(n !== null && n <= 0); });
+                  htmlBloque += `<div class="grid grid-cols-2 gap-2">`;
+                  if (tallesComp.length) htmlBloque += `<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Talle</label><select id="combo-talle-${idB}" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-bold">${opcTalles.join('').replace(primero >= 0 ? `<option value="${esc(tallesComp[primero])}"` : '@@', primero >= 0 ? `<option value="${esc(tallesComp[primero])}" selected` : '@@')}</select></div>`;
+                  if (coloresComp.length) htmlBloque += `<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Color</label><select id="combo-color-${idB}" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-bold">${coloresComp.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select></div>`;
+                  htmlBloque += `</div>`;
+                }
+                htmlBloque += `<div class="space-y-2 max-h-48 overflow-y-auto pr-1">`;
+
+                if (pideSabores) {
                   listSab.forEach(sabor => {
                     const saborClean = sabor.trim();
                     estadoSaboresPorUnidad[idB][saborClean] = 0;
 
                     htmlBloque += htmlFilaSabor(idB, saborClean);
                   });
-                } else {
+                } else if (!tallesComp.length && !coloresComp.length) {
                   htmlBloque += `<p class="text-xs text-slate-500 font-semibold py-1">Sin opciones adicionales requeridas.</p>`;
                 }
 
@@ -362,6 +383,28 @@
         varianteTexto += `[Opciones: ${valsCustom.join(', ')}] `;
       }
 
+      // Promos con productos que tienen talle/color: cada unidad lleva el suyo
+      const comboTalles = [];
+      const variantePorBloque = {};
+      for (let u = 1; u <= totalBloques; u++) {
+        const sU = estadoSaboresPorUnidad[u] || {};
+        const partes = [];
+        if (sU._conTalle) {
+          const sel = document.getElementById('combo-talle-' + u);
+          if (!sel || !sel.value || (sel.selectedOptions[0] && sel.selectedOptions[0].disabled)) {
+            alert(`Elegí un talle con stock para: ${(sU._titulo || 'el producto')}.`);
+            return;
+          }
+          partes.push('Talle ' + sel.value);
+          comboTalles.push({ prodId: sU._prodId, talle: sel.value });
+        }
+        if (sU._conColor) {
+          const selC = document.getElementById('combo-color-' + u);
+          if (selC && selC.value) partes.push(selC.value);
+        }
+        if (partes.length) variantePorBloque[u] = partes;
+      }
+
       for (let u = 1; u <= totalBloques; u++) {
         const saboresU = estadoSaboresPorUnidad[u] || {};
         const gustosArr = [];
@@ -372,7 +415,10 @@
           }
         }
 
-        if (gustosArr.length > 0) {
+        if (variantePorBloque[u]) {
+          const packLabel = saboresU._pack ? `#${saboresU._pack}` : `${u}`;
+          resumenUnidadesTexto.push(`[Pack ${packLabel} · ${saboresU._titulo}: ${[...variantePorBloque[u], ...gustosArr].join(', ')}]`);
+        } else if (gustosArr.length > 0) {
           const packLabel = saboresU._pack ? `#${saboresU._pack}` : `${u}`;
           resumenUnidadesTexto.push(totalBloques > 1 ? `[Unidad ${packLabel}: ${gustosArr.join(', ')}]` : `Sabores: ${gustosArr.join(', ')}`);
         }
@@ -400,6 +446,7 @@
         : cantidadSeleccionadaModalSabores;
       const extraCarrito = {};
       if (productoPendienteSabores.talles && productoPendienteSabores.talles.length > 0) extraCarrito.talle = document.getElementById('select-talle-opcion').value;
+      if (comboTalles.length) { extraCarrito.comboTalles = comboTalles; extraCarrito.comboBase = cantidadAgregar; }
       agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAgregar, extraCarrito);
       cerrarModal('modal-sabores');
       productoPendienteSabores = null;
@@ -502,6 +549,7 @@
       } else {
         const nuevo = { id, titulo, precio, cantidad: cantidadAAgregar };
         if (extra && extra.talle) nuevo.talle = extra.talle;
+        if (extra && extra.comboTalles) { nuevo.comboTalles = extra.comboTalles; nuevo.comboBase = extra.comboBase || cantidadAAgregar; }
         if (notaNueva) nuevo.nota = notaNueva;
         carrito.push(nuevo);
       }
@@ -763,7 +811,13 @@
         if (prod && prod.es_combo && prod.items_combo) {
           let comps = [];
           try { comps = typeof prod.items_combo === 'string' ? JSON.parse(prod.items_combo) : prod.items_combo; } catch (e) {}
-          (comps || []).forEach(c => sumar(c.prodId, (Number(c.cantidad) || 0) * item.cantidad, ''));
+          // Si la promo se pidió con talles (ej: 2 zapatillas), se descuenta de cada talle elegido; si no, del stock total
+          const factor = Math.max(1, Math.round(item.cantidad / (item.comboBase || item.cantidad || 1)));
+          (comps || []).forEach(c => {
+            const elegidos = (item.comboTalles || []).filter(e => String(e.prodId) === String(c.prodId));
+            if (elegidos.length) elegidos.forEach(e => sumar(c.prodId, factor, e.talle));
+            else sumar(c.prodId, (Number(c.cantidad) || 0) * item.cantidad, '');
+          });
         }
       });
       return Object.values(need).filter(x => x.cant > 0).map(x => x.talle ? x : { id: x.id, cant: x.cant });
