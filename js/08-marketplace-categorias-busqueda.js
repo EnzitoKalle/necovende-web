@@ -427,7 +427,7 @@
               <div class="min-w-0 flex-1">
                 <h4 class="font-black text-slate-900 text-sm truncate">${esc(p.titulo)}${p.es_combo ? ' <span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full align-middle">PROMO</span>' : ''}</h4>
                 <p class="text-[11px] text-slate-500 truncate">Vendido por: <strong class="text-brand-600">${esc(c.nombre)}</strong> · <span class="${abierto ? 'text-emerald-600' : 'text-slate-400'} font-bold">${abierto ? '🟢 Abierto' : '🔴 Cerrado'}</span></p>
-                <p class="text-sm font-black text-brand-600 mt-0.5">${precioTextoPromo(p)}${oferta ? ` <span class="text-[11px] font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span> <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${oferta.pct}% OFF</span>` : ''}</p>
+                <p class="text-sm font-black text-brand-600 mt-0.5">${precioTextoPromo(p)}${!oferta && configPromo(p) && descuentoPromoConfig(p) > 0 ? ` <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${etiquetaDescuento(p, descuentoPromoConfig(p))}</span>` : ''}${oferta ? ` <span class="text-[11px] font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span> <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${oferta.pct}% OFF</span>` : ''}</p>
               </div>
             </div>
             <button class="bg-brand-50 text-brand-600 hover:bg-brand-500 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition flex-shrink-0 border border-brand-200">

@@ -305,6 +305,7 @@
     }
 
     function calcularAhorroPorcentualCombo(p) {
+      if (configPromo(p)) return descuentoPromoConfig(p);
       if (!p.es_combo || !p.items_combo || !comercioActivo) return 0;
       let sumaOriginal = 0;
       try {
@@ -444,7 +445,7 @@
                 <div class="flex items-center gap-2 mt-1.5">
                   <p class="text-lg font-black text-brand-600">${precioTextoPromo(p)}</p>
                   ${oferta ? `<span class="text-xs font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span>` : ''}
-                  ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-md">🔥 ${porcOff}% OFF</span>` : ''}
+                  ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-md">${etiquetaDescuento(p, porcOff)}</span>` : ''}
                 </div>
               </div>
             </div>

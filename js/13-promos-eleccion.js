@@ -20,6 +20,25 @@
       return `Llevá ${cfg.cantidad} por ${fmtPrecio(p.precio)}`;
     }
 
+    // Descuento máximo que puede llegar a tener la promo (depende de lo que elija el cliente, por eso se muestra "hasta")
+    //   · llevá N, pagá M: si los productos valen lo mismo se ahorra (N-M)/N; si no, menos.
+    //   · a elección: el mejor caso es elegir el modelo más caro N veces.
+    function descuentoPromoConfig(p) {
+      const cfg = configPromo(p);
+      if (!cfg) return 0;
+      if (cfg.tipo === 'nxm') return Math.round(((cfg.cantidad - cfg.paga) / cfg.cantidad) * 100);
+      if (!comercioActivo || String(comercioActivo.id) !== String(p.comercio_id)) return 0;   // sin el catálogo del local no se puede calcular
+      let elig = productosElegiblesPromo(cfg, true);
+      if (!elig.length) elig = productosElegiblesPromo(cfg, false);
+      const maxPrecio = Math.max(0, ...elig.map(x => Number(x.precio) || 0));
+      const maximo = maxPrecio * cfg.cantidad;
+      return maximo > Number(p.precio) ? Math.round(((maximo - Number(p.precio)) / maximo) * 100) : 0;
+    }
+
+    function etiquetaDescuento(p, pct) {
+      return `🔥 ${configPromo(p) ? 'hasta ' : ''}${pct}% OFF`;
+    }
+
     function tieneStockPromoElegible(p) {
       if (p.disponible === false) return false;
       if (p.stock !== null && p.stock !== undefined && parseInt(p.stock) <= 0) return false;

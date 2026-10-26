@@ -492,7 +492,7 @@
       const badgeOff = document.getElementById('view-prod-badge-off');
 
       if (porcOff > 0) {
-        badgeOff.innerText = `🔥 ${porcOff}% OFF`;
+        badgeOff.innerText = etiquetaDescuento(p, porcOff);
         badgeOff.classList.remove('hidden');
       } else {
         badgeOff.classList.add('hidden');
