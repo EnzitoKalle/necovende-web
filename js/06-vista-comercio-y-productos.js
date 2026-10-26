@@ -431,9 +431,9 @@
               ${p.imagen_url 
                 ? `<img loading="lazy" decoding="async" src="${esc(p.imagen_url)}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 flex-shrink-0 group-hover:scale-105 transition duration-300 shadow-sm">` 
                 : `<div class="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="${esCombo ? 'tag' : 'package'}" class="w-7 h-7"></i></div>`}
-              <div class="truncate">
+              <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h4 class="font-bold text-base text-slate-900 truncate group-hover:text-brand-600 transition">${esc(p.titulo)}</h4>
+                  <h4 class="font-bold text-base text-slate-900 break-words group-hover:text-brand-600 transition">${esc(p.titulo)}</h4>
                   ${esCombo ? '<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
                   ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
                   ${promoVencida(p) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">VENCIDA</span>' : ''}
@@ -442,10 +442,10 @@
                 </div>
                 <p class="text-xs text-slate-500 truncate mt-0.5">${esc(p.descripcion || 'Tocar para ver detalles')}</p>
                 
-                <div class="flex items-center gap-2 mt-1.5">
-                  <p class="text-lg font-black text-brand-600">${precioTextoPromo(p)}</p>
+                <div class="flex items-center gap-x-2 gap-y-1 mt-1.5 flex-wrap">
+                  <p class="${configPromo(p) ? 'text-base' : 'text-lg'} font-black text-brand-600 whitespace-nowrap">${precioTextoPromo(p)}</p>
                   ${oferta ? `<span class="text-xs font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span>` : ''}
-                  ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-md">${etiquetaDescuento(p, porcOff)}</span>` : ''}
+                  ${porcOff > 0 ? `<span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-md whitespace-nowrap">${etiquetaDescuento(p, porcOff)}</span>` : ''}
                 </div>
               </div>
             </div>
