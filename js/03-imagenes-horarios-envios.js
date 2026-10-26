@@ -240,7 +240,13 @@
         : (actualMin >= apMin || actualMin <= ciMin);
     }
 
+    // ¿El comercio pausó su local por hoy? (se vence solo a la medianoche)
+    function estaPausado(c) {
+      return Boolean(c && c.pausado_hasta && new Date(c.pausado_hasta).getTime() > Date.now());
+    }
+
     function estaAbierto(c) {
+      if (estaPausado(c)) return false;
       if (c.horarios_dias) {
         return estaAbiertoSegunGrilla(c.horarios_dias);
       }

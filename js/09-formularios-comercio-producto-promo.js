@@ -120,6 +120,8 @@
       document.getElementById('costo-envio').value = "A convenir según zona";
       document.getElementById('envio-min').value = "";
       document.getElementById('envio-max').value = "";
+      document.getElementById('envio-gratis-desde').value = "";
+      document.getElementById('pedido-minimo').value = "";
       document.getElementById('comercio-color-primario').value = "#f8fafc";
       document.getElementById('comercio-color-acento').value = "#ea580c";
       document.getElementById('comercio-posicion-portada').value = "object-center";
@@ -157,6 +159,8 @@
       document.getElementById('costo-envio').value = c.costo_envio || "";
       document.getElementById('envio-min').value = c.envio_min != null ? c.envio_min : "";
       document.getElementById('envio-max').value = c.envio_max != null ? c.envio_max : "";
+      document.getElementById('envio-gratis-desde').value = c.envio_gratis_desde != null ? c.envio_gratis_desde : "";
+      document.getElementById('pedido-minimo').value = c.pedido_minimo != null ? c.pedido_minimo : "";
       document.getElementById('comercio-color-primario').value = c.color_primario || "#f8fafc";
       document.getElementById('comercio-color-acento').value = c.color_acento || "#ea580c";
       document.getElementById('comercio-posicion-portada').value = c.posicion_portada || "object-center";
@@ -289,11 +293,13 @@
       }
 
       document.getElementById('form-producto').reset();
+      renderizarStockTalles({});
       document.getElementById('prod-comercio-id').value = comercioId;
       document.getElementById('prod-edit-id').value = '';
       document.getElementById('prod-imagen-existente').value = '';
       document.getElementById('prod-es-origen-promo').value = 'false';
       document.getElementById('prod-stock').value = '';
+      renderizarStockTalles({});
 
       const subs = comercio?.subcategorias || comercio?.categorias || [comercio?.categoria];
       // Las opciones (sabores / cocción / talles) se definen por categoría en el panel de admin
@@ -356,6 +362,7 @@
       document.getElementById('prod-tiene-variantes').checked = Boolean((p.talles_disponibles || []).length || (p.colores_disponibles || []).length);
       document.getElementById('prod-talles-input').value = (p.talles_disponibles || []).join(', ');
       document.getElementById('prod-colores-input').value = (p.colores_disponibles || []).join(', ');
+      renderizarStockTalles(p.stock_talles && typeof p.stock_talles === 'object' ? p.stock_talles : {});
       toggleBoxConfigSabores(); toggleInputMaxSabores(); toggleBoxVariantes();
       document.getElementById('prod-es-origen-promo').value = 'false';
 

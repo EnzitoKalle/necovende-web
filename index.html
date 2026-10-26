@@ -32,6 +32,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
+  <link rel="preconnect" href="https://itpkfuprqihmclsqjfki.supabase.co" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -439,6 +440,40 @@
     </div>
   </div>
 
+  <!-- MODAL: AVISO DEL COMERCIO -->
+  <div id="modal-aviso-comercio" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl text-slate-800">
+      <div class="space-y-1">
+        <h3 class="text-lg font-black text-slate-900">📢 Aviso del comercio</h3>
+        <p class="text-xs text-slate-500">Se muestra arriba de tu catálogo. Ej: "Hoy no hay tiramisú" o "Feriado: abrimos 18 hs".</p>
+      </div>
+      <textarea id="aviso-comercio-texto" rows="3" maxlength="140" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-medium transition" placeholder="Escribí tu aviso (máx. 140 caracteres)"></textarea>
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" onclick="cerrarModal('modal-aviso-comercio')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition">Cancelar</button>
+        <button type="button" onclick="guardarAvisoComercio(true)" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-3 rounded-xl text-xs transition">Quitar</button>
+        <button type="button" onclick="guardarAvisoComercio(false)" class="bg-gradient-to-r from-brand-500 to-amber-500 text-white font-black py-3 rounded-xl text-xs shadow-md transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: QR DEL COMERCIO -->
+  <div id="modal-qr-comercio" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-5 w-full max-w-sm space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto text-slate-800">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">▦ QR de tu local</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Imprimilo y pegalo en la vidriera o el mostrador.</p>
+        </div>
+        <button onclick="cerrarModal('modal-qr-comercio')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-2 flex items-center justify-center min-h-[200px]">
+        <canvas id="qr-canvas" class="w-full max-w-[260px] h-auto rounded-xl shadow-sm"></canvas>
+      </div>
+      <p id="qr-link-txt" class="text-[10px] text-slate-400 text-center break-all"></p>
+      <button type="button" onclick="descargarQrComercio()" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 text-white font-black py-3.5 rounded-2xl text-sm shadow-md transition">Descargar imagen</button>
+    </div>
+  </div>
+
   <!-- MODAL: HISTORIAL DE PEDIDOS -->
   <div id="modal-historial" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
@@ -612,6 +647,11 @@
 
         <p id="view-prod-descripcion" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto"></p>
 
+        <div>
+          <label for="view-prod-nota" class="block text-[11px] font-bold text-slate-600 mb-1">Aclaración <span class="font-normal text-slate-400">(opcional)</span></label>
+          <input type="text" id="view-prod-nota" maxlength="120" placeholder="Ej: sin cebolla, bien cocido..." class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+        </div>
+
         <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
@@ -675,9 +715,11 @@
         </div>
 
         <div id="cart-aviso-envio" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-1">
-          <p class="font-black text-amber-800 flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> El envío no está incluido en el total</p>
+          <p id="cart-aviso-envio-titulo-wrap" class="font-black text-amber-800 flex items-center gap-1.5"><i data-lucide="truck" class="w-4 h-4"></i> <span id="cart-aviso-envio-titulo">El envío no está incluido en el total</span></p>
           <p id="cart-aviso-envio-detalle" class="text-amber-700 leading-snug"></p>
         </div>
+
+        <div id="cart-aviso-minimo" class="hidden bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-700 font-bold leading-snug"></div>
 
         <div id="box-cart-info-retiro-directo" class="hidden bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
           <p class="font-bold text-slate-700">Horario de retiro: <span id="cart-lbl-horario-retiro" class="font-normal text-slate-600"></span></p>
@@ -687,6 +729,11 @@
         <div>
           <label id="cart-label-nombre" class="block text-xs font-bold text-slate-700 mb-1.5">Nombre de la persona que retira</label>
           <input type="text" id="cart-input-nombre-retira" placeholder="Ej: Juan Pérez" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+        </div>
+
+        <div>
+          <label for="cart-nota-general" class="block text-xs font-bold text-slate-700 mb-1.5">Aclaración para el comercio <span class="font-normal text-slate-400">(opcional)</span></label>
+          <textarea id="cart-nota-general" rows="2" maxlength="200" placeholder="Ej: sin cubiertos, tocar timbre 2B, pago con $5000..." class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-medium transition"></textarea>
         </div>
       </div>
 
@@ -699,7 +746,7 @@
           </div>
         </div>
 
-        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-4 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+        <button id="btn-enviar-pedido" onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-4 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
           <i data-lucide="send" class="w-4 h-4"></i> Enviar Pedido por WhatsApp
         </button>
       </div>
@@ -827,6 +874,16 @@
               <input type="number" id="envio-max" min="0" step="100" inputmode="numeric" placeholder="Hasta $ (ej: 5000)" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-semibold transition">
             </div>
           </div>
+
+          <div class="mt-2.5 space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Envío gratis desde <span class="font-normal text-slate-400">(opcional)</span></label>
+            <input type="number" id="envio-gratis-desde" min="0" step="100" inputmode="numeric" placeholder="Ej: 15000 (el envío es gratis si el pedido llega a ese monto)" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700">Pedido mínimo <span class="font-normal text-slate-400">(opcional)</span></label>
+          <input type="number" id="pedido-minimo" min="0" step="100" inputmode="numeric" placeholder="Ej: 5000 (monto mínimo para aceptar un pedido)" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
         </div>
 
         <div id="seccion-enlaces-form" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
@@ -1032,7 +1089,13 @@
             <div id="sub-box-config-variantes" class="hidden pt-3 border-t border-slate-200 space-y-3">
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Talles (Separados por coma)</label>
-                <input type="text" id="prod-talles-input" placeholder="Ej: S, M, L, XL" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+                <input type="text" id="prod-talles-input" oninput="renderizarStockTalles()" placeholder="Ej: S, M, L, XL" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+              </div>
+              <div id="box-stock-talles" class="hidden space-y-1.5 bg-white border border-slate-200 rounded-xl p-3">
+                <label class="block text-[11px] font-bold text-slate-700">Stock por talle <span class="font-normal text-slate-400">(opcional)</span></label>
+                <p class="text-[10px] text-slate-500 leading-snug">Si completás las cantidades, el cliente solo puede elegir talles con stock y el total se calcula solo. Si lo dejás vacío, no se controla el stock por talle.</p>
+                <div id="grid-stock-talles" class="grid grid-cols-3 gap-2"></div>
+                <p id="total-stock-talles" class="hidden text-[10px] font-black text-brand-600"></p>
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Colores (Separados por coma)</label>
@@ -1198,5 +1261,6 @@
   <script src="js/09-formularios-comercio-producto-promo.js"></script>
   <script src="js/10-eventos-e-inicio.js"></script>
   <script src="js/11-categorias.js"></script>
+  <script src="js/12-extras-comercio.js"></script>
 </body>
 </html>

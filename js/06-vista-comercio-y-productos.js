@@ -189,6 +189,9 @@
             </div>
           </div>
 
+          ${comercioActivo.aviso_texto ? `<div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-3 py-2 text-xs font-semibold flex items-start gap-2"><span>📢</span><p class="leading-snug">${esc(comercioActivo.aviso_texto)}</p></div>` : ''}
+          ${estaPausado(comercioActivo) ? `<div class="bg-slate-100 border border-slate-200 text-slate-600 rounded-xl px-3 py-2 text-xs font-semibold flex items-start gap-2"><span>⏸</span><p class="leading-snug">Hoy el local no está tomando pedidos. Podés mirar el catálogo igual.</p></div>` : ''}
+
           ${redesHtml ? `<div class="pt-1">${redesHtml}</div>` : ''}
 
           <div class="pt-2.5 border-t border-slate-100 space-y-2 text-xs text-slate-600">
@@ -198,6 +201,20 @@
               <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-500"></i> Costo Envío:</span>
                 <span class="${comercioActivo.envio_gratis ? 'text-emerald-600 font-bold' : 'font-semibold text-slate-700'}">${comercioActivo.envio_gratis ? 'GRATIS' : esc(comercioActivo.costo_envio || 'A convenir')}</span>
+              </div>
+            ` : ''}
+
+            ${(ofreceEnvios && !comercioActivo.envio_gratis && Number(comercioActivo.envio_gratis_desde) > 0) ? `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="truck" class="w-4 h-4 text-brand-500"></i> Envío gratis desde:</span>
+                <span class="text-emerald-600 font-bold">${fmtPrecio(comercioActivo.envio_gratis_desde)}</span>
+              </div>
+            ` : ''}
+
+            ${Number(comercioActivo.pedido_minimo) > 0 ? `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-400 flex items-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4 text-brand-500"></i> Pedido mínimo:</span>
+                <span class="font-semibold text-slate-700">${fmtPrecio(comercioActivo.pedido_minimo)}</span>
               </div>
             ` : ''}
 
@@ -227,6 +244,12 @@
       }
 
       if (esDuenio) {
+        header.insertAdjacentHTML('beforeend', `
+          <div class="px-5 pb-4 bg-white flex flex-wrap gap-2">
+            <button type="button" onclick="alternarPausaHoy()" class="text-xs font-bold px-3 py-2 rounded-xl border transition ${estaPausado(comercioActivo) ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'}">${estaPausado(comercioActivo) ? '▶️ Reabrir el local' : '⏸ Pausar por hoy'}</button>
+            <button type="button" onclick="abrirModalAvisoComercio()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 transition">📢 Aviso</button>
+            <button type="button" onclick="abrirModalQrComercio()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 transition">▦ QR</button>
+          </div>`);
         const topSolicitados = [...(comercioActivo.productos || [])].filter(p => !p.es_combo)
           .sort((a,b) => (Number(b.solicitudes_count)||0) - (Number(a.solicitudes_count)||0)).slice(0,5);
         header.insertAdjacentHTML('beforeend', `<div class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-brand-100 bg-brand-50/60 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-brand-700 mb-2">📈 Productos más solicitados</h3>${topSolicitados.length && topSolicitados.some(p => Number(p.solicitudes_count)>0) ? topSolicitados.map((p,i)=>`<div class="flex justify-between gap-3 py-1.5 text-xs"><span class="font-semibold text-slate-700">${i+1}. ${esc(p.titulo)}</span><strong class="text-brand-700">${Number(p.solicitudes_count)||0} solicitudes</strong></div>`).join('') : '<p class="text-xs text-slate-500">Todavía no hay solicitudes. Cada clic en “Agregar” suma al contador.</p>'}</div></div>`);
@@ -386,7 +409,7 @@
             
             <div class="flex items-center gap-4 overflow-hidden cursor-pointer flex-1 z-10" onclick="abrirVerProducto('${p.id}')">
               ${p.imagen_url 
-                ? `<img src="${esc(p.imagen_url)}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 flex-shrink-0 group-hover:scale-105 transition duration-300 shadow-sm">` 
+                ? `<img loading="lazy" decoding="async" src="${esc(p.imagen_url)}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 flex-shrink-0 group-hover:scale-105 transition duration-300 shadow-sm">` 
                 : `<div class="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="${esCombo ? 'tag' : 'package'}" class="w-7 h-7"></i></div>`}
               <div class="truncate">
                 <div class="flex items-center gap-2 flex-wrap">

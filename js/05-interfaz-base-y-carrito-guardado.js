@@ -98,7 +98,11 @@
       if (id === 'modal-historial') renderizarHistorialModal();
       document.getElementById(id).classList.remove('hidden'); 
     }
-    function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function cerrarModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      // Si cierra el selector de opciones sin agregar, se descarta la aclaración que había escrito en el detalle
+      if (id === 'modal-sabores') notaPendienteProducto = null;
+    }
 
     function mostrarInicio() {
       if (modoEstrictoEnlace) return;

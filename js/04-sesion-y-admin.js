@@ -158,7 +158,7 @@
             <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2 shadow-sm">
               <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="cerrarModal('modal-panel'); abrirVistaComercio('${slugSeguro(c.slug || c.id)}');">
                 ${c.logo_url 
-                  ? `<img src="${esc(c.logo_url)}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">` 
+                  ? `<img loading="lazy" decoding="async" src="${esc(c.logo_url)}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">` 
                   : `<div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-brand-600 text-xs flex-shrink-0">${esc(c.nombre.charAt(0))}</div>`}
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5">

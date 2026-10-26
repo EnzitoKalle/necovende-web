@@ -18,7 +18,7 @@
     }
 
     async function cargarComercios() {
-      await cargarCategorias();
+      const promesaCategorias = cargarCategorias();   // se pide en paralelo con los comercios
       // Solo trae lo necesario: el público ve activos; el dueño además los suyos; el admin todo.
       let consultaComercios = _supabase.from('comercios').select('*');
       if (!esAdministrador()) {
@@ -26,7 +26,7 @@
           ? consultaComercios.or(`activo.eq.true,user_id.eq.${usuarioActual.id}`)
           : consultaComercios.eq('activo', true);
       }
-      const { data: comercios, error } = await consultaComercios;
+      const [{ data: comercios, error }] = await Promise.all([consultaComercios, promesaCategorias]);
 
       if (error) {
         console.error("Error al cargar comercios:", error);
@@ -75,7 +75,7 @@
         comercioCerradoPendiente = { identificador, prodId };
         document.getElementById('cerrado-nombre').innerText = c.nombre;
         const hoy = obtenerHorarioHoyTexto(c);
-        document.getElementById('cerrado-horario').innerText = !c.horarios_dias ? '' : (hoy === 'Cerrado hoy' ? 'Hoy el local no atiende.' : `Horario de hoy: ${hoy}`);
+        document.getElementById('cerrado-horario').innerText = estaPausado(c) ? 'El local pausó la atención por hoy.' : (!c.horarios_dias ? '' : (hoy === 'Cerrado hoy' ? 'Hoy el local no atiende.' : `Horario de hoy: ${hoy}`));
         abrirModal('modal-comercio-cerrado');
         if (window.lucide) lucide.createIcons();
         return;
@@ -239,7 +239,7 @@
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-start gap-3.5 min-w-0 flex-1 cursor-pointer" onclick="intentarAbrirComercio('${identificador}')">
                 ${c.logo_url 
-                  ? `<img src="${esc(c.logo_url)}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-slate-100 shadow-md flex-shrink-0 group-hover:scale-105 transition duration-300">`
+                  ? `<img loading="lazy" decoding="async" src="${esc(c.logo_url)}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-slate-100 shadow-md flex-shrink-0 group-hover:scale-105 transition duration-300">`
                   : `<div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-brand-600 font-black text-2xl group-hover:border-brand-300 transition flex-shrink-0">
                       ${esc(c.nombre.charAt(0).toUpperCase())}
                     </div>`
@@ -384,7 +384,7 @@
           <div onclick="intentarAbrirComercio('${slugComercio}', '${p.id}')" class="clean-card rounded-2xl p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-brand-300 transition">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               ${p.imagen_url 
-                ? `<img src="${esc(p.imagen_url)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 flex-shrink-0">` 
+                ? `<img loading="lazy" decoding="async" src="${esc(p.imagen_url)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 flex-shrink-0">` 
                 : `<div class="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-200"><i data-lucide="package" class="w-6 h-6"></i></div>`}
               <div class="min-w-0 flex-1">
                 <h4 class="font-black text-slate-900 text-sm truncate">${esc(p.titulo)}</h4>

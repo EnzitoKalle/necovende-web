@@ -89,7 +89,14 @@
         boxVariantes.classList.remove('hidden');
         if (p.talles_disponibles && p.talles_disponibles.length > 0) {
           boxTalles.classList.remove('hidden');
-          document.getElementById('select-talle-opcion').innerHTML = p.talles_disponibles.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+          const stockT = (p.stock_talles && typeof p.stock_talles === 'object') ? p.stock_talles : {};
+          document.getElementById('select-talle-opcion').innerHTML = p.talles_disponibles.map(t => {
+            const n = Object.prototype.hasOwnProperty.call(stockT, t) ? parseInt(stockT[t]) : null;
+            if (n !== null && n <= 0) return `<option value="${esc(t)}" disabled>${esc(t)} (sin stock)</option>`;
+            return `<option value="${esc(t)}">${esc(t)}${n !== null && n <= 3 ? ` (quedan ${n})` : ''}</option>`;
+          }).join('');
+          const primerTalleConStock = Array.from(document.getElementById('select-talle-opcion').options).find(o => !o.disabled);
+          if (primerTalleConStock) document.getElementById('select-talle-opcion').value = primerTalleConStock.value;
         } else {
           boxTalles.classList.add('hidden');
         }
@@ -391,7 +398,9 @@
       const cantidadAgregar = (productoPendienteSabores.saboresIlimitados && productoPendienteSabores.requiereSabores)
         ? cantidadPorSaboresIlimitados
         : cantidadSeleccionadaModalSabores;
-      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAgregar);
+      const extraCarrito = {};
+      if (productoPendienteSabores.talles && productoPendienteSabores.talles.length > 0) extraCarrito.talle = document.getElementById('select-talle-opcion').value;
+      agregarAlCarrito(productoPendienteSabores.id, tituloFinal, productoPendienteSabores.precio, cantidadAgregar, extraCarrito);
       cerrarModal('modal-sabores');
       productoPendienteSabores = null;
     }
@@ -426,7 +435,13 @@
         noImgElem.classList.remove('hidden');
       }
 
+      notaPendienteProducto = null;
+      const inputNota = document.getElementById('view-prod-nota');
+      if (inputNota) inputNota.value = '';
+
       document.getElementById('view-prod-btn-agregar').onclick = () => {
+        const nota = inputNota ? inputNota.value.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
+        notaPendienteProducto = nota ? { id: p.id, texto: nota } : null;
         intentarAgregarProducto(p.id);
         cerrarModal('modal-ver-producto');
       };
@@ -435,7 +450,10 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function agregarAlCarrito(id, titulo, precio, cantidadAAgregar = 1) {
+    // Aclaración escrita en el detalle del producto (ej: sin cebolla): se pega al producto cuando efectivamente se agrega
+    let notaPendienteProducto = null;
+
+    function agregarAlCarrito(id, titulo, precio, cantidadAAgregar = 1, extra = {}) {
       if (!comercioActivo) return;
 
       if (comercioCarrito && comercioCarrito.id !== comercioActivo.id && carrito.length > 0) {
@@ -451,26 +469,46 @@
       }
 
       const existe = carrito.find(item => item.titulo === titulo && item.id === id);
+      const notaNueva = (notaPendienteProducto && String(notaPendienteProducto.id) === String(id)) ? notaPendienteProducto.texto : '';
+      if (notaNueva) notaPendienteProducto = null;
       if (existe) {
         existe.cantidad += cantidadAAgregar;
+        if (notaNueva && !(existe.nota || '').includes(notaNueva)) existe.nota = ((existe.nota ? existe.nota + ' | ' : '') + notaNueva).slice(0, 120);
       } else {
-        carrito.push({ id, titulo, precio, cantidad: cantidadAAgregar });
+        const nuevo = { id, titulo, precio, cantidad: cantidadAAgregar };
+        if (extra && extra.talle) nuevo.talle = extra.talle;
+        if (notaNueva) nuevo.nota = notaNueva;
+        carrito.push(nuevo);
       }
 
       actualizarCarrito();
     }
 
-    function cambiarCantidad(id, cambio) {
-      const item = carrito.find(i => i.id === id);
+    function cambiarCantidad(indice, cambio) {
+      const item = carrito[indice];
       if (!item) return;
 
       item.cantidad += cambio;
-      if (item.cantidad <= 0) {
-        carrito = carrito.filter(i => i.id !== id);
-      }
+      if (item.cantidad <= 0) carrito.splice(indice, 1);
 
       if (carrito.length === 0) comercioCarrito = null;
       actualizarCarrito();
+    }
+
+    // Aclaración por producto (ej: "sin cebolla"); se guarda sin redibujar para no cortar la escritura
+    function mostrarNotaItem(indice) {
+      const caja = document.getElementById(`cart-nota-box-${indice}`);
+      if (!caja) return;
+      caja.classList.remove('hidden');
+      const input = document.getElementById(`cart-nota-input-${indice}`);
+      if (input) input.focus();
+    }
+
+    function guardarNotaItem(indice, texto) {
+      if (!carrito[indice]) return;
+      const limpio = String(texto || '').trim().slice(0, 120);
+      if (limpio) carrito[indice].nota = limpio; else delete carrito[indice].nota;
+      guardarCarrito();
     }
 
     function vaciarCarrito() {
@@ -519,6 +557,16 @@
       return 'El comercio te confirma el costo del envío.';
     }
 
+    function totalCarritoActual() {
+      return carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    }
+
+    // ¿El pedido llega al monto desde el cual el comercio regala el envío?
+    function envioGratisPorMonto(c, subtotal) {
+      const desde = Number(c && c.envio_gratis_desde) || 0;
+      return desde > 0 && subtotal >= desde;
+    }
+
     function toggleDireccionCarrito() {
       const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
       const boxDireccion = document.getElementById('box-cart-direccion');
@@ -527,7 +575,13 @@
       const inputNombre = document.getElementById('cart-input-nombre-retira');
       const avisoEnvio = document.getElementById('cart-aviso-envio');
       const labelTotal = document.getElementById('cart-label-total');
-      const envioConCosto = tipoEntrega === 'envio' && comercioCarrito && !comercioCarrito.envio_gratis;
+      const avisoMinimo = document.getElementById('cart-aviso-minimo');
+      const btnEnviar = document.getElementById('btn-enviar-pedido');
+
+      const subtotal = totalCarritoActual();
+      const esEnvio = tipoEntrega === 'envio' && Boolean(comercioCarrito);
+      const gratisPorMonto = esEnvio && !comercioCarrito.envio_gratis && envioGratisPorMonto(comercioCarrito, subtotal);
+      const envioConCosto = esEnvio && !comercioCarrito.envio_gratis && !gratisPorMonto;
 
       if (tipoEntrega === 'envio') {
         boxDireccion.classList.remove('hidden');
@@ -540,11 +594,42 @@
       }
 
       leyendaEnvio.classList.toggle('hidden', !envioConCosto);
+
       if (avisoEnvio) {
-        avisoEnvio.classList.toggle('hidden', !envioConCosto);
-        if (envioConCosto) document.getElementById('cart-aviso-envio-detalle').innerText = textoEstimadoEnvio(comercioCarrito);
+        const desde = Number(comercioCarrito && comercioCarrito.envio_gratis_desde) || 0;
+        const titulo = document.getElementById('cart-aviso-envio-titulo');
+        const tituloWrap = document.getElementById('cart-aviso-envio-titulo-wrap');
+        const detalle = document.getElementById('cart-aviso-envio-detalle');
+        if (envioConCosto) {
+          avisoEnvio.className = 'bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-1';
+          tituloWrap.className = 'font-black text-amber-800 flex items-center gap-1.5';
+          detalle.className = 'text-amber-700 leading-snug';
+          titulo.innerText = 'El envío no está incluido en el total';
+          detalle.innerText = textoEstimadoEnvio(comercioCarrito) + (desde > 0 ? ` Te faltan ${fmtPrecio(desde - subtotal)} para tener envío gratis (desde ${fmtPrecio(desde)}).` : '');
+        } else if (gratisPorMonto) {
+          avisoEnvio.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs space-y-1';
+          tituloWrap.className = 'font-black text-emerald-800 flex items-center gap-1.5';
+          detalle.className = 'text-emerald-700 leading-snug';
+          titulo.innerText = '¡Tu envío es gratis!';
+          detalle.innerText = `Tu pedido supera ${fmtPrecio(desde)}.`;
+        } else {
+          avisoEnvio.className = 'hidden';
+        }
       }
+
       if (labelTotal) labelTotal.innerText = envioConCosto ? 'Subtotal (sin envío):' : 'Total estimado:';
+
+      const minimo = Number(comercioCarrito && comercioCarrito.pedido_minimo) || 0;
+      const faltaMinimo = minimo > 0 && subtotal < minimo;
+      if (avisoMinimo) {
+        avisoMinimo.classList.toggle('hidden', !faltaMinimo);
+        if (faltaMinimo) avisoMinimo.innerText = `Este comercio tiene un pedido mínimo de ${fmtPrecio(minimo)}. Te faltan ${fmtPrecio(minimo - subtotal)} para poder enviarlo.`;
+      }
+      if (btnEnviar) {
+        btnEnviar.disabled = faltaMinimo;
+        btnEnviar.classList.toggle('opacity-50', faltaMinimo);
+        btnEnviar.classList.toggle('cursor-not-allowed', faltaMinimo);
+      }
       if (window.lucide) lucide.createIcons();
     }
 
@@ -612,17 +697,23 @@
 
       toggleDireccionCarrito();
 
-      carrito.forEach(item => {
+      carrito.forEach((item, i) => {
         itemsContainer.innerHTML += `
-          <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <div class="pr-2 min-w-0 flex-1">
-              <p class="font-bold text-xs text-slate-800 leading-tight">${esc(item.titulo)}</p>
-              <p class="text-[11px] text-brand-600 font-extrabold mt-0.5">${fmtPrecio(item.precio * item.cantidad)}</p>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between">
+              <div class="pr-2 min-w-0 flex-1">
+                <p class="font-bold text-xs text-slate-800 leading-tight">${esc(item.titulo)}</p>
+                <p class="text-[11px] text-brand-600 font-extrabold mt-0.5">${fmtPrecio(item.precio * item.cantidad)}</p>
+              </div>
+              <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1 flex-shrink-0 shadow-sm">
+                <button type="button" onclick="cambiarCantidad(${i}, -1)" class="text-slate-400 hover:text-slate-700 font-black text-sm px-1" aria-label="Quitar uno">-</button>
+                <span class="text-xs font-bold text-slate-800 px-1">${item.cantidad}</span>
+                <button type="button" onclick="cambiarCantidad(${i}, 1)" class="text-slate-400 hover:text-slate-700 font-black text-sm px-1" aria-label="Sumar uno">+</button>
+              </div>
             </div>
-            <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1 flex-shrink-0 shadow-sm">
-              <button onclick="cambiarCantidad('${item.id}', -1)" class="text-slate-400 hover:text-slate-700 font-black text-xs">-</button>
-              <span class="text-xs font-bold text-slate-800 px-1">${item.cantidad}</span>
-              <button onclick="cambiarCantidad('${item.id}', 1)" class="text-slate-400 hover:text-slate-700 font-black text-xs">+</button>
+            ${item.nota ? '' : `<button type="button" onclick="mostrarNotaItem(${i})" class="mt-1.5 text-[10px] font-bold text-brand-600 underline">+ Aclaración (ej: sin cebolla)</button>`}
+            <div id="cart-nota-box-${i}" class="${item.nota ? '' : 'hidden'} mt-1.5">
+              <input type="text" id="cart-nota-input-${i}" maxlength="120" value="${esc(item.nota || '')}" oninput="guardarNotaItem(${i}, this.value)" placeholder="Aclaración para este producto" class="w-full clean-input px-3 py-2 rounded-lg text-[11px] font-medium">
             </div>
           </div>
         `;
@@ -636,17 +727,21 @@
     // Cuánto necesita cada producto (si hay promos, también los productos que las componen)
     function calcularNecesidadesStock() {
       const need = {};
-      const sumar = (id, n) => { need[id] = (need[id] || 0) + n; };
+      const sumar = (id, n, talle) => {
+        const k = `${id}|${talle || ''}`;
+        if (!need[k]) need[k] = { id: String(id), cant: 0, talle: talle || '' };
+        need[k].cant += n;
+      };
       carrito.forEach(item => {
-        sumar(String(item.id), item.cantidad);
+        sumar(item.id, item.cantidad, item.talle);
         const prod = (comercioCarrito.productos || []).find(p => String(p.id) === String(item.id));
         if (prod && prod.es_combo && prod.items_combo) {
           let comps = [];
           try { comps = typeof prod.items_combo === 'string' ? JSON.parse(prod.items_combo) : prod.items_combo; } catch (e) {}
-          (comps || []).forEach(c => sumar(String(c.prodId), (Number(c.cantidad) || 0) * item.cantidad));
+          (comps || []).forEach(c => sumar(c.prodId, (Number(c.cantidad) || 0) * item.cantidad, ''));
         }
       });
-      return Object.entries(need).filter(([, n]) => n > 0).map(([id, cant]) => ({ id, cant }));
+      return Object.values(need).filter(x => x.cant > 0).map(x => x.talle ? x : { id: x.id, cant: x.cant });
     }
 
     function refrescarProductosPorStock() {
@@ -658,8 +753,13 @@
     function avisarFaltantesStock(faltantes) {
       const lineas = faltantes.map(f => {
         const prod = (comercioCarrito.productos || []).find(p => String(p.id) === String(f.id));
-        if (prod && typeof f.stock === 'number') prod.stock = f.stock;
-        const nombre = f.titulo || (prod && prod.titulo) || 'Producto';
+        if (prod && typeof f.stock === 'number') {
+          if (f.talle) {
+            prod.stock_talles = { ...(prod.stock_talles || {}), [f.talle]: f.stock };
+            prod.stock = Object.values(prod.stock_talles).reduce((a, n) => a + (parseInt(n) || 0), 0);
+          } else prod.stock = f.stock;
+        }
+        const nombre = (f.titulo || (prod && prod.titulo) || 'Producto') + (f.talle ? ` (talle ${f.talle})` : '');
         return Number(f.stock) > 0 ? `• ${nombre}: quedan ${f.stock}` : `• ${nombre}: sin stock`;
       });
       alert('Algunos productos ya no tienen stock suficiente:\n\n' + lineas.join('\n') + '\n\nAjustá las cantidades de tu carrito y volvé a intentar.');
@@ -679,11 +779,13 @@
           return false;
         }
         // Respaldo: si todavía no corriste el SQL nuevo, verifica con datos frescos y usa la función vieja.
-        const { data: frescos, error: errFrescos } = await _supabase.from('productos').select('id, titulo, stock, disponible').in('id', items.map(i => i.id));
+        const porProducto = {};
+        items.forEach(i => { porProducto[i.id] = (porProducto[i.id] || 0) + i.cant; });
+        const { data: frescos, error: errFrescos } = await _supabase.from('productos').select('id, titulo, stock, disponible').in('id', Object.keys(porProducto));
         if (errFrescos) { alert('No pudimos verificar el stock. Intentá de nuevo.'); return false; }
         const faltantes = [];
         (frescos || []).forEach(pf => {
-          const need = items.find(i => String(i.id) === String(pf.id));
+          const need = { cant: porProducto[String(pf.id)] || 0 };
           const tiene = pf.stock !== null && pf.stock !== undefined;
           if (pf.disponible === false || (tiene && pf.stock < need.cant)) {
             faltantes.push({ id: pf.id, titulo: pf.titulo, stock: pf.disponible === false ? 0 : pf.stock });
@@ -692,8 +794,7 @@
         if (faltantes.length) return avisarFaltantesStock(faltantes);
         for (const pf of (frescos || [])) {
           if (pf.stock === null || pf.stock === undefined) continue;
-          const need = items.find(i => String(i.id) === String(pf.id));
-          await _supabase.rpc('descontar_stock', { p_producto: String(pf.id), p_cant: need.cant });
+          await _supabase.rpc('descontar_stock', { p_producto: String(pf.id), p_cant: porProducto[String(pf.id)] || 0 });
         }
       } else if (data && data.ok === false) {
         if (data.faltantes) return avisarFaltantesStock(data.faltantes);
@@ -704,7 +805,11 @@
       // Reflejar el descuento en pantalla
       items.forEach(it => {
         const prod = (comercioCarrito.productos || []).find(p => String(p.id) === String(it.id));
-        if (prod && prod.stock !== null && prod.stock !== undefined) prod.stock = Math.max(0, parseInt(prod.stock) - it.cant);
+        if (!prod) return;
+        if (it.talle && prod.stock_talles && Object.prototype.hasOwnProperty.call(prod.stock_talles, it.talle)) {
+          prod.stock_talles[it.talle] = Math.max(0, (parseInt(prod.stock_talles[it.talle]) || 0) - it.cant);
+        }
+        if (prod.stock !== null && prod.stock !== undefined) prod.stock = Math.max(0, parseInt(prod.stock) - it.cant);
       });
       return true;
     }
@@ -732,6 +837,13 @@
         return;
       }
 
+      const subtotalPedido = totalCarritoActual();
+      const minimoPedido = Number(comercioCarrito.pedido_minimo) || 0;
+      if (minimoPedido > 0 && subtotalPedido < minimoPedido) {
+        alert(`El pedido mínimo de este comercio es ${fmtPrecio(minimoPedido)}. Te faltan ${fmtPrecio(minimoPedido - subtotalPedido)}.`);
+        return;
+      }
+
       enviandoPedido = true;
       try {
         const stockOk = await reservarStockCarrito();
@@ -748,13 +860,16 @@
         const subtotal = item.precio * item.cantidad;
         total += subtotal;
         mensaje += `• *${item.cantidad}x* ${item.titulo} (${fmtPrecio(subtotal)})\n`;
+        if (item.nota) mensaje += `   _📝 ${item.nota}_\n`;
         itemsGuardarHistorial.push({ id: item.id, titulo: item.titulo, precio: item.precio, cantidad: item.cantidad });
       }
 
       mensaje += `\n📌 *Detalles del Pedido:*\n`;
       mensaje += `• *Medio de pago:* ${medioPago}\n`;
+      const notaGeneral = (document.getElementById('cart-nota-general').value || '').trim().slice(0, 200);
+      if (notaGeneral) mensaje += `• *Aclaración:* ${notaGeneral}\n`;
 
-      const envioPendiente = permiteEnvios && tipoEntrega === 'envio' && !comercioCarrito.envio_gratis;
+      const envioPendiente = permiteEnvios && tipoEntrega === 'envio' && !comercioCarrito.envio_gratis && !envioGratisPorMonto(comercioCarrito, total);
 
       if (permiteEnvios && tipoEntrega === 'envio') {
         mensaje += `• *Persona que recibe:* ${nombreRetira}\n`;
@@ -785,6 +900,7 @@
         fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
 
+      document.getElementById('cart-nota-general').value = '';
       cerrarModal('modal-carrito');
       mostrarToast(`Pedido enviado a ${comercioCarrito.nombre} vía WhatsApp.`);
 

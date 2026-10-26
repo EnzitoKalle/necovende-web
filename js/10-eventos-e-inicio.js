@@ -114,6 +114,15 @@
         datosComercio.envio_max = isNaN(envioMaxVal) ? null : envioMaxVal;
       }
 
+      // Condiciones de venta (columnas de sql/04-extras-comercios.sql)
+      const pedMinVal = parseFloat(document.getElementById('pedido-minimo').value);
+      const gratisDesdeVal = pideEnvioPago ? parseFloat(document.getElementById('envio-gratis-desde').value) : NaN;
+      const columnasCondicionesExisten = Boolean(comercioExistente && ('pedido_minimo' in comercioExistente));
+      if (!isNaN(pedMinVal) || !isNaN(gratisDesdeVal) || columnasCondicionesExisten) {
+        datosComercio.pedido_minimo = isNaN(pedMinVal) ? null : pedMinVal;
+        datosComercio.envio_gratis_desde = isNaN(gratisDesdeVal) ? null : gratisDesdeVal;
+      }
+
       let res;
       if (editId) {
         res = await _supabase.from('comercios').update(datosComercio).eq('id', editId);
@@ -210,6 +219,13 @@
         disponible: true,
         imagen_url
       };
+
+      // Stock por talle (columna de sql/04-extras-comercios.sql)
+      const stockTalles = leerStockTalles(datosProducto.talles_disponibles);
+      if (!stockTalles.ok) { alert(stockTalles.error); return; }
+      const prodExistente = (comercioActivo?.productos || []).find(x => String(x.id) === String(prodEditId));
+      if (stockTalles.valor) datosProducto.stock = stockTalles.total;
+      if (stockTalles.valor || (prodExistente && 'stock_talles' in prodExistente)) datosProducto.stock_talles = stockTalles.valor;
 
       let res;
       if (prodEditId) {
