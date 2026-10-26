@@ -360,9 +360,14 @@
     async function buscarProductosGlobales(query) {
       const token = ++_tokenBusquedaProductos;
       const campos = '*, comercios(id, nombre, slug, logo_url, activo)';
+      const quitarTildes = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const ignoradas = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'para', 'con', 'y', 'en']);
+      const palabras = quitarTildes(query).split(/[^a-z0-9ñ]+/).filter(w => w && !ignoradas.has(w));
+      const palabraClave = palabras.slice().sort((x, y) => y.length - x.length)[0] || '';
       const armar = (soloPromos) => {
         let q = _supabase.from('productos').select(campos).eq('disponible', true);
-        if (query) q = q.ilike('titulo', `%${query}%`);
+        // Servidor: la palabra más larga (en el título o la descripción). El resto de las palabras se verifica abajo.
+        if (palabras.length) q = q.or(`titulo.ilike.%${palabraClave}%,descripcion.ilike.%${palabraClave}%`);
         if (filtroOfertas) q = soloPromos ? q.eq('es_combo', true) : q.or('precio_anterior.not.is.null,es_combo.eq.true');
         if (ordenPrecio) q = q.order('precio', { ascending: ordenPrecio === 'asc' });
         return q.limit(60);
@@ -382,6 +387,10 @@
         const c = p.comercios && comerciosGlobales.find(x => String(x.id) === String(p.comercios.id));
         if (!c || c.activo !== true || promoVencida(p) || p.es_solo_promo) return;
         if (p.stock !== null && p.stock !== undefined && !p.es_combo && parseInt(p.stock) <= 0) return;
+        if (palabras.length) {
+          const texto = quitarTildes(`${p.titulo} ${p.descripcion || ''} ${p.seccion || ''} ${(p.colores_disponibles || []).join(' ')}`);
+          if (!palabras.every(w => texto.includes(w))) return;
+        }
         if (filtroAbierto && !estaAbierto(c)) return;
         const oferta = ofertaDe(p, c);
         if (filtroOfertas && !oferta && !(p.es_combo && c.plan !== 'gratis')) return;
