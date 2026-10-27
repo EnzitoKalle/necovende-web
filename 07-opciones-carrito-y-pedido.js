@@ -492,7 +492,7 @@
       const badgeOff = document.getElementById('view-prod-badge-off');
 
       if (porcOff > 0) {
-        badgeOff.innerText = `🔥 ${porcOff}% OFF`;
+        badgeOff.innerText = etiquetaDescuento(p, porcOff);
         badgeOff.classList.remove('hidden');
       } else {
         badgeOff.classList.add('hidden');
@@ -971,6 +971,18 @@
         mensaje += `• *Horario de retiro:* ${obtenerHorarioHoyTexto(comercioCarrito)}\n`;
         mensaje += `• *Dirección:* ${comercioCarrito.direccion || 'Necochea'}\n`;
         mensaje += `\n*Total a pagar:* ${fmtPrecio(total)}\n`;
+      }
+
+      // Enlace a NecoEnvíos para que el comercio pida un repartidor con las direcciones ya cargadas
+      if (permiteEnvios && tipoEntrega === 'envio') {
+        const pe = new URLSearchParams({
+          retiro: comercioCarrito.direccion || '',          // el repartidor retira en el comercio
+          entrega: direccion,                                // y entrega en la dirección del cliente
+          nombre: comercioCarrito.nombre || '',
+          whatsapp: comercioCarrito.telefono_whatsapp || '',
+          comercio: comercioCarrito.nombre || ''
+        });
+        mensaje += `\n🛵 *Solicitar repartidor YA* (direcciones ya cargadas):\nhttps://neco-envios.vercel.app/?${pe.toString()}\n`;
       }
 
       mensaje += envioPendiente
