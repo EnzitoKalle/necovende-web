@@ -123,6 +123,11 @@
         datosComercio.envio_gratis_desde = isNaN(gratisDesdeVal) ? null : gratisDesdeVal;
       }
 
+      // Gustos destildados (columna opciones_ocultas de sql/06-listas-editables.sql)
+      if (leTieneOcultos(['sabores-input']) || (comercioExistente && 'opciones_ocultas' in comercioExistente)) {
+        datosComercio.opciones_ocultas = leOcultosObjeto(['sabores-input']);
+      }
+
       let res;
       if (editId) {
         res = await _supabase.from('comercios').update(datosComercio).eq('id', editId);
@@ -131,7 +136,8 @@
       }
 
       if (res.error) {
-        alert("Error al guardar: " + res.error.message);
+        if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else alert("Error al guardar: " + res.error.message);
       } else {
         cerrarModal('modal-registro');
         await cargarComercios();
@@ -241,6 +247,12 @@
       if (stockTalles.valor) datosProducto.stock = stockTalles.total;
       if (stockTalles.valor || (prodExistente && 'stock_talles' in prodExistente)) datosProducto.stock_talles = stockTalles.valor;
 
+      // Talles / gustos / colores / opciones destildados (columna opciones_ocultas de sql/06-listas-editables.sql)
+      const idsListasProd = ['prod-sabores-especificos', 'prod-opciones-custom-input', 'prod-talles-input', 'prod-colores-input'];
+      if (leTieneOcultos(idsListasProd) || (prodExistente && 'opciones_ocultas' in prodExistente)) {
+        datosProducto.opciones_ocultas = leOcultosObjeto(idsListasProd);
+      }
+
       let res;
       if (prodEditId) {
         delete datosProducto.disponible;   // editar no debe reactivar un producto que se marcó como agotado
@@ -251,6 +263,7 @@
 
       if (res.error) {
         if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else alert("Error al guardar producto: " + res.error.message);
       } else {
         cerrarModal('modal-producto');

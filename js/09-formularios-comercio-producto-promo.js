@@ -166,6 +166,7 @@
       document.getElementById('comercio-posicion-portada').value = c.posicion_portada || "object-center";
 
       document.getElementById('sabores-input').value = c.sabores ? c.sabores.join(', ') : '';
+      leCargar('sabores-input', c.sabores, (c.opciones_ocultas || {}).sabores);
       document.getElementById('tipo-coccion-select').value = c.tipo_coccion_empanadas || 'ambas';
 
       const plan = c.plan || 'gratis';
@@ -376,6 +377,11 @@
       document.getElementById('prod-tiene-variantes').checked = Boolean((p.talles_disponibles || []).length || (p.colores_disponibles || []).length);
       document.getElementById('prod-talles-input').value = (p.talles_disponibles || []).join(', ');
       document.getElementById('prod-colores-input').value = (p.colores_disponibles || []).join(', ');
+      const ocP = p.opciones_ocultas || {};
+      leCargar('prod-sabores-especificos', p.sabores_especificos, ocP.sabores_especificos);
+      leCargar('prod-opciones-custom-input', p.opciones_custom, ocP.opciones_custom);
+      leCargar('prod-talles-input', p.talles_disponibles, ocP.talles);
+      leCargar('prod-colores-input', p.colores_disponibles, ocP.colores);
       renderizarStockTalles(p.stock_talles && typeof p.stock_talles === 'object' ? p.stock_talles : {});
       toggleBoxConfigSabores(); toggleInputMaxSabores(); toggleBoxVariantes();
       document.getElementById('prod-es-origen-promo').value = 'false';
