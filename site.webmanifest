@@ -2,6 +2,8 @@
   "name": "NecoVende",
   "short_name": "NecoVende",
   "description": "Marketplace digital de Necochea & Quequén",
+  "id": "/",
+  "lang": "es-AR",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
