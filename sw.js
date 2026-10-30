@@ -36,6 +36,7 @@ const PRECACHE = [
   '/js/13-promos-eleccion.js',
   '/js/14-listas-editables.js',
   '/js/15-instalar-app.js',
+  '/js/16-notificaciones-push.js',
   '/img/icon-192.png',
   '/img/icon-512.png',
   '/img/apple-touch-icon.png'

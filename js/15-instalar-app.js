@@ -182,6 +182,9 @@
     m.addEventListener('click', function (ev) { if (ev.target === m) cerrar(); });
   }
 
+  // Para que el botón de notificaciones pueda abrir las mismas instrucciones.
+  window.NecoInstalar = { mostrarInstruccionesIOS: mostrarInstruccionesIOS };
+
   /* En iOS no existe el evento de instalación: mostramos el cartel apenas carga la página. */
   if (esIOS) {
     window.addEventListener('load', function () { setTimeout(mostrarCartel, 1500); });

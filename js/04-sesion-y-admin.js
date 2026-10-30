@@ -7,6 +7,7 @@
     }
 
     async function cerrarSesion() {
+      try { if (window.nvPushDesvincular) await window.nvPushDesvincular(); } catch (e) { /* no frena el cierre de sesión */ }
       const { error } = await _supabase.auth.signOut();
       if (!error) {
         cerrarModal('modal-panel');
@@ -180,6 +181,7 @@
 
       abrirModal('modal-panel');
       if (window.lucide) lucide.createIcons();
+      if (window.nvPushRefrescar) window.nvPushRefrescar();
       cargarEstadisticasPanel(misComercios);
     }
 
