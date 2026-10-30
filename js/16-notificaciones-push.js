@@ -6,7 +6,7 @@
 
 // Clave PÚBLICA VAPID (la misma que usa neco-envios en su push.js).
 // Mientras tenga el texto de ejemplo, el botón queda oculto y nada se rompe.
-const NV_VAPID_PUBLIC_KEY = 'PEGAR_ACA_LA_CLAVE_PUBLICA_VAPID';
+const NV_VAPID_PUBLIC_KEY = 'BDTw7eeBhWjhfaVOVT8Zatjjp_VfFxFRUllzvXdznFpyyuNkUhDarQ018xPxP6sE-fJHFBkvFAUTaBDxWmFGGxw';
 
 (function () {
   'use strict';
