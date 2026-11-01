@@ -644,6 +644,11 @@
       return desde > 0 && subtotal >= desde;
     }
 
+    // Costo de envío fijo que cargó el comercio (si no hay, el envío es "a convenir")
+    function envioFijoDe(c) {
+      const v = Number(c && c.envio_fijo);
+      return isFinite(v) && v > 0 ? v : 0;
+    }
     function toggleDireccionCarrito() {
       const tipoEntrega = document.getElementById('cart-tipo-entrega').value;
       const boxDireccion = document.getElementById('box-cart-direccion');
@@ -658,7 +663,9 @@
       const subtotal = totalCarritoActual();
       const esEnvio = tipoEntrega === 'envio' && Boolean(comercioCarrito);
       const gratisPorMonto = esEnvio && !comercioCarrito.envio_gratis && envioGratisPorMonto(comercioCarrito, subtotal);
-      const envioConCosto = esEnvio && !comercioCarrito.envio_gratis && !gratisPorMonto;
+      const fijo = esEnvio ? envioFijoDe(comercioCarrito) : 0;
+      const envioFijoAplica = fijo > 0 && !comercioCarrito.envio_gratis && !gratisPorMonto;
+      const envioConCosto = esEnvio && !comercioCarrito.envio_gratis && !gratisPorMonto && !envioFijoAplica;
 
       if (tipoEntrega === 'envio') {
         boxDireccion.classList.remove('hidden');
@@ -671,6 +678,8 @@
       }
 
       leyendaEnvio.classList.toggle('hidden', !envioConCosto);
+      const elTotal = document.getElementById('cart-total-precio');
+      if (elTotal) elTotal.innerText = fmtPrecio(subtotal + (envioFijoAplica ? fijo : 0));
 
       if (avisoEnvio) {
         const desde = Number(comercioCarrito && comercioCarrito.envio_gratis_desde) || 0;
@@ -682,7 +691,13 @@
           tituloWrap.className = 'font-black text-amber-800 flex items-center gap-1.5';
           detalle.className = 'text-amber-700 leading-snug';
           titulo.innerText = 'El envío no está incluido en el total';
-          detalle.innerText = textoEstimadoEnvio(comercioCarrito) + (desde > 0 ? ` Te faltan ${fmtPrecio(desde - subtotal)} para tener envío gratis (desde ${fmtPrecio(desde)}).` : '');
+          detalle.innerText = textoEstimadoEnvio(comercioCarrito) + ' Antes de que lo preparen vas a poder confirmar el total con el envío.' + (desde > 0 ? ` Te faltan ${fmtPrecio(desde - subtotal)} para tener envío gratis (desde ${fmtPrecio(desde)}).` : '');
+        } else if (envioFijoAplica) {
+          avisoEnvio.className = 'bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-1';
+          tituloWrap.className = 'font-black text-amber-800 flex items-center gap-1.5';
+          detalle.className = 'text-amber-700 leading-snug';
+          titulo.innerText = `Envío: ${fmtPrecio(fijo)}`;
+          detalle.innerText = `Ya está sumado al total.` + (desde > 0 ? ` Te faltan ${fmtPrecio(desde - subtotal)} para tener envío gratis (desde ${fmtPrecio(desde)}).` : '');
         } else if (gratisPorMonto) {
           avisoEnvio.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs space-y-1';
           tituloWrap.className = 'font-black text-emerald-800 flex items-center gap-1.5';
@@ -694,7 +709,7 @@
         }
       }
 
-      if (labelTotal) labelTotal.innerText = envioConCosto ? 'Subtotal (sin envío):' : 'Total estimado:';
+      if (labelTotal) labelTotal.innerText = envioConCosto ? 'Subtotal (sin envío):' : (envioFijoAplica ? 'Total (con envío):' : 'Total estimado:');
 
       const minimo = Number(comercioCarrito && comercioCarrito.pedido_minimo) || 0;
       const faltaMinimo = minimo > 0 && subtotal < minimo;
@@ -852,163 +867,4 @@
       return false;
     }
 
-    // Verifica el stock real en el servidor y lo descuenta en una sola operación.
-    async function reservarStockCarrito() {
-      const items = calcularNecesidadesStock();
-      const { data, error } = await _supabase.rpc('reservar_stock_carrito', { p_items: items });
-
-      if (error) {
-        const sinFuncion = error.code === 'PGRST202' || /could not find the function/i.test(error.message || '');
-        if (!sinFuncion) {
-          alert('No pudimos verificar el stock en este momento. Intentá de nuevo en unos segundos.');
-          return false;
-        }
-        // Respaldo: si todavía no corriste el SQL nuevo, verifica con datos frescos y usa la función vieja.
-        const porProducto = {};
-        items.forEach(i => { porProducto[i.id] = (porProducto[i.id] || 0) + i.cant; });
-        const { data: frescos, error: errFrescos } = await _supabase.from('productos').select('id, titulo, stock, disponible').in('id', Object.keys(porProducto));
-        if (errFrescos) { alert('No pudimos verificar el stock. Intentá de nuevo.'); return false; }
-        const faltantes = [];
-        (frescos || []).forEach(pf => {
-          const need = { cant: porProducto[String(pf.id)] || 0 };
-          const tiene = pf.stock !== null && pf.stock !== undefined;
-          if (pf.disponible === false || (tiene && pf.stock < need.cant)) {
-            faltantes.push({ id: pf.id, titulo: pf.titulo, stock: pf.disponible === false ? 0 : pf.stock });
-          }
-        });
-        if (faltantes.length) return avisarFaltantesStock(faltantes);
-        for (const pf of (frescos || [])) {
-          if (pf.stock === null || pf.stock === undefined) continue;
-          await _supabase.rpc('descontar_stock', { p_producto: String(pf.id), p_cant: porProducto[String(pf.id)] || 0 });
-        }
-      } else if (data && data.ok === false) {
-        if (data.faltantes) return avisarFaltantesStock(data.faltantes);
-        alert('No se pudo procesar el pedido. Revisá las cantidades de tu carrito.');
-        return false;
-      }
-
-      // Reflejar el descuento en pantalla
-      items.forEach(it => {
-        const prod = (comercioCarrito.productos || []).find(p => String(p.id) === String(it.id));
-        if (!prod) return;
-        if (it.talle && prod.stock_talles && Object.prototype.hasOwnProperty.call(prod.stock_talles, it.talle)) {
-          prod.stock_talles[it.talle] = Math.max(0, (parseInt(prod.stock_talles[it.talle]) || 0) - it.cant);
-        }
-        if (prod.stock !== null && prod.stock !== undefined) prod.stock = Math.max(0, parseInt(prod.stock) - it.cant);
-      });
-      return true;
-    }
-
-    async function enviarPedidoWhatsApp() {
-      if (enviandoPedido) return;
-      if (carrito.length === 0) return;
-      if (!comercioCarrito) return;
-
-      const medioPago = document.getElementById('cart-medio-pago').value;
-      const nombreRetira = document.getElementById('cart-input-nombre-retira').value.trim();
-      const permiteEnvios = Boolean(comercioCarrito.hace_envios || comercioCarrito.envio_gratis);
-      const tipoEntrega = permiteEnvios ? document.getElementById('cart-tipo-entrega').value : 'retiro';
-      const direccion = permiteEnvios && tipoEntrega === 'envio' ? document.getElementById('cart-input-direccion').value.trim() : '';
-
-      if (!nombreRetira) {
-        alert("Por favor, ingresá el nombre correspondiente.");
-        document.getElementById('cart-input-nombre-retira').focus();
-        return;
-      }
-
-      if (permiteEnvios && tipoEntrega === 'envio' && !direccion) {
-        alert("Por favor, ingresá tu dirección para poder realizar el envío.");
-        document.getElementById('cart-input-direccion').focus();
-        return;
-      }
-
-      const subtotalPedido = totalCarritoActual();
-      const minimoPedido = Number(comercioCarrito.pedido_minimo) || 0;
-      if (minimoPedido > 0 && subtotalPedido < minimoPedido) {
-        alert(`El pedido mínimo de este comercio es ${fmtPrecio(minimoPedido)}. Te faltan ${fmtPrecio(minimoPedido - subtotalPedido)}.`);
-        return;
-      }
-
-      enviandoPedido = true;
-      try {
-        const stockOk = await reservarStockCarrito();
-        if (!stockOk) return;
-      } finally {
-        enviandoPedido = false;
-      }
-
-      let mensaje = `¡Hola *${comercioCarrito.nombre}*! Quiero realizar el siguiente pedido desde *NecoVende*:\n\n`;
-      let total = 0;
-      let itemsGuardarHistorial = [];
-
-      for (const item of carrito) {
-        const subtotal = item.precio * item.cantidad;
-        total += subtotal;
-        mensaje += `• *${item.cantidad}x* ${item.titulo} (${fmtPrecio(subtotal)})\n`;
-        if (item.nota) mensaje += `   _📝 ${item.nota}_\n`;
-        itemsGuardarHistorial.push({ id: item.id, titulo: item.titulo, precio: item.precio, cantidad: item.cantidad });
-      }
-
-      mensaje += `\n📌 *Detalles del Pedido:*\n`;
-      mensaje += `• *Medio de pago:* ${medioPago}\n`;
-      const notaGeneral = (document.getElementById('cart-nota-general').value || '').trim().slice(0, 200);
-      if (notaGeneral) mensaje += `• *Aclaración:* ${notaGeneral}\n`;
-
-      const envioPendiente = permiteEnvios && tipoEntrega === 'envio' && !comercioCarrito.envio_gratis && !envioGratisPorMonto(comercioCarrito, total);
-
-      if (permiteEnvios && tipoEntrega === 'envio') {
-        mensaje += `• *Persona que recibe:* ${nombreRetira}\n`;
-        mensaje += `• *Entrega:* Envío a domicilio\n`;
-        mensaje += `• *Dirección:* ${direccion}\n`;
-        if (envioPendiente) {
-          mensaje += `\n*Subtotal de productos (sin envío):* ${fmtPrecio(total)}\n`;
-          mensaje += `• *Costo del envío:* a confirmar\n`;
-        } else {
-          mensaje += `\n*Total a pagar:* ${fmtPrecio(total)} (envío gratis)\n`;
-        }
-      } else {
-        mensaje += `• *Persona que retira:* ${nombreRetira}\n`;
-        mensaje += `• *Horario de retiro:* ${obtenerHorarioHoyTexto(comercioCarrito)}\n`;
-        mensaje += `• *Dirección:* ${comercioCarrito.direccion || 'Necochea'}\n`;
-        mensaje += `\n*Total a pagar:* ${fmtPrecio(total)}\n`;
-      }
-
-      // Enlace a NecoEnvíos para que el comercio pida un repartidor con las direcciones ya cargadas
-      if (permiteEnvios && tipoEntrega === 'envio') {
-        const pe = new URLSearchParams({
-          retiro: comercioCarrito.direccion || '',          // el repartidor retira en el comercio
-          entrega: direccion,                                // y entrega en la dirección del cliente
-          nombre: comercioCarrito.nombre || '',
-          whatsapp: comercioCarrito.telefono_whatsapp || '',
-          comercio: comercioCarrito.nombre || ''
-        });
-        mensaje += `\n🛵 *Solicitar repartidor YA* (direcciones ya cargadas):\nhttps://neco-envios.vercel.app/?${pe.toString()}\n`;
-      }
-
-      mensaje += envioPendiente
-        ? `\n¿Me pasarías el total con el envío incluido y me confirmás la recepción del pedido? ¡Muchas gracias!`
-        : `\n¿Me confirman la recepción? ¡Muchas gracias!`;
-
-      guardarPedidoEnHistorial({
-        comercioId: comercioCarrito.id,
-        comercioNombre: comercioCarrito.nombre,
-        items: itemsGuardarHistorial,
-        total: total,
-        fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-
-      document.getElementById('cart-nota-general').value = '';
-      cerrarModal('modal-carrito');
-      mostrarToast(`Pedido enviado a ${comercioCarrito.nombre} vía WhatsApp.`);
-
-      if (comercioActivo) {
-        renderizarProductosComercio(comercioActivo.productos, usuarioActual && comercioActivo.user_id === usuarioActual.id, comercioActivo.color_acento || '#f97316');
-      }
-
-      // Se anota el pedido para las estadísticas del comerciante (si falta el SQL 05 simplemente no se cuenta)
-      try { _supabase.rpc('registrar_pedido', { p_comercio: String(comercioCarrito.id), p_monto: total }).then(() => {}, () => {}); } catch (e) {}
-
-      const url = `https://wa.me/${comercioCarrito.telefono_whatsapp}?text=${encodeURIComponent(mensaje)}`;
-      const ventana = window.open(url, '_blank');
-      if (!ventana) window.location.href = url;  // el navegador bloqueó la ventana nueva
-    }
+    // El pedido se crea en js/17-pedidos-cliente.js (pv_crear_pedido): el servidor calcula precios, reserva stock y registra estadísticas.

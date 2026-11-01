@@ -86,6 +86,12 @@
           <span class="hidden sm:inline">Planes</span>
         </button>
 
+        <!-- BOTÓN MIS PEDIDOS -->
+        <button id="btn-mis-pedidos" onclick="abrirMisPedidos()" type="button" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold px-2.5 py-2 rounded-xl transition duration-200 flex items-center gap-1 active:scale-95 shadow-sm" title="Mis pedidos">
+          <i data-lucide="package" class="w-4 h-4 text-brand-500"></i>
+          <span class="hidden sm:inline">Mis pedidos</span>
+        </button>
+
         <!-- BOTÓN HISTORIAL -->
         <button id="btn-historial" onclick="abrirModal('modal-historial')" type="button" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 p-2 rounded-xl transition duration-200 flex items-center justify-center active:scale-95 shadow-sm" title="Historial de Pedidos">
           <i data-lucide="history" class="w-4 h-4 text-brand-500"></i>
@@ -716,7 +722,7 @@
             </button>
           </div>
           <p id="lbl-alias-comercio" class="font-mono font-bold text-emerald-900 text-sm select-all"></p>
-          <p class="text-[10px] text-emerald-700">Realizá la transferencia por el total y adjuntá el comprobante al enviar el pedido por WhatsApp.</p>
+          <p class="text-[10px] text-emerald-700">Realizá la transferencia por el total. Después de hacer el pedido vas a poder adjuntar el comprobante (es opcional).</p>
         </div>
 
         <div id="box-cart-tipo-entrega-wrapper">
@@ -752,6 +758,11 @@
         </div>
 
         <div>
+          <label for="cart-input-telefono" class="block text-xs font-bold text-slate-700 mb-1.5">Tu teléfono <span class="font-normal text-slate-400">(con código de área)</span></label>
+          <input type="tel" inputmode="tel" id="cart-input-telefono" maxlength="25" autocomplete="tel" placeholder="Ej: 2262 123456" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
+        </div>
+
+        <div>
           <label for="cart-nota-general" class="block text-xs font-bold text-slate-700 mb-1.5">Aclaración para el comercio <span class="font-normal text-slate-400">(opcional)</span></label>
           <textarea id="cart-nota-general" rows="2" maxlength="200" placeholder="Ej: sin cubiertos, tocar timbre 2B, pago con $5000..." class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-medium transition"></textarea>
         </div>
@@ -766,9 +777,10 @@
           </div>
         </div>
 
-        <button id="btn-enviar-pedido" onclick="enviarPedidoWhatsApp()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-4 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
-          <i data-lucide="send" class="w-4 h-4"></i> Enviar Pedido por WhatsApp
+        <button id="btn-enviar-pedido" onclick="enviarPedido()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-4 rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i> <span id="btn-enviar-pedido-txt">Hacer pedido</span>
         </button>
+        <p class="text-[10px] text-slate-400 text-center leading-snug -mt-2">El comercio recibe tu pedido en NecoVende y vos lo seguís desde acá. Podés avisarle por WhatsApp si querés.</p>
       </div>
     </div>
   </div>
@@ -1357,6 +1369,36 @@
     </div>
   </div>
 
+  <!-- MODAL: MIS PEDIDOS -->
+  <div id="modal-mis-pedidos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Mis pedidos</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Seguí el estado de tus pedidos.</p>
+        </div>
+        <button onclick="cerrarMisPedidos()" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="mis-pedidos-contenido" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: SEGUIMIENTO DE UN PEDIDO -->
+  <div id="modal-pedido" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+        <div class="min-w-0">
+          <h3 id="ped-titulo" class="text-lg font-black text-slate-900">Tu pedido</h3>
+          <p id="ped-sub" class="text-xs text-slate-500 font-medium mt-0.5 truncate"></p>
+        </div>
+        <button onclick="cerrarPedido()" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="pedido-contenido" class="space-y-4"></div>
+    </div>
+  </div>
+
   <script src="js/01-config-y-estado.js"></script>
   <script src="js/02-utilidades-favoritos-historial.js"></script>
   <script src="js/03-imagenes-horarios-envios.js"></script>
@@ -1373,5 +1415,6 @@
   <script src="js/14-listas-editables.js"></script>
   <script src="js/15-instalar-app.js"></script>
   <script src="js/16-notificaciones-push.js"></script>
+  <script src="js/17-pedidos-cliente.js"></script>
 </body>
 </html>
