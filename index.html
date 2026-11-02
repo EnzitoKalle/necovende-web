@@ -1369,6 +1369,24 @@
     </div>
   </div>
 
+  <!-- BOTÓN FIJO: PEDIDOS DEL COMERCIO (solo si la cuenta tiene un comercio) -->
+  <button id="btn-panel-pedidos" onclick="abrirPanelPedidos()" type="button" style="bottom:1.25rem" class="hidden fixed left-4 z-30 bg-slate-900 text-white font-black text-sm pl-4 pr-5 py-3.5 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-2 active:scale-95 transition">
+    <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-400"></i> Pedidos
+    <span id="panel-pedidos-badge" class="hidden bg-rose-500 text-white text-xs font-black rounded-full min-w-[22px] h-[22px] px-1.5 flex items-center justify-center">0</span>
+  </button>
+
+  <!-- MODAL: PANEL DE PEDIDOS DEL COMERCIO -->
+  <div id="modal-panel-pedidos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center sm:p-4 z-50">
+    <div class="clean-modal sm:rounded-3xl w-full max-w-lg h-[100dvh] sm:h-auto sm:max-h-[92vh] shadow-2xl text-slate-800 flex flex-col overflow-hidden">
+      <div class="flex items-center gap-2 px-4 py-3.5 border-b border-slate-100 flex-shrink-0">
+        <button id="panel-pedidos-volver" onclick="panelVolver()" type="button" class="hidden p-2.5 -ml-1 rounded-xl bg-slate-100 text-slate-700 active:scale-95 transition" aria-label="Volver a la lista"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+        <h3 id="panel-pedidos-titulo" class="text-xl font-black text-slate-900 flex-1 truncate">Pedidos</h3>
+        <button onclick="cerrarPanelPedidos()" type="button" class="p-2.5 rounded-xl bg-slate-100 text-slate-600 active:scale-95 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="panel-pedidos-contenido" class="flex-1 overflow-y-auto p-4 space-y-3.5 pb-8"></div>
+    </div>
+  </div>
+
   <!-- MODAL: MIS PEDIDOS -->
   <div id="modal-mis-pedidos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
@@ -1416,5 +1434,6 @@
   <script src="js/15-instalar-app.js"></script>
   <script src="js/16-notificaciones-push.js"></script>
   <script src="js/17-pedidos-cliente.js"></script>
+  <script src="js/18-panel-pedidos-comercio.js"></script>
 </body>
 </html>
