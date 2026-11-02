@@ -94,6 +94,7 @@
         inputsUltraExtra.forEach(el => el.classList.remove('hidden'));
         secUltraVisual.classList.remove('hidden');
       }
+      bloqueosFormComercio(planElegido);
     }
 
     document.getElementById('comercio-plan-select').addEventListener('change', actualizarVisibilidadCamposSegunPlanRegistro);
@@ -222,6 +223,7 @@
 
       document.getElementById('modal-comercio-head-title').innerText = 'Editar mi Comercio';
       document.getElementById('modal-comercio-head-sub').innerText = `Modificando: ${c.nombre} (${plan.toUpperCase()})`;
+      bloqueosFormComercio(plan);
       document.getElementById('btn-guardar-comercio').innerText = 'Guardar Cambios';
       document.getElementById('contenedor-btn-eliminar-comercio').classList.remove('hidden');
 
@@ -400,11 +402,7 @@
     }
 
     function prepararModalPromo() {
-      if (!comercioActivo || comercioActivo.plan !== 'ultra') {
-        alert("⚠️ La creación de promociones y combos es exclusiva para comercios con Plan Ultra.");
-        abrirModal('modal-planes');
-        return;
-      }
+      if (!exigirPlan('promos', comercioActivo)) return;
       document.getElementById('form-promo').reset();
       document.getElementById('promo-edit-id').value = '';
       promoItemsSeleccionados = {};

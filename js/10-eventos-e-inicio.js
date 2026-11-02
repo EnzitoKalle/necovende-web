@@ -41,7 +41,11 @@
         ? (comercioExistente ? comercioExistente.plan_original || comercioExistente.plan || 'gratis' : 'gratis') 
         : document.getElementById('comercio-plan-select').value;
 
-      if (planElegidoVal === 'ultra' && portadaInput.files.length > 0) {
+      // Las funciones se habilitan según el plan que rige HOY (si venció el pago, es Gratis);
+      // planElegidoVal sigue siendo el plan contratado y es el que se guarda.
+      const planFuncion = editId ? ((comercioExistente && comercioExistente.plan) || 'gratis') : planElegidoVal;
+      if (portadaInput.files.length > 0 && !exigirPlan('portada', planFuncion)) return;
+      if (planFuncion === 'ultra' && portadaInput.files.length > 0) {
         const subP = await subirImagen(portadaInput);
         if (subP) portada_url = subP;
       }
@@ -51,7 +55,7 @@
       const horariosGrillaVal = obtenerHorariosFormulario();
 
       let redesArray = [];
-      let limitePermitidoLinks = (planElegidoVal === 'ultra') ? 3 : ((planElegidoVal === 'pro') ? 1 : 0);
+      let limitePermitidoLinks = NV_LIMITE_LINKS[planDe(planFuncion)];
 
       if (limitePermitidoLinks >= 1) {
         const url1 = document.getElementById('red-url-1').value.trim();
@@ -84,21 +88,28 @@
         envio_gratis: document.getElementById('envio-gratis').checked,
         costo_envio: document.getElementById('costo-envio').value.trim(),
         horarios_dias: horariosGrillaVal,
-        color_primario: planElegidoVal === 'ultra' ? document.getElementById('comercio-color-primario').value : '#f8fafc',
-        color_acento: planElegidoVal === 'ultra' ? document.getElementById('comercio-color-acento').value : '#ea580c',
-        posicion_portada: planElegidoVal === 'ultra' ? document.getElementById('comercio-posicion-portada').value : 'object-center',
         pagos_efectivo: document.getElementById('pago-efectivo').checked,
         pagos_transferencia: document.getElementById('pago-transferencia').checked,
         pagos_qr: document.getElementById('pago-qr').checked,
         pagos_cuenta_dni: document.getElementById('pago-cuenta-dni').checked,
         pagos_tarjeta: document.getElementById('pago-tarjeta').checked,
         sabores: saboresArr,
-        redes_sociales: redesArray,
         tipo_coccion_empanadas: document.getElementById('tipo-coccion-select').value,
         logo_url,
         portada_url,
         activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false
       };
+
+      // Colores y posición de portada: solo Ultra. Fuera de Ultra no se tocan al editar (así no se pierden si se renueva el plan).
+      if (planFuncion === 'ultra') {
+        datosComercio.color_primario = document.getElementById('comercio-color-primario').value;
+        datosComercio.color_acento = document.getElementById('comercio-color-acento').value;
+        datosComercio.posicion_portada = document.getElementById('comercio-posicion-portada').value;
+      } else if (!editId) {
+        datosComercio.color_primario = '#f8fafc'; datosComercio.color_acento = '#ea580c'; datosComercio.posicion_portada = 'object-center';
+      }
+      // Links: según el plan (Gratis 0, Pro 1, Ultra 3). Sin permiso, al editar se conservan los que ya había.
+      if (limitePermitidoLinks > 0 || !editId) datosComercio.redes_sociales = redesArray;
 
       // Rango estimativo de envío (solo si aplica). Las columnas envio_min/envio_max se crean con sql/02-envio-estimado.sql
       const pideEnvioPago = document.getElementById('envios').checked && !document.getElementById('envio-gratis').checked;
@@ -137,6 +148,7 @@
 
       if (res.error) {
         if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/plan (Ultra|Pro)/i.test(res.error.message || '')) avisoPlan(/plan Pro/i.test(res.error.message) ? 'pro' : 'ultra');
         else alert("Error al guardar: " + res.error.message);
       } else {
         cerrarModal('modal-registro');
@@ -264,6 +276,7 @@
       if (res.error) {
         if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/plan Ultra/i.test(res.error.message || '')) avisoPlan('ultra');
         else alert("Error al guardar producto: " + res.error.message);
       } else {
         cerrarModal('modal-producto');

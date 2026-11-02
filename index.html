@@ -321,7 +321,7 @@
 
   <!-- MODAL: PLANES Y SUSCRIPCIONES -->
   <div id="modal-planes" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="clean-modal rounded-3xl p-6 w-full max-w-2xl space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+    <div class="clean-modal rounded-3xl p-5 sm:p-6 w-full max-w-4xl space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto text-slate-800">
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
 
       <div class="flex justify-between items-start border-b border-slate-100 pb-4">
@@ -329,25 +329,21 @@
           <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
             <i data-lucide="crown" class="w-6 h-6 text-amber-500"></i> Planes de NecoVende
           </h3>
-          <p class="text-xs text-slate-500 mt-0.5">Elegí el plan perfecto para potenciar las ventas de tu negocio.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Compará todo lo que incluye cada plan. <span class="font-bold text-emerald-600">✔</span> incluido · <span class="font-bold text-rose-500">✘</span> no incluido.</p>
         </div>
         <button onclick="cerrarModal('modal-planes')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
         <!-- PLAN GRATIS -->
         <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex flex-col justify-between space-y-4 shadow-sm relative">
           <div class="space-y-2">
             <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 bg-slate-200 px-2.5 py-1 rounded-full">Básico</span>
             <h4 class="text-lg font-black text-slate-900">Plan Gratis</h4>
             <div class="text-2xl font-black text-slate-900">$0 <span class="text-xs text-slate-400 font-semibold">/ mes</span></div>
-            <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-slate-200">
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <strong>Hasta 5 productos</strong> · Lo más importante</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Pedidos directo a WhatsApp</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Sin links en perfil</li>
-            </ul>
+            <ul id="plan-lista-gratis" class="text-[13px] text-slate-700 space-y-2.5 pt-3 border-t border-slate-200" aria-label="Funciones del plan Gratis"></ul>
           </div>
           <button onclick="solicitarPlanWhatsApp('Gratis')" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-xl text-xs transition">
             Quiero este plan
@@ -360,12 +356,7 @@
             <span class="text-[10px] font-black uppercase tracking-wider text-sky-700 bg-sky-100 px-2.5 py-1 rounded-full">Recomendado</span>
             <h4 class="text-lg font-black text-slate-900">Plan Pro</h4>
             <div class="text-2xl font-black text-sky-600">$5.900 <span class="text-xs text-slate-500 font-semibold">/ mes</span></div>
-            <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-sky-200">
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> <strong>Hasta 10 productos</strong> · Lo más importante</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Insignia Tilde Azul ✓</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> <strong>1 Link</strong> de Red Social / Web</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-sky-600"></i> Posicionamiento Prioritario</li>
-            </ul>
+            <ul id="plan-lista-pro" class="text-[13px] text-slate-700 space-y-2.5 pt-3 border-t border-sky-200" aria-label="Funciones del plan Pro"></ul>
           </div>
           <button onclick="solicitarPlanWhatsApp('Pro ($5.900/mes)')" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition">
             Quiero este plan
@@ -378,12 +369,7 @@
             <span class="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-200 px-2.5 py-1 rounded-full">Completo</span>
             <h4 class="text-lg font-black text-slate-900">Plan Ultra</h4>
             <div class="text-2xl font-black text-amber-600">$9.900 <span class="text-xs text-slate-500 font-semibold">/ mes</span></div>
-            <ul class="text-xs text-slate-600 space-y-2 pt-2 border-t border-amber-200">
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> <strong>Productos ilimitados</strong> · Lo más importante</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Insignia Tilde Dorada ✓✓</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Hasta <strong>3 Links</strong> de Redes / Web</li>
-              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i> Portada y Colores Custom</li>
-            </ul>
+            <ul id="plan-lista-ultra" class="text-[13px] text-slate-700 space-y-2.5 pt-3 border-t border-amber-200" aria-label="Funciones del plan Ultra"></ul>
           </div>
           <button onclick="solicitarPlanWhatsApp('Ultra ($9.900/mes)')" class="w-full bg-gradient-to-r from-amber-500 to-brand-500 hover:from-amber-600 hover:to-brand-600 text-white font-black py-3 rounded-xl text-xs shadow-md transition">
             Quiero este plan
@@ -998,6 +984,14 @@
           </div>
         </div>
 
+        <div id="lock-enlaces" class="hidden bg-slate-50 p-3.5 rounded-xl border border-dashed border-slate-300 flex items-center justify-between gap-3">
+          <p class="text-xs font-bold text-slate-500 leading-snug">🔒 Links de redes o web<br><span class="font-semibold text-slate-400">Disponible desde el plan Pro</span></p>
+          <button type="button" onclick="avisoPlan('pro','Links de redes o web')" class="flex-shrink-0 text-[11px] font-black text-sky-700 bg-sky-50 border border-sky-200 px-3 py-2 rounded-lg active:scale-95 transition">Ver planes</button>
+        </div>
+        <div id="lock-ultra-visual" class="hidden bg-amber-50/40 p-3.5 rounded-xl border border-dashed border-amber-300 flex items-center justify-between gap-3">
+          <p class="text-xs font-bold text-amber-800 leading-snug">🔒 Foto de portada y colores personalizados<br><span class="font-semibold text-amber-600">Disponible en el plan Ultra</span></p>
+          <button type="button" onclick="avisoPlan('ultra','Portada y colores')" class="flex-shrink-0 text-[11px] font-black text-amber-800 bg-amber-100 border border-amber-300 px-3 py-2 rounded-lg active:scale-95 transition">Ver planes</button>
+        </div>
         <div id="seccion-ultra-visual" class="hidden bg-amber-50/50 p-4 rounded-xl border border-amber-200 space-y-3">
           <label class="block text-xs font-black text-amber-800 flex items-center gap-1.5">
             <i data-lucide="crown" class="w-4 h-4 text-amber-600"></i> Personalización Plan Ultra (Colores y Portada)
@@ -1387,6 +1381,21 @@
     </div>
   </div>
 
+  <!-- AVISO: FUNCIÓN DE OTRO PLAN -->
+  <div id="modal-aviso-plan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-4 z-[70]" onclick="if(event.target===this) cerrarAvisoPlan()">
+    <div class="clean-modal rounded-3xl p-5 w-full max-w-sm space-y-4 shadow-2xl text-slate-800 text-center" role="alertdialog" aria-labelledby="aviso-plan-titulo">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto text-2xl">🔒</div>
+      <div class="space-y-1">
+        <h3 id="aviso-plan-titulo" class="text-lg font-black text-slate-900">Disponible en el plan Ultra</h3>
+        <p id="aviso-plan-detalle" class="text-xs text-slate-500 leading-snug"></p>
+      </div>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button type="button" onclick="cerrarAvisoPlan()" class="bg-slate-100 text-slate-700 font-bold py-3.5 rounded-xl text-xs active:scale-95 transition">Ahora no</button>
+        <button type="button" onclick="verPlanesDesdeAviso()" class="bg-gradient-to-r from-amber-500 to-brand-500 text-white font-black py-3.5 rounded-xl text-xs shadow-md active:scale-95 transition">Ver planes</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: MIS PEDIDOS -->
   <div id="modal-mis-pedidos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
@@ -1398,6 +1407,7 @@
         </div>
         <button onclick="cerrarMisPedidos()" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
+      <div id="mis-puntos-box" class="hidden"></div>
       <div id="mis-pedidos-contenido" class="space-y-3"></div>
     </div>
   </div>
@@ -1435,5 +1445,6 @@
   <script src="js/16-notificaciones-push.js"></script>
   <script src="js/17-pedidos-cliente.js"></script>
   <script src="js/18-panel-pedidos-comercio.js"></script>
+  <script src="js/19-planes.js"></script>
 </body>
 </html>

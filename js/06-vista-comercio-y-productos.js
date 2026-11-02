@@ -237,8 +237,11 @@
       if (esDuenio) {
         boxAccionesDuenio.classList.remove('hidden');
         document.getElementById('btn-agregar-prod-vista').onclick = () => prepararModalProducto(comercioActivo.id, comercioActivo.nombre);
-        if (esUltra) btnPromoVista.classList.remove('hidden');
-        else btnPromoVista.classList.add('hidden');
+        // El botón se ve en todos los planes; fuera de Ultra lleva candado y al tocarlo avisa
+        btnPromoVista.classList.remove('hidden');
+        btnPromoVista.innerHTML = esUltra
+          ? '<i data-lucide="tag" class="w-4 h-4"></i> Armar Promoción'
+          : '🔒 Promociones y combos · Ultra';
       } else {
         boxAccionesDuenio.classList.add('hidden');
       }
@@ -369,12 +372,10 @@
         ? productos 
         : productos.filter(p => !p.es_solo_promo && !promoVencida(p));
 
-      if (plan === 'gratis') {
-        productosFiltrados = productosFiltrados.filter(p => !p.es_combo);
-        productosFiltrados = productosFiltrados.slice(0, 5);
-      } else if (plan === 'pro') {
-        productosFiltrados = productosFiltrados.slice(0, 10);
-      }
+      // Promos y combos: solo Ultra (si el plan baja, dejan de verse)
+      if (plan !== 'ultra') productosFiltrados = productosFiltrados.filter(p => !p.es_combo);
+      if (plan === 'gratis') productosFiltrados = productosFiltrados.slice(0, 5);
+      else if (plan === 'pro') productosFiltrados = productosFiltrados.slice(0, 10);
 
       const _ordenSec = [];
       productosFiltrados.forEach(p => { const s = seccionDe(p); if (!_ordenSec.includes(s)) _ordenSec.push(s); });

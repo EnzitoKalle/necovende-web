@@ -576,6 +576,7 @@
 
       lista.sort(function (a, b) { return new Date(b.creado) - new Date(a.creado); });
       renderMisPedidos(lista);
+      if (window.nvCargarMisPuntos) window.nvCargarMisPuntos();   // saldo de puntos (solo comercios Ultra)
     } catch (e) {
       cont.innerHTML = '<p class="text-xs text-rose-600 text-center py-10 font-bold">' + esc(mensajeError(e)) + '</p>';
     }

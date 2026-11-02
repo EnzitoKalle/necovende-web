@@ -393,8 +393,8 @@
         }
         if (filtroAbierto && !estaAbierto(c)) return;
         const oferta = ofertaDe(p, c);
-        if (filtroOfertas && !oferta && !(p.es_combo && c.plan !== 'gratis')) return;
-        if (p.es_combo && c.plan === 'gratis') return;
+        if (filtroOfertas && !oferta && !(p.es_combo && c.plan === 'ultra')) return;
+        if (p.es_combo && c.plan !== 'ultra') return;   // promos y combos: solo Ultra
         if (ordenPrecio && configPromo(p)?.tipo === 'nxm') return;   // "llevá N, pagá M" no tiene un precio único para ordenar
         datos.push({ p, c, oferta });
       });
