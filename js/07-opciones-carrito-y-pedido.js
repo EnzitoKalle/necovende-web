@@ -514,6 +514,7 @@
       const inputNota = document.getElementById('view-prod-nota');
       if (inputNota) inputNota.value = '';
 
+      if (window.nvDetalleProductoPuntos) nvDetalleProductoPuntos(p);   // insignias, aviso a invitados y botón de canje
       document.getElementById('view-prod-btn-agregar').onclick = () => {
         const nota = inputNota ? inputNota.value.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
         notaPendienteProducto = nota ? { id: p.id, texto: nota } : null;
@@ -543,6 +544,15 @@
         comercioCarrito = comercioActivo;
       }
 
+      // Canje con puntos: el producto va a $0 y se paga con puntos (lo marca nvCanjearProducto)
+      const esCanje = Boolean(window.NV_CANJE_PEND) && String(window.NV_CANJE_PEND) === String(id);
+      let puntosCosto = 0;
+      if (esCanje) {
+        window.NV_CANJE_PEND = null;
+        const pCanje = (comercioActivo.productos || []).find(x => String(x.id) === String(id));
+        puntosCosto = Number(pCanje && pCanje.puntos_canje) || 0;
+        titulo = `${titulo} (Canje)`; precio = 0;
+      }
       const existe = carrito.find(item => item.titulo === titulo && item.id === id);
       const notaNueva = (notaPendienteProducto && String(notaPendienteProducto.id) === String(id)) ? notaPendienteProducto.texto : '';
       if (notaNueva) notaPendienteProducto = null;
@@ -551,6 +561,7 @@
         if (notaNueva && !(existe.nota || '').includes(notaNueva)) existe.nota = ((existe.nota ? existe.nota + ' | ' : '') + notaNueva).slice(0, 120);
       } else {
         const nuevo = { id, titulo, precio, cantidad: cantidadAAgregar };
+        if (esCanje) { nuevo.canje = true; nuevo.puntosCosto = puntosCosto; }
         if (extra && extra.talle) nuevo.talle = extra.talle;
         if (extra && extra.eleccion) nuevo.eleccion = extra.eleccion;
         if (extra && extra.comboTalles) { nuevo.comboTalles = extra.comboTalles; nuevo.comboBase = extra.comboBase || cantidadAAgregar; }
@@ -727,6 +738,7 @@
 
     function actualizarCarrito() {
       guardarCarrito();
+      if (window.nvResumenPuntosCarrito) nvResumenPuntosCarrito();
       const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
       const totalPrecio = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
@@ -795,7 +807,7 @@
             <div class="flex items-center justify-between">
               <div class="pr-2 min-w-0 flex-1">
                 <p class="font-bold text-xs text-slate-800 leading-tight">${esc(item.titulo)}</p>
-                <p class="text-[11px] text-brand-600 font-extrabold mt-0.5">${fmtPrecio(item.precio * item.cantidad)}</p>
+                <p class="text-[11px] text-brand-600 font-extrabold mt-0.5">${item.canje ? `✨ ${(Number(item.puntosCosto) || 0) * item.cantidad} puntos` : fmtPrecio(item.precio * item.cantidad)}</p>
               </div>
               <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1 flex-shrink-0 shadow-sm">
                 <button type="button" onclick="cambiarCantidad(${i}, -1)" class="text-slate-400 hover:text-slate-700 font-black text-sm px-1" aria-label="Quitar uno">-</button>

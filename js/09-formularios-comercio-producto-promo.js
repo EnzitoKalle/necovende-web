@@ -328,6 +328,7 @@
       if (plan === 'ultra') boxSoloPromoWrapper.classList.remove('hidden');
       else boxSoloPromoWrapper.classList.add('hidden');
       ajustarCampoOferta(plan);
+      nvAjustarCamposPuntos(plan);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio} (${plan.toUpperCase()})`;
@@ -393,6 +394,7 @@
       if (plan === 'ultra') boxSoloPromoWrapper.classList.remove('hidden');
       else boxSoloPromoWrapper.classList.add('hidden');
       ajustarCampoOferta(plan);
+      nvAjustarCamposPuntos(plan, p);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Modificando: ${p.titulo}`;

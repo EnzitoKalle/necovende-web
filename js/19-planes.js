@@ -93,32 +93,6 @@
     if (lu) lu.classList.toggle('hidden', p === 'ultra');
   }
 
-  /* ---------------------------------------------------------------- "Mis puntos" (solo comercios Ultra) */
-  async function cargarMisPuntos() {
-    var box = el('mis-puntos-box'); if (!box) return;
-    box.classList.add('hidden');
-    if (!usuarioActual) return;
-    try {
-      var r = await _supabase.from('pv_puntos_mov').select('comercio_id, puntos').eq('cliente_id', usuarioActual.id);
-      if (r.error || !r.data || !r.data.length) return;
-      var saldo = {};
-      r.data.forEach(function (m) { saldo[m.comercio_id] = (saldo[m.comercio_id] || 0) + (Number(m.puntos) || 0); });
-      var lista = (typeof comerciosGlobales !== 'undefined' ? comerciosGlobales : []);
-      var filas = Object.keys(saldo).map(function (id) {
-        var c = lista.find(function (x) { return String(x.id) === String(id); });
-        return c && planPermite('puntos', c) ? { nombre: c.nombre, pts: saldo[id] } : null;   // si el comercio ya no es Ultra, no se muestra
-      }).filter(function (x) { return x && x.pts > 0; });
-      if (!filas.length) return;
-      box.innerHTML = '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">' +
-        '<p class="text-xs font-black text-amber-800 flex items-center gap-1.5">✨ Mis puntos</p>' +
-        filas.map(function (f) {
-          return '<div class="flex justify-between items-baseline text-sm"><span class="font-bold text-slate-700 truncate pr-2">' + esc(f.nombre) + '</span>' +
-                 '<span class="font-black text-amber-700 flex-shrink-0">' + f.pts + ' pts</span></div>';
-        }).join('') + '</div>';
-      box.classList.remove('hidden');
-    } catch (e) { /* los puntos son un extra: si falla, no se muestran */ }
-  }
-
   /* ---------------------------------------------------------------- arranque */
   window.addEventListener('DOMContentLoaded', function () {
     renderComparativa();
@@ -130,7 +104,7 @@
   Object.assign(window, {
     planDe: planDe, planPermite: planPermite, exigirPlan: exigirPlan,
     avisoPlan: avisoPlan, cerrarAvisoPlan: cerrarAvisoPlan, verPlanesDesdeAviso: verPlanesDesdeAviso,
-    bloqueosFormComercio: bloqueosFormComercio, nvCargarMisPuntos: cargarMisPuntos,
+    bloqueosFormComercio: bloqueosFormComercio,
     NV_LIMITE_PRODUCTOS: LIMITE_PRODUCTOS, NV_LIMITE_LINKS: LIMITE_LINKS
   });
 })();

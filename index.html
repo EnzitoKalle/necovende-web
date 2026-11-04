@@ -265,6 +265,7 @@
         </div>
       </div>
 
+      <div id="aviso-puntos-comercio" class="hidden"></div>
       <div id="productos-container" class="grid grid-cols-1 gap-3.5"></div>
     </section>
   </main>
@@ -656,6 +657,8 @@
 
         <p id="view-prod-descripcion" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto"></p>
 
+        <div id="view-prod-puntos" class="hidden space-y-2"></div>
+
         <div>
           <label for="view-prod-nota" class="block text-[11px] font-bold text-slate-600 mb-1">Aclaración <span class="font-normal text-slate-400">(opcional)</span></label>
           <input type="text" id="view-prod-nota" maxlength="120" placeholder="Ej: sin cebolla, bien cocido..." class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
@@ -664,6 +667,7 @@
         <button id="view-prod-btn-agregar" class="w-full bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-black py-4 rounded-2xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Agregar al Carrito
         </button>
+        <button id="view-prod-btn-canje" type="button" class="hidden w-full bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-amber-800 font-black py-3.5 rounded-2xl text-sm transition active:scale-95"></button>
         <button type="button" onclick="compartirProductoActual()" class="w-full text-xs font-bold text-slate-500 hover:text-brand-600 py-1 transition flex items-center justify-center gap-1.5">
           <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Compartir este producto
         </button>
@@ -692,6 +696,7 @@
       </div>
 
       <div id="carrito-items" class="space-y-3 max-h-52 overflow-y-auto pr-1"></div>
+      <div id="cart-puntos" class="hidden space-y-2"></div>
 
       <div id="carrito-opciones-extra" class="space-y-3.5 pt-2 border-t border-slate-100 hidden">
         <div>
@@ -1093,6 +1098,21 @@
           <p id="prod-oferta-ayuda" class="text-[10px] text-slate-400 mt-1">Se muestra tachado y con el % de descuento. Dejalo vacío si no es oferta.</p>
         </div>
 
+        <div id="box-prod-puntos" class="bg-amber-50/50 border border-amber-200 rounded-xl p-3.5 space-y-3">
+          <p class="text-xs font-black text-amber-800 flex items-center gap-1.5">✨ Puntos <span class="font-normal text-amber-600">(opcional · plan Ultra)</span></p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="prod-puntos-suma" class="block text-[11px] font-bold text-slate-700 mb-1 leading-tight">Puntos que suma al comprarlo</label>
+              <input type="number" inputmode="numeric" min="0" max="100000" step="1" id="prod-puntos-suma" placeholder="Ej: 10" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-semibold">
+            </div>
+            <div>
+              <label for="prod-puntos-canje" class="block text-[11px] font-bold text-slate-700 mb-1 leading-tight">Puntos que cuesta para canjearlo</label>
+              <input type="number" inputmode="numeric" min="0" max="1000000" step="1" id="prod-puntos-canje" placeholder="Ej: 100" class="w-full clean-input px-3 py-2.5 rounded-xl text-xs font-semibold">
+            </div>
+          </div>
+          <p id="prod-puntos-ayuda" class="text-[10px] text-slate-500 leading-snug">Por unidad. Los puntos se suman cuando el cliente marca “Recibido”. Dejalo vacío si no aplica.</p>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1.5">Sección del menú (Opcional)</label>
           <input type="text" id="prod-seccion" list="lista-secciones" maxlength="40" placeholder="Ej: Pizzas, Bebidas, Postres" class="w-full clean-input px-3.5 py-2.5 rounded-xl text-xs font-semibold">
@@ -1381,6 +1401,30 @@
     </div>
   </div>
 
+  <!-- BARRA FIJA: MIS PUNTOS -->
+  <div id="barra-mis-puntos" class="hidden fixed bottom-0 inset-x-0 z-30 bg-slate-900 text-white border-t border-slate-700 shadow-2xl" style="padding-bottom:env(safe-area-inset-bottom)">
+    <button type="button" onclick="abrirMisPuntos()" class="w-full max-w-2xl mx-auto flex items-center gap-3 px-4 py-2.5 text-left active:bg-slate-800 transition" aria-label="Ver mis puntos">
+      <span class="flex-shrink-0 text-xs font-black text-amber-300 flex items-center gap-1.5">✨ Mis puntos</span>
+      <span id="barra-mis-puntos-lista" class="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs font-bold" style="scrollbar-width:none"></span>
+      <span class="flex-shrink-0 text-slate-400 text-lg leading-none">›</span>
+    </button>
+  </div>
+
+  <!-- MODAL: MIS PUNTOS (saldo e historial por comercio) -->
+  <div id="modal-mis-puntos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">✨ Mis puntos</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Cada comercio tiene sus propios puntos.</p>
+        </div>
+        <button onclick="cerrarModal('modal-mis-puntos')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="mis-puntos-contenido" class="space-y-4"></div>
+    </div>
+  </div>
+
   <!-- AVISO: FUNCIÓN DE OTRO PLAN -->
   <div id="modal-aviso-plan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-4 z-[70]" onclick="if(event.target===this) cerrarAvisoPlan()">
     <div class="clean-modal rounded-3xl p-5 w-full max-w-sm space-y-4 shadow-2xl text-slate-800 text-center" role="alertdialog" aria-labelledby="aviso-plan-titulo">
@@ -1407,7 +1451,6 @@
         </div>
         <button onclick="cerrarMisPedidos()" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <div id="mis-puntos-box" class="hidden"></div>
       <div id="mis-pedidos-contenido" class="space-y-3"></div>
     </div>
   </div>
@@ -1446,5 +1489,6 @@
   <script src="js/17-pedidos-cliente.js"></script>
   <script src="js/18-panel-pedidos-comercio.js"></script>
   <script src="js/19-planes.js"></script>
+  <script src="js/20-puntos.js"></script>
 </body>
 </html>

@@ -252,6 +252,11 @@
         else if (prevExistente && prevExistente.precio_anterior) datosProducto.precio_anterior = null;
       }
 
+      // Puntos (solo plan Ultra): vacío = sin puntos. Fuera de Ultra no se envían (se conservan los que había).
+      const puntosCampos = nvLeerCamposPuntos();
+      if (puntosCampos.error) { alert(puntosCampos.error); return; }
+      if (puntosCampos.habilitado) { datosProducto.puntos_suma = puntosCampos.suma; datosProducto.puntos_canje = puntosCampos.canje; }
+
       // Stock por talle (columna de sql/04-extras-comercios.sql)
       const stockTalles = leerStockTalles(datosProducto.talles_disponibles);
       if (!stockTalles.ok) { alert(stockTalles.error); return; }
@@ -276,7 +281,8 @@
       if (res.error) {
         if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
-        else if (/plan Ultra/i.test(res.error.message || '')) avisoPlan('ultra');
+        else if (/puntos_(suma|canje)/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo 07-puntos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/plan Ultra/i.test(res.error.message || '')) avisoPlan('ultra', /puntos/i.test(res.error.message) ? 'El sistema de puntos' : '');
         else alert("Error al guardar producto: " + res.error.message);
       } else {
         cerrarModal('modal-producto');

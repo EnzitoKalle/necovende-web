@@ -82,7 +82,9 @@
   }
   function ubicarBoton() {             // no tapar la barra del carrito
     var b = el('btn-panel-pedidos'), c = el('barra-flotante-carrito'); if (!b) return;
-    b.style.bottom = c && !c.classList.contains('hidden') ? '6.5rem' : '1.25rem';
+    var barraPts = document.body.classList.contains('con-barra-puntos');
+    var base = c && !c.classList.contains('hidden') ? 6.5 : 1.25;
+    b.style.bottom = (base + (barraPts ? 3 : 0)) + 'rem';
   }
 
   /* ------------------------------------------------------------ carga de datos */
@@ -220,7 +222,9 @@
   async function refrescarDetalle(silencioso) {
     var id = P.detalleId; if (!id) return;
     try {
-      var a = await _supabase.from('pv_pedido_items').select('titulo, cantidad, precio_unitario, subtotal, nota, talle, color, sabores').eq('pedido_id', id).order('id');
+      var cols = 'titulo, cantidad, precio_unitario, subtotal, nota, talle, color, sabores';
+      var a = await _supabase.from('pv_pedido_items').select(cols + ', canje, puntos_costo').eq('pedido_id', id).order('id');
+      if (a.error) a = await _supabase.from('pv_pedido_items').select(cols).eq('pedido_id', id).order('id');   // todavía sin 07-puntos.sql
       var b = await _supabase.from('pv_pedido_historial').select('estado_nuevo, actor, nota, creado_en').eq('pedido_id', id).order('id');
       if (id !== P.detalleId) return;
       var nuevo = { items: a.data || [], historial: b.data || [] };
@@ -289,7 +293,7 @@
     det.items.forEach(function (it) {
       var extra = [it.sabores, it.nota ? '📝 ' + it.nota : ''].filter(Boolean).join(' · ');
       h += '<div class="flex justify-between gap-3"><div class="min-w-0"><p class="text-sm font-black text-slate-800 leading-tight">' + it.cantidad + 'x ' + esc(it.titulo) + '</p>' +
-           (extra ? '<p class="text-xs text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div><span class="text-sm font-bold text-slate-700 flex-shrink-0">' + fmtPrecio(it.subtotal) + '</span></div>';
+           (extra ? '<p class="text-xs text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div><span class="text-sm font-bold flex-shrink-0 ' + (it.canje ? 'text-violet-600' : 'text-slate-700') + '">' + (it.canje ? '🎁 ' + (it.puntos_costo * it.cantidad) + ' pts' : fmtPrecio(it.subtotal)) + '</span></div>';
     });
     h += '<div class="border-t border-slate-100 pt-3 space-y-1.5 text-sm font-semibold text-slate-600">' +
          '<div class="flex justify-between"><span>Productos</span><span>' + fmtPrecio(x.subtotal) + '</span></div>' +
@@ -408,7 +412,7 @@
 
   Object.assign(window, {
     abrirPanelPedidos: abrirPanelPedidos, cerrarPanelPedidos: cerrarPanelPedidos, abrirDetallePedido: abrirDetallePedido,
-    panelPedidosTab: panelPedidosTab, panelPedidosComercio: panelPedidosComercio, panelVolver: volverALista,
+    ubicarBotonPanel: ubicarBoton, panelPedidosTab: panelPedidosTab, panelPedidosComercio: panelPedidosComercio, panelVolver: volverALista,
     panelAceptar: panelAceptar, panelDespachar: panelDespachar, panelMarcarPago: panelMarcarPago,
     panelFijarEnvio: panelFijarEnvio, panelEnvioPreview: panelEnvioPreview, panelAbrirCancelar: panelAbrirCancelar,
     panelCerrarCancelar: panelCerrarCancelar, panelConfirmarCancelar: panelConfirmarCancelar, panelVerComprobante: panelVerComprobante

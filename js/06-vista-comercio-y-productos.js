@@ -367,6 +367,7 @@
       if (!/^#[0-9a-fA-F]{6}$/.test(colorBoton || '')) colorBoton = '#f97316';
       
       const plan = comercioActivo?.plan || 'gratis';
+      if (window.nvAvisoPuntosComercio) nvAvisoPuntosComercio(productos);   // banner de puntos del comercio
       
       let productosFiltrados = esDuenio 
         ? productos 
@@ -436,6 +437,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-bold text-base text-slate-900 break-words group-hover:text-brand-600 transition">${esc(p.titulo)}</h4>
                   ${esCombo ? '<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">PROMO</span>' : ''}
+                  ${window.nvBadgesPuntos ? nvBadgesPuntos(p, comercioActivo) : ''}
                   ${p.es_solo_promo ? '<span class="text-[9px] font-black bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">SOLO COMBO</span>' : ''}
                   ${promoVencida(p) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">VENCIDA</span>' : ''}
                   ${badgeStock}

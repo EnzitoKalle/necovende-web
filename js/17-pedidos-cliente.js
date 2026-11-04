@@ -113,11 +113,12 @@
       var prod = (comercioCarrito.productos || []).find(function (p) { return String(p.id) === String(it.id); });
       var sabores = '';
       // Las opciones (talle, sabores, cocción, packs) viajan escritas en el título del carrito: "Producto - [Talle: M] ..."
-      if (prod && String(it.titulo).indexOf(prod.titulo + ' - ') === 0) sabores = String(it.titulo).slice(prod.titulo.length + 3);
+      if (prod && String(it.titulo).indexOf(prod.titulo + ' - ') === 0) sabores = String(it.titulo).slice(prod.titulo.length + 3).replace(/ \(Canje\)$/, '');
       var o = {
         id: String(it.id), cant: it.cantidad, talle: it.talle || '',
         nota: it.nota || '', sabores: sabores.slice(0, 400)
       };
+      if (it.canje) o.canje = true;
       if (it.eleccion) o.eleccion = it.eleccion.map(function (e) { return { prodId: e.prodId, talle: e.talle || '', color: e.color || '' }; });
       if (it.comboTalles) { o.comboTalles = it.comboTalles; o.comboBase = it.comboBase || it.cantidad; }
       return o;
@@ -163,6 +164,8 @@
       return;
     }
 
+    if (window.nvValidarCanjeCarrito && !nvValidarCanjeCarrito()) return;
+
     enviando = true; botonEnviar(true);
     try {
       var necesidades = calcularNecesidadesStock();   // antes de vaciar el carrito (para reflejar el stock en pantalla)
@@ -206,6 +209,7 @@
       cerrarModal('modal-carrito');
       try { refrescarProductosPorStock(); } catch (e) { /* ok */ }
       abrirPedido(res.token, { nuevo: true });
+      if (window.nvCargarPuntos && usuarioActual) nvCargarPuntos();   // un canje descuenta puntos
     } catch (e) {
       console.error('pv_crear_pedido', e);
       alert(mensajeError(e, 'No pudimos enviar el pedido. Revisá tu internet e intentá de nuevo.'));
@@ -332,7 +336,7 @@
            '<button id="ped-btn-recibido" type="button" onclick="pedidoRecibidoClick()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-500/25 active:scale-95 transition flex items-center justify-center gap-2">' +
            '<i data-lucide="package-check" class="w-4 h-4"></i> Ya lo recibí</button>' +
            '<div id="ped-puntos-box" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2.5">' +
-           '<p class="text-xs font-black text-amber-800 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-4 h-4"></i> ¿Querés sumar puntos por este pedido?</p>' +
+           '<p class="text-xs font-black text-amber-800 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-4 h-4"></i> ¿Querés sumar ' + (PED.data && PED.data.puntos_a_sumar) + ' puntos por este pedido?</p>' +
            '<div class="grid grid-cols-2 gap-2">' +
            '<button type="button" onclick="pedidoRecibido(true)" class="bg-amber-500 text-white font-black py-2.5 rounded-xl text-xs active:scale-95 transition">Sí, sumar puntos</button>' +
            '<button type="button" onclick="pedidoRecibido(false)" class="bg-white border border-slate-300 text-slate-700 font-black py-2.5 rounded-xl text-xs active:scale-95 transition">No, gracias</button>' +
@@ -370,12 +374,20 @@
       var extra = [it.sabores, it.nota ? '📝 ' + it.nota : ''].filter(Boolean).join(' · ');
       h += '<div class="flex justify-between gap-3 text-xs"><div class="min-w-0"><p class="font-bold text-slate-800 leading-tight">' + it.cantidad + 'x ' + esc(it.titulo) + '</p>' +
            (extra ? '<p class="text-[11px] text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div>' +
-           '<span class="font-bold text-slate-700 flex-shrink-0">' + fmtPrecio(it.subtotal) + '</span></div>';
+           '<span class="font-bold flex-shrink-0 ' + (it.canje ? 'text-violet-600' : 'text-slate-700') + '">' + (it.canje ? '🎁 ' + (it.puntos_costo * it.cantidad) + ' pts' : fmtPrecio(it.subtotal)) + '</span></div>';
     });
     h += '<div class="border-t border-slate-100 pt-2.5 space-y-1.5">' + fila('Productos', fmtPrecio(p.subtotal));
     if (p.envio_modo === 'gratis') h += fila('Envío', 'Gratis');
     else if (p.envio_modo === 'fijo' || p.envio_modo === 'a_convenir') h += fila('Envío', p.costo_envio != null ? fmtPrecio(p.costo_envio) : 'A confirmar');
     h += fila('Total', p.total != null ? fmtPrecio(p.total) : 'A confirmar', true) + '</div></div>';
+
+    // Puntos del pedido
+    if (Number(d.puntos_canje) > 0) h += '<div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 text-xs font-bold text-violet-700">🎁 Canjeaste ' + d.puntos_canje + ' puntos en este pedido' + (p.estado === 'cancelado' ? ' (te los devolvimos)' : '') + '.</div>';
+    if (Number(d.puntos_a_sumar) > 0 && abierto) {
+      h += d.con_sesion
+        ? '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs font-bold text-amber-800">✨ Este pedido suma ' + d.puntos_a_sumar + ' puntos cuando lo marques como recibido.</div>'
+        : '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs font-bold text-amber-800">✨ Este pedido sumaría ' + d.puntos_a_sumar + ' puntos, pero lo hiciste sin sesión. En tu próximo pedido, registrate con Google para sumar.</div>';
+    }
 
     // Entrega y pago
     h += '<div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs space-y-1.5 text-slate-600">' +
@@ -470,7 +482,7 @@
   function pedidoRecibidoClick() {
     var x = ctx(); if (!x) return;
     var conSesion = Boolean(usuarioActual) && (function () { var l = entradaLocal(x.id); return l ? l.sesion !== false : true; })();
-    if (conSesion && esUltra(x.p.comercio_id)) {
+    if (conSesion && esUltra(x.p.comercio_id) && Number(PED.data.puntos_a_sumar) > 0) {
       var box = el('ped-puntos-box'), btn = el('ped-btn-recibido');
       if (box) box.classList.remove('hidden'); if (btn) btn.classList.add('hidden');
       return;
@@ -480,6 +492,7 @@
   async function pedidoRecibido(quierePuntos) {
     var x = ctx(); if (!x) return;
     var r = await accion('pv_cliente_recibido', { p_pedido: x.id, p_quiere_puntos: Boolean(quierePuntos), p_token: x.token }, null);
+    if (window.nvCargarPuntos && usuarioActual) nvCargarPuntos();
     if (r && r.puntos > 0) mostrarToast('¡Sumaste ' + r.puntos + ' puntos!');
     else if (r) mostrarToast('¡Gracias! Pedido marcado como recibido.');
   }
@@ -576,7 +589,6 @@
 
       lista.sort(function (a, b) { return new Date(b.creado) - new Date(a.creado); });
       renderMisPedidos(lista);
-      if (window.nvCargarMisPuntos) window.nvCargarMisPuntos();   // saldo de puntos (solo comercios Ultra)
     } catch (e) {
       cont.innerHTML = '<p class="text-xs text-rose-600 text-center py-10 font-bold">' + esc(mensajeError(e)) + '</p>';
     }
