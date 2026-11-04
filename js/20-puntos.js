@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  var PTS = { saldo: {}, cargado: false, uid: null, reintentos: 0 };
+  var PTS = { saldo: {}, reservado: {}, cargado: false, uid: null, reintentos: 0 };
   window.NV_CANJE_PEND = null;
 
   function el(id) { return document.getElementById(id); }
@@ -26,13 +26,13 @@
   /* ------------------------------------------------------------ saldo */
   async function cargarPuntos() {
     var u = sesion();
-    if (!u) { PTS.saldo = {}; PTS.cargado = false; PTS.uid = null; pintarBarra(); return; }
+    if (!u) { PTS.saldo = {}; PTS.reservado = {}; PTS.cargado = false; PTS.uid = null; pintarBarra(); return; }
     try {
       var r = await _supabase.rpc('pv_mis_puntos');
       if (r.error) throw r.error;
-      var s = {};
-      (r.data || []).forEach(function (f) { s[f.comercio_id] = Number(f.saldo) || 0; });
-      PTS.saldo = s; PTS.cargado = true; PTS.uid = u.id;
+      var s = {}, rs = {};
+      (r.data || []).forEach(function (f) { s[f.comercio_id] = Number(f.saldo) || 0; rs[f.comercio_id] = Number(f.reservado) || 0; });
+      PTS.saldo = s; PTS.reservado = rs; PTS.cargado = true; PTS.uid = u.id;
     } catch (e) { console.warn('No se pudieron cargar los puntos:', e && e.message); }
     pintarBarra();
     refrescarVistas();
@@ -43,7 +43,7 @@
     var out = [];
     Object.keys(PTS.saldo).forEach(function (id) {
       var c = comercioPorId(id);
-      if (c && esUltraC(c)) out.push({ id: id, nombre: c.nombre || 'Comercio', pts: PTS.saldo[id] });
+      if (c && esUltraC(c)) out.push({ id: id, nombre: c.nombre || 'Comercio', pts: PTS.saldo[id], res: PTS.reservado[id] || 0 });
     });
     out.sort(function (a, b) { return b.pts - a.pts; });
     return out;
@@ -59,7 +59,7 @@
     document.body.classList.toggle('con-barra-puntos', visible);
     if (visible) {
       el('barra-mis-puntos-lista').innerHTML = ls.map(function (f) {
-        return '<span class="flex-shrink-0 bg-white/10 rounded-full px-2.5 py-1">' + esc(f.nombre) + ': <span class="text-amber-300">' + nPuntos(f.pts) + '</span></span>';
+        return '<span class="flex-shrink-0 bg-white/10 rounded-full px-2.5 py-1">' + esc(f.nombre) + ': <span class="text-amber-300">' + nPuntos(f.pts) + '</span>' + (f.res > 0 ? ' <span class="text-[10px] font-semibold text-slate-300">(' + f.res + ' reservados)</span>' : '') + '</span>';
       }).join('');
     }
     if (typeof ubicarBotonPanel === 'function') ubicarBotonPanel();
@@ -72,6 +72,11 @@
 
   /* ------------------------------------------------------------ historial */
   var MOTIVOS = { pedido: 'Sumaste por el pedido', canje: 'Canjeaste en el pedido', canje_devuelto: 'Te devolvimos por cancelar el pedido' };
+  function etiquetaMov(m) {
+    if (m.motivo === 'canje' && m.estado === 'reservado') return 'Reservados para el pedido (se descuentan al marcar Recibido)';
+    if (m.motivo === 'canje' && m.estado === 'devuelto') return 'Reserva del pedido cancelado';
+    return MOTIVOS[m.motivo] || 'Movimiento';
+  }
 
   async function abrirMisPuntos() {
     var box = el('mis-puntos-contenido');
@@ -79,7 +84,8 @@
     abrirModal('modal-mis-puntos');
     try {
       await cargarPuntos();
-      var r = await _supabase.from('pv_puntos_mov').select('id, comercio_id, pedido_id, puntos, motivo, creado_en').order('creado_en', { ascending: false }).limit(300);
+      var r = await _supabase.from('pv_puntos_mov').select('id, comercio_id, pedido_id, puntos, motivo, estado, creado_en').order('creado_en', { ascending: false }).limit(300);
+      if (r.error) r = await _supabase.from('pv_puntos_mov').select('id, comercio_id, pedido_id, puntos, motivo, creado_en').order('creado_en', { ascending: false }).limit(300);   // sin 08 todavía
       if (r.error) throw r.error;
       var movs = (r.data || []).filter(function (m) { return esUltraC(comercioPorId(m.comercio_id)); });
       var nums = {};
@@ -98,13 +104,14 @@
           var num = m.pedido_id && nums[m.pedido_id] ? ' #' + nums[m.pedido_id] : '';
           var f1 = new Date(m.creado_en).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
           return '<li class="flex justify-between items-center gap-3 py-2 text-xs"><span class="min-w-0"><span class="font-semibold text-slate-700">' +
-                 esc((MOTIVOS[m.motivo] || 'Movimiento') + (m.motivo === 'pedido' || m.motivo === 'canje' || m.motivo === 'canje_devuelto' ? num : '')) +
+                 esc(etiquetaMov(m) + num) +
                  '</span><br><span class="text-[10px] text-slate-400">' + f1 + '</span></span>' +
                  '<span class="font-black flex-shrink-0 ' + (pos ? 'text-emerald-600' : 'text-rose-500') + '">' + (pos ? '+' : '') + m.puntos + '</span></li>';
         }).join('');
         return '<div class="border border-slate-200 rounded-2xl overflow-hidden">' +
                '<div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center"><span class="font-black text-sm">' + esc(f.nombre) + '</span>' +
                '<span class="font-black text-amber-300 text-sm">' + nPuntos(f.pts) + '</span></div>' +
+               (f.res > 0 ? '<div class="bg-amber-50 text-amber-800 text-[11px] font-bold px-4 py-2">🔒 ' + nPuntos(f.res) + ' reservados en pedidos en curso. Tu saldo ya los descontó; se confirman al marcar “Recibido” y vuelven si se cancela.</div>' : '') +
                '<ul class="px-4 divide-y divide-slate-100">' + (filas || '<li class="py-3 text-xs text-slate-400">Sin movimientos.</li>') + '</ul></div>';
       }).join('');
     } catch (e) {
@@ -237,7 +244,7 @@
     if (t.suma > 0) h += '<p class="text-xs font-bold text-amber-800">✨ Este pedido suma <b>' + nPuntos(t.suma) + '</b> cuando marques “Recibido”.</p>';
     if (t.canje > 0) {
       var tiene = saldoDe(c.id), ok = tiene >= t.canje;
-      h += '<p class="text-xs font-bold ' + (ok ? 'text-violet-700' : 'text-rose-600') + '">🎁 Canje: <b>' + nPuntos(t.canje) + '</b> de tus ' + tiene + (ok ? '.' : ' — no te alcanzan, sacá algún canje.') + '</p>';
+      h += '<p class="text-xs font-bold ' + (ok ? 'text-violet-700' : 'text-rose-600') + '">🎁 Canje: <b>' + nPuntos(t.canje) + '</b> de tus ' + tiene + ' disponibles' + (ok ? '. Quedan reservados al pedir y se descuentan al marcar “Recibido”; si cancelás, se devuelven.' : ' — no te alcanzan, sacá algún canje.') + '</p>';
     }
     if (!sesion() && (t.suma > 0 || comercioSumaPuntos(c.productos, c))) h += cajaInvitado('¿Querés sumar puntos? Registrate con Google');
     box.innerHTML = '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 space-y-2">' + h + '</div>';

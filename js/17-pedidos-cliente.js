@@ -382,7 +382,7 @@
     h += fila('Total', p.total != null ? fmtPrecio(p.total) : 'A confirmar', true) + '</div></div>';
 
     // Puntos del pedido
-    if (Number(d.puntos_canje) > 0) h += '<div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 text-xs font-bold text-violet-700">🎁 Canjeaste ' + d.puntos_canje + ' puntos en este pedido' + (p.estado === 'cancelado' ? ' (te los devolvimos)' : '') + '.</div>';
+    if (Number(d.puntos_canje) > 0) h += '<div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 text-xs font-bold text-violet-700">' + (p.estado === 'cancelado' ? '🎁 Los ' + d.puntos_canje + ' puntos reservados para este pedido te fueron devueltos.' : p.estado === 'entregado' ? '🎁 Canjeaste ' + d.puntos_canje + ' puntos en este pedido.' : '🎁 ' + d.puntos_canje + ' puntos reservados. Se descuentan cuando marcás “Recibido”; si se cancela, se devuelven.') + '</div>';
     if (Number(d.puntos_a_sumar) > 0 && abierto) {
       h += d.con_sesion
         ? '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs font-bold text-amber-800">✨ Este pedido suma ' + d.puntos_a_sumar + ' puntos cuando lo marques como recibido.</div>'
