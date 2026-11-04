@@ -50,18 +50,20 @@
   }
   function saldoDe(comercioId) { return Number(PTS.saldo[comercioId]) || 0; }
 
+  // Botonera inferior: el botón "Puntos" muestra el saldo (si hay uno solo) o cuántos comercios tienen puntos
   function pintarBarra() {
-    var barra = el('barra-mis-puntos'); if (!barra) return;
+    var sub = el('nav-puntos-sub');
     var ls = sesion() ? saldosVisibles() : [];
     if (sesion() && !lista().length && PTS.reintentos < 15) { PTS.reintentos++; setTimeout(pintarBarra, 2000); }
-    var visible = ls.length > 0;
-    barra.classList.toggle('hidden', !visible);
-    document.body.classList.toggle('con-barra-puntos', visible);
-    if (visible) {
-      el('barra-mis-puntos-lista').innerHTML = ls.map(function (f) {
-        return '<span class="flex-shrink-0 bg-white/10 rounded-full px-2.5 py-1">' + esc(f.nombre) + ': <span class="text-amber-300">' + nPuntos(f.pts) + '</span>' + (f.res > 0 ? ' <span class="text-[10px] font-semibold text-slate-300">(' + f.res + ' reservados)</span>' : '') + '</span>';
-      }).join('');
+    if (sub) {
+      if (!ls.length) { sub.classList.add('hidden'); sub.textContent = ''; }
+      else {
+        sub.textContent = ls.length === 1 ? ls[0].pts + ' pts' : ls.length + ' comercios';
+        sub.classList.remove('hidden');
+      }
     }
+    var lab = el('nav-cuenta-label');
+    if (lab) lab.textContent = sesion() ? 'Cuenta' : 'Ingresar';
     if (typeof ubicarBotonPanel === 'function') ubicarBotonPanel();
   }
 
@@ -80,8 +82,12 @@
 
   async function abrirMisPuntos() {
     var box = el('mis-puntos-contenido');
-    box.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Cargando…</p>';
     abrirModal('modal-mis-puntos');
+    if (!sesion()) {
+      box.innerHTML = '<p class="text-sm text-slate-600 leading-relaxed text-center">Los comercios Ultra te regalan puntos por tus compras para canjearlos por productos.</p>' + cajaInvitado('¿Querés sumar puntos? Registrate con Google');
+      return;
+    }
+    box.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Cargando…</p>';
     try {
       await cargarPuntos();
       var r = await _supabase.from('pv_puntos_mov').select('id, comercio_id, pedido_id, puntos, motivo, estado, creado_en').order('creado_en', { ascending: false }).limit(300);
@@ -263,15 +269,14 @@
 
   /* ------------------------------------------------------------ arranque */
   window.addEventListener('DOMContentLoaded', function () {
-    var st = document.createElement('style');
-    st.textContent = 'body.con-barra-puntos{padding-bottom:3.5rem}' +
-      'body.con-barra-puntos #barra-flotante-carrito{bottom:4.25rem}' +
-      '#barra-mis-puntos-lista::-webkit-scrollbar{display:none}';
-    document.head.appendChild(st);
     try {
       _supabase.auth.getSession().then(function (r) { if (r && r.data && r.data.session) setTimeout(cargarPuntos, 600); });
       _supabase.auth.onAuthStateChange(function (ev, s) { if (s && s.user) setTimeout(cargarPuntos, 400); else { PTS.saldo = {}; pintarBarra(); } });
     } catch (e) {}
+    // Con el teclado abierto la botonera se esconde (si no, tapa lo que se escribe)
+    document.addEventListener('focusin', function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) document.body.classList.add('teclado-abierto'); });
+    document.addEventListener('focusout', function () { setTimeout(function () { var a = document.activeElement; if (!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) document.body.classList.remove('teclado-abierto'); }, 150); });
+    if (new URLSearchParams(location.search).get('menu')) document.body.classList.add('modo-menu');
     document.addEventListener('visibilitychange', function () { if (!document.hidden && sesion()) cargarPuntos(); });
   });
 
@@ -281,6 +286,7 @@
     nvBadgesPuntos: nvBadgesPuntos, nvAvisoPuntosComercio: nvAvisoPuntosComercio,
     nvDetalleProductoPuntos: nvDetalleProductoPuntos, nvCanjearProducto: nvCanjearProducto,
     nvResumenPuntosCarrito: nvResumenPuntosCarrito, nvValidarCanjeCarrito: nvValidarCanjeCarrito,
+    navCuenta: function () { if (sesion()) abrirPanelControl(); else iniciarSesionGoogle(); },
     nvSaldoPuntos: saldoDe
   });
 })();

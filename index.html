@@ -106,7 +106,7 @@
         <!-- BOTÓN SUMAR LOCAL -->
         <button id="btn-sumar-comercio" type="button" onclick="intentarAbrirRegistroComercio()" class="bg-brand-50 hover:bg-brand-100 border border-brand-200 text-brand-600 text-xs font-bold px-2.5 py-2 rounded-xl transition duration-200 flex items-center gap-1 active:scale-95 shadow-sm">
           <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-brand-500"></i>
-          <span>Sumar Local</span>
+          <span class="hidden min-[400px]:inline">Sumar Local</span>
         </button>
 
         <!-- BOTÓN LOGIN GOOGLE -->
@@ -1401,14 +1401,24 @@
     </div>
   </div>
 
-  <!-- BARRA FIJA: MIS PUNTOS -->
-  <div id="barra-mis-puntos" class="hidden fixed bottom-0 inset-x-0 z-30 bg-slate-900 text-white border-t border-slate-700 shadow-2xl" style="padding-bottom:env(safe-area-inset-bottom)">
-    <button type="button" onclick="abrirMisPuntos()" class="w-full max-w-2xl mx-auto flex items-center gap-3 px-4 py-2.5 text-left active:bg-slate-800 transition" aria-label="Ver mis puntos">
-      <span class="flex-shrink-0 text-xs font-black text-amber-300 flex items-center gap-1.5">✨ Mis puntos</span>
-      <span id="barra-mis-puntos-lista" class="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs font-bold" style="scrollbar-width:none"></span>
-      <span class="flex-shrink-0 text-slate-400 text-lg leading-none">›</span>
+  <!-- BOTONERA FIJA INFERIOR -->
+  <nav id="nav-inferior" aria-label="Menú principal">
+    <button type="button" class="nav-solo-app" onclick="mostrarInicio(); window.scrollTo(0, 0)">
+      <i data-lucide="home"></i><span>Inicio</span>
     </button>
-  </div>
+    <button type="button" onclick="abrirMisPedidos()">
+      <i data-lucide="package"></i><span>Pedidos</span>
+    </button>
+    <button type="button" onclick="abrirMisPuntos()" class="nav-puntos">
+      <i data-lucide="sparkles"></i><span>Puntos</span><small id="nav-puntos-sub" class="hidden"></small>
+    </button>
+    <button type="button" class="nav-solo-app" onclick="abrirModal('modal-planes')">
+      <i data-lucide="crown"></i><span>Mi plan</span>
+    </button>
+    <button type="button" onclick="navCuenta()">
+      <i data-lucide="user-round"></i><span id="nav-cuenta-label">Ingresar</span>
+    </button>
+  </nav>
 
   <!-- MODAL: MIS PUNTOS (saldo e historial por comercio) -->
   <div id="modal-mis-puntos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">

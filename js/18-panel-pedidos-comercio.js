@@ -82,9 +82,8 @@
   }
   function ubicarBoton() {             // no tapar la barra del carrito
     var b = el('btn-panel-pedidos'), c = el('barra-flotante-carrito'); if (!b) return;
-    var barraPts = document.body.classList.contains('con-barra-puntos');
     var base = c && !c.classList.contains('hidden') ? 6.5 : 1.25;
-    b.style.bottom = (base + (barraPts ? 3 : 0)) + 'rem';
+    b.style.bottom = 'calc(' + (base + 3.6) + 'rem + env(safe-area-inset-bottom))';   // sube sobre la botonera inferior
   }
 
   /* ------------------------------------------------------------ carga de datos */
