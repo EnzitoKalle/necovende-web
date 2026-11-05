@@ -125,6 +125,7 @@
       document.getElementById('btn-confirmar-sabores').onclick = confirmarAgregarConSabores;
 
       renderizarBloquesModalSabores();
+      if (window.nvPrepararCanjeModal) nvPrepararCanjeModal(p);   // si el producto se puede canjear, aparece la opción acá
       abrirModal('modal-sabores');
     }
 
@@ -514,7 +515,7 @@
       const inputNota = document.getElementById('view-prod-nota');
       if (inputNota) inputNota.value = '';
 
-      if (window.nvDetalleProductoPuntos) nvDetalleProductoPuntos(p);   // insignias, aviso a invitados y botón de canje
+      if (window.nvDetalleProductoPuntos) nvDetalleProductoPuntos(p);   // insignias y aviso a invitados (el canje se elige al tocar Agregar)
       document.getElementById('view-prod-btn-agregar').onclick = () => {
         const nota = inputNota ? inputNota.value.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
         notaPendienteProducto = nota ? { id: p.id, texto: nota } : null;
@@ -544,7 +545,7 @@
         comercioCarrito = comercioActivo;
       }
 
-      // Canje con puntos: el producto va a $0 y se paga con puntos (lo marca nvCanjearProducto)
+      // Canje con puntos: el producto va a $0 y se paga con puntos (lo marca nvCanjearDesdeModal)
       const esCanje = Boolean(window.NV_CANJE_PEND) && String(window.NV_CANJE_PEND) === String(id);
       let puntosCosto = 0;
       if (esCanje) {

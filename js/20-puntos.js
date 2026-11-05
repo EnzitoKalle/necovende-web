@@ -189,47 +189,51 @@
 
   /* ------------------------------------------------------------ detalle del producto + canje */
   function nvDetalleProductoPuntos(p) {
-    var box = el('view-prod-puntos'), btn = el('view-prod-btn-canje');
-    if (!box || !btn) return;
+    var box = el('view-prod-puntos');
+    if (!box) return;
     var c = (typeof comercioActivo !== 'undefined') ? comercioActivo : null;
-    box.classList.add('hidden'); box.innerHTML = ''; btn.classList.add('hidden');
+    box.classList.add('hidden'); box.innerHTML = '';
     if (!p || !esUltraC(c)) return;
     var suma = Number(p.puntos_suma) > 0, canje = Number(p.puntos_canje) > 0;
     if (!suma && !canje) return;
     var h = '<div class="flex flex-wrap gap-1.5">' + nvBadgesPuntos(p, c) + '</div>';
     if (!sesion()) h += cajaInvitado('¿Querés sumar puntos? Registrate con Google');
+    if (canje) h += '<p class="text-[11px] font-semibold text-violet-700">🎁 Para canjearlo con puntos, tocá “Agregar al carrito” y elegí “Canjear”.</p>';
     box.innerHTML = h; box.classList.remove('hidden');
-    if (canje) {
-      var tiene = saldoDe(c.id), costo = Number(p.puntos_canje);
-      btn.innerText = !sesion() ? '🎁 Canjealo por ' + costo + ' puntos (con sesión)'
-        : (tiene >= costo ? '🎁 Canjear por ' + costo + ' puntos' : '🎁 Canje: ' + costo + ' puntos (tenés ' + tiene + ')');
-      btn.classList.remove('hidden');
-      btn.onclick = function () { nvCanjearProducto(p.id); };
-    }
   }
 
-  function nvCanjearProducto(prodId) {
+  // Opción "Canjear" dentro del modal de opciones (el mismo que se abre al tocar Agregar / Elegir opciones)
+  function nvPrepararCanjeModal(p) {
+    var btn = el('btn-canjear-sabores'); if (!btn) return;
     var c = (typeof comercioActivo !== 'undefined') ? comercioActivo : null;
-    var p = c && (c.productos || []).find(function (x) { return String(x.id) === String(prodId); });
-    if (!p) return;
+    btn.classList.add('hidden'); btn.onclick = null;
+    if (!p || p.es_combo || !esUltraC(c) || !(Number(p.puntos_canje) > 0)) return;
+    var costo = Number(p.puntos_canje), tiene = sesion() ? saldoDe(c.id) : 0;
+    btn.innerText = !sesion() ? '🎁 Canjear por ' + costo + ' puntos (iniciá sesión)'
+      : (tiene >= costo ? '🎁 Canjear por ' + costo + ' puntos (tenés ' + tiene + ')' : '🎁 Canje: ' + costo + ' puntos (tenés ' + tiene + ')');
+    btn.classList.toggle('opacity-60', sesion() && tiene < costo);
+    btn.classList.remove('hidden');
+    btn.onclick = function () { nvCanjearDesdeModal(p); };
+  }
+
+  function nvCanjearDesdeModal(p) {
+    var c = (typeof comercioActivo !== 'undefined') ? comercioActivo : null; if (!c || !p) return;
     if (!sesion()) { if (confirm('Para canjear puntos tenés que iniciar sesión con Google. ¿Querés hacerlo ahora?')) iniciarSesionGoogle(); return; }
     var costo = Number(p.puntos_canje) || 0;
-    var enCarrito = (typeof carrito !== 'undefined' ? carrito : []).filter(function (i) { return i.canje && String(i.id) !== String(prodId); })
+    var cant = (typeof cantidadSeleccionadaModalSabores !== 'undefined' && cantidadSeleccionadaModalSabores > 0) ? cantidadSeleccionadaModalSabores : 1;
+    var enCarrito = (typeof carrito !== 'undefined' ? carrito : []).filter(function (i) { return i.canje; })
       .reduce(function (s, i) { return s + (Number(i.puntosCosto) || 0) * i.cantidad; }, 0);
-    var propios = (carrito || []).filter(function (i) { return i.canje && String(i.id) === String(prodId); }).reduce(function (s, i) { return s + i.cantidad; }, 0);
-    if (saldoDe(c.id) < enCarrito + (propios + 1) * costo) {
-      alert('No te alcanzan los puntos: este producto cuesta ' + nPuntos(costo) + ' y tenés ' + nPuntos(saldoDe(c.id) - enCarrito - propios * costo) + ' disponibles.');
+    var disponibles = saldoDe(c.id) - enCarrito;
+    if (disponibles < costo * cant) {
+      alert('No te alcanzan los puntos: ' + (cant > 1 ? cant + ' unidades cuestan ' : 'cuesta ') + nPuntos(costo * cant) + ' y tenés ' + nPuntos(Math.max(disponibles, 0)) + ' disponibles.');
       return;
     }
-    window.NV_CANJE_PEND = String(prodId);
-    intentarAgregarProducto(prodId);
+    window.NV_CANJE_PEND = String(p.id);
+    confirmarAgregarConSabores();
     var ms = el('modal-sabores');
-    if (!ms || ms.classList.contains('hidden')) { window.NV_CANJE_PEND = null; return; }   // ya se agregó
-    // Si el producto no pide elegir nada (sabor, talle, color...), se agrega y se pasa directo al carrito
-    var sinOpciones = ['box-oppciones-personalizadas-prod', 'box-variantes-indumentaria', 'box-opcion-coccion'].every(function (id) { var b = el(id); return !b || b.classList.contains('hidden'); });
-    var pp = (typeof productoPendienteSabores !== 'undefined') ? productoPendienteSabores : null;
-    if (sinOpciones && pp && !pp.requiereSabores && !pp.esCombo) confirmarAgregarConSabores();
+    if (ms && !ms.classList.contains('hidden')) window.NV_CANJE_PEND = null;   // no se agregó (faltaba elegir algo): se descarta el canje pendiente
   }
+
   function nvIrAComercio(id) {
     cerrarModal('modal-mis-puntos');
     if (typeof mostrarInicio === 'function' && typeof modoEstrictoEnlace !== 'undefined' && modoEstrictoEnlace) return;
@@ -294,7 +298,7 @@
     nvCargarPuntos: cargarPuntos, abrirMisPuntos: abrirMisPuntos,
     nvAjustarCamposPuntos: nvAjustarCamposPuntos, nvLeerCamposPuntos: nvLeerCamposPuntos,
     nvBadgesPuntos: nvBadgesPuntos, nvAvisoPuntosComercio: nvAvisoPuntosComercio,
-    nvDetalleProductoPuntos: nvDetalleProductoPuntos, nvCanjearProducto: nvCanjearProducto,
+    nvDetalleProductoPuntos: nvDetalleProductoPuntos, nvPrepararCanjeModal: nvPrepararCanjeModal,
     nvResumenPuntosCarrito: nvResumenPuntosCarrito, nvValidarCanjeCarrito: nvValidarCanjeCarrito,
     navCuenta: function () { if (sesion()) abrirPanelControl(); else iniciarSesionGoogle(); },
     nvIrAComercio: nvIrAComercio,
