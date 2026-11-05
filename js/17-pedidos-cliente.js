@@ -259,6 +259,7 @@
         return;
       }
       var p = d.pedido;
+      if (window.nvPedidoVisto) nvPedidoVisto(p.id, p.estado);   // ya vio el estado actual: se apaga el puntito rojo
       var sig = [p.actualizado_en, p.estado, p.comprobante_path, p.pago_recibido_en,
                  ESPERANDO_COMERCIO.indexOf(p.estado) >= 0 && minutosDesde(p.creado_en) >= MINUTOS_DEMORA ? 'demora' : ''].join('|');
       PED.data = d;
@@ -603,6 +604,7 @@
       });
 
       lista.sort(function (a, b) { return new Date(b.creado) - new Date(a.creado); });
+      if (window.nvRegistrarEstados) nvRegistrarEstados(lista);
       renderMisPedidos(lista);
     } catch (e) {
       cont.innerHTML = '<p class="text-xs text-rose-600 text-center py-10 font-bold">' + esc(mensajeError(e)) + '</p>';
@@ -629,7 +631,8 @@
            '<p class="text-[11px] text-slate-400">Pedido #' + x.numero + ' · ' + esc(fmtFecha(x.creado)) + '</p></div>' +
            '<span class="text-sm font-black text-brand-600 flex-shrink-0">' + (x.total != null ? fmtPrecio(x.total) : fmtPrecio(x.subtotal) + ' + envío') + '</span></div>' +
            '<span class="inline-flex text-[11px] font-black px-2.5 py-1 rounded-full border ' + CLASES[e.k] + '">' + esc(e.c) + '</span>' +
-           (atencion ? '<p class="text-[11px] font-bold text-orange-700">Necesita tu respuesta</p>' : '') + '</button>';
+           (atencion ? '<p class="text-[11px] font-bold text-orange-700">Necesita tu respuesta</p>' : '') +
+           (window.nvHayNovedad && nvHayNovedad(x.id, x.estado) ? '<p class="text-[11px] font-black text-rose-600 flex items-center gap-1.5"><span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500"></span> Novedad en este pedido</p>' : '') + '</button>';
     });
     el('mis-pedidos-contenido').innerHTML = h;
     icono();

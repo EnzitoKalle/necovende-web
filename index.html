@@ -1407,18 +1407,34 @@
       <i data-lucide="home"></i><span>Inicio</span>
     </button>
     <button type="button" onclick="abrirMisPedidos()">
-      <i data-lucide="package"></i><span>Pedidos</span>
+      <i data-lucide="package"></i><span>Pedidos</span><i id="nav-pedidos-dot" class="nav-dot hidden"></i>
     </button>
     <button type="button" onclick="abrirMisPuntos()" class="nav-puntos">
       <i data-lucide="sparkles"></i><span>Puntos</span><small id="nav-puntos-sub" class="hidden"></small>
     </button>
-    <button type="button" class="nav-solo-app" onclick="abrirModal('modal-planes')">
-      <i data-lucide="crown"></i><span>Mi plan</span>
+    <button type="button" class="nav-solo-app" onclick="abrirMiPlan()">
+      <i data-lucide="crown"></i><span id="nav-plan-label">Planes</span><small id="nav-plan-sub" class="hidden"></small>
     </button>
     <button type="button" onclick="navCuenta()">
       <i data-lucide="user-round"></i><span id="nav-cuenta-label">Ingresar</span>
     </button>
   </nav>
+
+  <!-- MODAL: MI PLAN (plan actual y vencimiento) -->
+  <div id="modal-mi-plan" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">👑 Mi plan</h3>
+          <p class="text-xs text-slate-500 mt-0.5">El plan de cada uno de tus comercios.</p>
+        </div>
+        <button onclick="cerrarModal('modal-mi-plan')" type="button" class="p-1 rounded-full text-slate-400 hover:text-slate-600 transition" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="mi-plan-contenido" class="space-y-3"></div>
+      <button type="button" onclick="cerrarModal('modal-mi-plan'); abrirModal('modal-planes')" class="w-full bg-white border border-slate-300 text-slate-700 font-black text-xs py-3 rounded-xl active:scale-95 transition">Ver todos los planes</button>
+    </div>
+  </div>
 
   <!-- MODAL: MIS PUNTOS (saldo e historial por comercio) -->
   <div id="modal-mis-puntos" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
@@ -1500,5 +1516,6 @@
   <script src="js/18-panel-pedidos-comercio.js"></script>
   <script src="js/19-planes.js"></script>
   <script src="js/20-puntos.js"></script>
+  <script src="js/21-nav-avisos.js"></script>
 </body>
 </html>

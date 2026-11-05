@@ -116,3 +116,16 @@ body { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
 
 /* Los botones "Planes" y "Mis pedidos" ahora viven abajo: el encabezado queda liviano */
 #btn-header-planes, #btn-mis-pedidos { display: none !important; }
+
+/* ---- Botonera: puntito rojo de novedades y subtítulo del plan ---- */
+#nav-inferior button { position: relative; }
+#nav-inferior .nav-dot {
+  position: absolute; top: 5px; left: calc(50% + 6px);
+  min-width: 17px; height: 17px; padding: 0 4px; box-sizing: border-box;
+  border-radius: 99px; background: #ef4444; color: #fff; border: 2px solid #0f172a;
+  font: 900 9px/13px 'Plus Jakarta Sans', sans-serif; text-align: center; font-style: normal;
+}
+#nav-inferior .nav-dot.hidden { display: none; }
+#nav-inferior small { font-size: 10px; font-weight: 800; color: #cbd5e1; line-height: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#nav-inferior small.hidden { display: none; }
+#nav-inferior small.nav-alerta { color: #fca5a5; }
