@@ -356,14 +356,25 @@
                '<button type="button" onclick="pedidoCopiarAlias()" class="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 flex-shrink-0"><i data-lucide="copy" class="w-3 h-3"></i> Copiar</button></div>' +
                '<p class="font-mono font-bold text-emerald-900 text-sm select-all break-all">' + esc(c.alias) + '</p>';
         }
+        // 1) Un solo toque: "Ya transferí" (el comercio mira su cuenta y confirma)
+        if (p.pago_avisado_en) {
+          h += '<p class="font-black text-emerald-800 bg-white border border-emerald-300 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0 mt-0.5"></i><span>Le avisaste al comercio que ya pagaste. Apenas vea la transferencia confirma tu pago.</span></p>';
+        } else {
+          h += '<p class="text-emerald-800 leading-snug font-semibold">1. Transferí al alias de arriba.<br>2. Después tocá este botón:</p>' +
+               '<button type="button" onclick="pedidoYaTransferi()" class="w-full bg-emerald-600 text-white font-black text-sm py-3.5 rounded-xl shadow-lg shadow-emerald-600/25 active:scale-95 transition">✅ Ya transferí</button>';
+        }
+        // 2) El comprobante es opcional: por WhatsApp (compartir desde la app del banco) o subiendo la foto
         if (p.comprobante_path) {
           h += '<p class="font-bold text-emerald-700 flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Comprobante enviado. El comercio lo va a revisar.</p>';
         } else {
-          h += '<p class="text-emerald-700 leading-snug">Si ya pagaste, podés adjuntar el comprobante <span class="font-semibold">(es opcional)</span>.</p>';
+          h += '<p class="text-emerald-700 leading-snug pt-1">¿Querés mandar el comprobante? <span class="font-semibold">(es opcional)</span></p>';
         }
-        h += '<label class="block"><span class="inline-flex items-center gap-1.5 bg-white border border-emerald-300 text-emerald-700 font-black text-xs px-3.5 py-2.5 rounded-xl cursor-pointer active:scale-95 transition">' +
-             '<i data-lucide="paperclip" class="w-3.5 h-3.5"></i> ' + (p.comprobante_path ? 'Cambiar comprobante' : 'Adjuntar comprobante') + '</span>' +
-             '<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="hidden" onchange="pedidoSubirComprobante(this)"></label>';
+        h += '<div class="grid grid-cols-2 gap-2">' +
+             (c.telefono_whatsapp ? '<button type="button" onclick="pedidoComprobanteWhatsApp()" class="bg-white border border-emerald-300 text-emerald-700 font-black text-xs px-2 py-2.5 rounded-xl active:scale-95 transition">Por WhatsApp</button>' : '') +
+             '<label class="block' + (c.telefono_whatsapp ? '' : ' col-span-2') + '"><span class="block text-center bg-white border border-emerald-300 text-emerald-700 font-black text-xs px-2 py-2.5 rounded-xl cursor-pointer active:scale-95 transition">' +
+             (p.comprobante_path ? 'Cambiar foto' : 'Subir foto') + '</span>' +
+             '<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="hidden" onchange="pedidoSubirComprobante(this)"></label></div>' +
+             (c.telefono_whatsapp ? '<p class="text-[11px] text-emerald-700 leading-snug">Tip: en la app de tu banco tocá <b>Compartir</b> en el comprobante y elegí <b>WhatsApp</b>.</p>' : '');
       }
       h += '</div>';
     }
@@ -499,6 +510,20 @@
     if (window.nvCargarPuntos && usuarioActual) nvCargarPuntos();
     if (r && r.puntos > 0) mostrarToast('¡Sumaste ' + r.puntos + ' puntos!');
     else if (r) mostrarToast('¡Gracias! Pedido marcado como recibido.');
+  }
+
+  function pedidoYaTransferi() {
+    var x = ctx(); if (!x) return;
+    accion('pv_cliente_aviso_pago', { p_pedido: x.id, p_token: x.token }, 'Listo, le avisamos al comercio.');
+  }
+  // El comprobante se manda por WhatsApp: el cliente lo comparte desde su banco o lo adjunta en el chat
+  function pedidoComprobanteWhatsApp() {
+    var x = ctx(); if (!x || !x.c.telefono_whatsapp) return;
+    var texto = '¡Hola *' + (x.c.nombre || '') + '*! Te mando el comprobante de pago del pedido *#' + x.p.numero + '* de *NecoVende*.\n' +
+                'Total: ' + (x.p.total != null ? fmtPrecio(x.p.total) : 'a confirmar');
+    var url = 'https://wa.me/' + digitos(x.c.telefono_whatsapp) + '?text=' + encodeURIComponent(texto);
+    var w = window.open(url, '_blank');
+    if (!w) window.location.href = url;
   }
 
   async function pedidoSubirComprobante(input) {
@@ -712,6 +737,6 @@
     pedidoCerrarCancelar: pedidoCerrarCancelar, pedidoConfirmarCancelar: pedidoConfirmarCancelar,
     pedidoRecibidoClick: pedidoRecibidoClick, pedidoRecibido: pedidoRecibido,
     pedidoSubirComprobante: pedidoSubirComprobante, pedidoCopiarAlias: pedidoCopiarAlias,
-    pedidoCopiarLink: pedidoCopiarLink, pedidoWhatsApp: pedidoWhatsApp, pedidoProblema: pedidoProblema
+    pedidoCopiarLink: pedidoCopiarLink, pedidoYaTransferi: pedidoYaTransferi, pedidoComprobanteWhatsApp: pedidoComprobanteWhatsApp, pedidoWhatsApp: pedidoWhatsApp, pedidoProblema: pedidoProblema
   });
 })();

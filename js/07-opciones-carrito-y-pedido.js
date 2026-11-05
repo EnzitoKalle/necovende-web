@@ -570,6 +570,7 @@
       }
 
       actualizarCarrito();
+      if (esCanje) { cerrarModal('modal-ver-producto'); abrirModal('modal-carrito'); }   // el canje sigue directo al carrito
     }
 
     function cambiarCantidad(indice, cambio) {

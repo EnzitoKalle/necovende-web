@@ -115,8 +115,8 @@
                  '<span class="font-black flex-shrink-0 ' + (pos ? 'text-emerald-600' : 'text-rose-500') + '">' + (pos ? '+' : '') + m.puntos + '</span></li>';
         }).join('');
         return '<div class="border border-slate-200 rounded-2xl overflow-hidden">' +
-               '<div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center"><span class="font-black text-sm">' + esc(f.nombre) + '</span>' +
-               '<span class="font-black text-amber-300 text-sm">' + nPuntos(f.pts) + '</span></div>' +
+               '<div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center gap-3"><button type="button" onclick="nvIrAComercio(\'' + esc(f.id) + '\')" class="font-black text-sm text-left underline decoration-dotted underline-offset-4 min-w-0 truncate">' + esc(f.nombre) + ' ›</button>' +
+               '<span class="font-black text-amber-300 text-sm flex-shrink-0">' + nPuntos(f.pts) + '</span></div>' +
                (f.res > 0 ? '<div class="bg-amber-50 text-amber-800 text-[11px] font-bold px-4 py-2">🔒 ' + nPuntos(f.res) + ' reservados en pedidos en curso. Tu saldo ya los descontó; se confirman al marcar “Recibido” y vuelven si se cancela.</div>' : '') +
                '<ul class="px-4 divide-y divide-slate-100">' + (filas || '<li class="py-3 text-xs text-slate-400">Sin movimientos.</li>') + '</ul></div>';
       }).join('');
@@ -224,7 +224,17 @@
     window.NV_CANJE_PEND = String(prodId);
     intentarAgregarProducto(prodId);
     var ms = el('modal-sabores');
-    if (!ms || ms.classList.contains('hidden')) window.NV_CANJE_PEND = null;   // ya se agregó (o no hizo falta elegir opciones)
+    if (!ms || ms.classList.contains('hidden')) { window.NV_CANJE_PEND = null; return; }   // ya se agregó
+    // Si el producto no pide elegir nada (sabor, talle, color...), se agrega y se pasa directo al carrito
+    var sinOpciones = ['box-oppciones-personalizadas-prod', 'box-variantes-indumentaria', 'box-opcion-coccion'].every(function (id) { var b = el(id); return !b || b.classList.contains('hidden'); });
+    var pp = (typeof productoPendienteSabores !== 'undefined') ? productoPendienteSabores : null;
+    if (sinOpciones && pp && !pp.requiereSabores && !pp.esCombo) confirmarAgregarConSabores();
+  }
+  function nvIrAComercio(id) {
+    cerrarModal('modal-mis-puntos');
+    if (typeof mostrarInicio === 'function' && typeof modoEstrictoEnlace !== 'undefined' && modoEstrictoEnlace) return;
+    abrirVistaComercio(id);
+    window.scrollTo(0, 0);
   }
 
   /* ------------------------------------------------------------ carrito */
@@ -287,6 +297,7 @@
     nvDetalleProductoPuntos: nvDetalleProductoPuntos, nvCanjearProducto: nvCanjearProducto,
     nvResumenPuntosCarrito: nvResumenPuntosCarrito, nvValidarCanjeCarrito: nvValidarCanjeCarrito,
     navCuenta: function () { if (sesion()) abrirPanelControl(); else iniciarSesionGoogle(); },
+    nvIrAComercio: nvIrAComercio,
     nvSaldoPuntos: saldoDe
   });
 })();

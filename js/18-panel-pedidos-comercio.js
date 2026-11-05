@@ -13,6 +13,7 @@
   var COLUMNAS = 'id, numero, comercio_id, cliente_id, cliente_nombre, cliente_telefono, tipo_entrega, direccion, direccion_notas, ' +
     'medio_pago, nota, subtotal, envio_modo, costo_envio, total, estado, motivo_cancelacion, cancelado_por, cierre_automatico, ' +
     'puntos_otorgados, creado_en, actualizado_en, pago_recibido_en, comprobante_path, comprobante_en';
+  var COLUMNAS_AVISO = COLUMNAS + ', pago_avisado_en';   // la columna nueva existe una vez corrido 10-pago-avisado.sql
   var NUEVOS = ['esperando_confirmacion', 'esperando_total_comercio'];
   var EN_CURSO = ['esperando_confirmar_cliente', 'preparando', 'en_camino', 'listo_retirar'];
   var TERMINADOS = ['entregado', 'cancelado'];
@@ -113,9 +114,9 @@
     if (!P.comercios.length) return;
     try {
       try { await _supabase.rpc('pv_refrescar'); } catch (e) { /* opcional */ }
-      var r = await _supabase.from('pv_pedidos').select(COLUMNAS)
-        .in('comercio_id', P.comercios.map(function (c) { return c.id; }))
-        .order('creado_en', { ascending: false }).limit(150);
+      var ids = P.comercios.map(function (c) { return c.id; });
+      var r = await _supabase.from('pv_pedidos').select(COLUMNAS_AVISO).in('comercio_id', ids).order('creado_en', { ascending: false }).limit(150);
+      if (r.error) r = await _supabase.from('pv_pedidos').select(COLUMNAS).in('comercio_id', ids).order('creado_en', { ascending: false }).limit(150);   // sin el SQL 10 todavía
       if (r.error) throw r.error;
       var antes = {}; P.pedidos.forEach(function (x) { antes[x.id] = true; });
       var nuevos = (r.data || []).filter(function (x) { return !antes[x.id] && NUEVOS.indexOf(x.estado) >= 0; });
@@ -206,7 +207,7 @@
            (P.comercios.length > 1 ? ' · ' + esc(nombreComercio(x.comercio_id)) : '') + '</p></div>' +
            '<span class="text-base font-black text-brand-600 flex-shrink-0">' + (x.total != null ? fmtPrecio(x.total) : fmtPrecio(x.subtotal) + '+') + '</span></div>' +
            '<div class="flex items-center gap-2 flex-wrap"><span class="inline-flex text-xs font-black px-3 py-1.5 rounded-full border ' + CLASES[e.k] + '">' + esc(e.t) + '</span>' +
-           (PAGO_TRANSF.indexOf(x.medio_pago) >= 0 && x.estado !== 'cancelado' ? (x.pago_recibido_en ? '<span class="text-xs font-bold text-emerald-700">✓ Pago recibido</span>' : (x.comprobante_path ? '<span class="text-xs font-bold text-sky-700">📎 Con comprobante</span>' : '<span class="text-xs font-bold text-slate-400">Pago pendiente</span>')) : '') +
+           (PAGO_TRANSF.indexOf(x.medio_pago) >= 0 && x.estado !== 'cancelado' ? (x.pago_recibido_en ? '<span class="text-xs font-bold text-emerald-700">✓ Pago recibido</span>' : (x.comprobante_path ? '<span class="text-xs font-bold text-sky-700">📎 Con comprobante</span>' : (x.pago_avisado_en ? '<span class="text-xs font-black text-amber-700">💬 Dice que ya pagó</span>' : '<span class="text-xs font-bold text-slate-400">Pago pendiente</span>'))) : '') +
            '</div></button>';
     });
     cont.innerHTML = h;
@@ -284,6 +285,7 @@
         h += '<p class="text-sm font-black text-emerald-700 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3.5 text-center">✓ Pago recibido</p>';
       } else {
         h += '<div class="border-2 border-emerald-200 bg-emerald-50/60 rounded-2xl p-4 space-y-3"><p class="text-sm font-black text-emerald-800">Pago por ' + esc(MEDIO_TXT[x.medio_pago]) + '</p>' +
+             (x.pago_avisado_en ? '<p class="text-sm font-black text-amber-800 bg-amber-100 border border-amber-300 rounded-xl p-3">💬 El cliente avisó que ya transfirió (' + esc(hace(x.pago_avisado_en)) + '). Revisá tu cuenta y marcá “Pago recibido”.</p>' : '') +
              (x.comprobante_path ? '<button type="button" onclick="panelVerComprobante()" class="' + BIG + 'bg-white border-2 border-sky-300 text-sky-700">📎 Ver comprobante</button>' : '<p class="text-xs text-emerald-700">El cliente todavía no adjuntó comprobante (es opcional).</p>') +
              '<button type="button" onclick="panelMarcarPago()" class="' + BIG + 'bg-emerald-600 text-white">Marcar “Pago recibido”</button></div>';
       }
