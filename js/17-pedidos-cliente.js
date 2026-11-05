@@ -401,8 +401,11 @@
 
     // Acciones
     h += '<div class="flex gap-2 flex-wrap">';
-    if (c.telefono_whatsapp) h += '<button type="button" onclick="pedidoWhatsApp()" class="flex-1 min-w-[140px] bg-white border border-emerald-300 text-emerald-700 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="message-circle" class="w-4 h-4"></i> Avisar por WhatsApp</button>';
-    h += '<button type="button" onclick="pedidoCopiarLink()" class="flex-1 min-w-[140px] bg-white border border-slate-300 text-slate-700 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="link" class="w-4 h-4"></i> Copiar link</button></div>';
+    if (c.telefono_whatsapp && p.estado !== 'cancelado') h += '<button type="button" onclick="pedidoProblema()" class="flex-1 min-w-[140px] bg-white border border-amber-300 text-amber-700 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="life-buoy" class="w-4 h-4"></i> Tengo un problema</button>';
+    h += '<button type="button" onclick="pedidoCopiarLink()" class="flex-1 min-w-[140px] bg-white border border-slate-300 text-slate-700 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="link" class="w-4 h-4"></i> Copiar link</button></div>' +
+         '<div id="ped-problema-box" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">' +
+         '<p class="text-xs font-black text-amber-800">¿Qué pasó? Elegí y le escribís al comercio por WhatsApp:</p>' +
+         MOTIVOS_PROBLEMA.map(function (m, k) { return '<button type="button" onclick="pedidoWhatsApp(' + k + ')" class="w-full text-left text-xs font-bold px-3.5 py-3 rounded-xl bg-white border border-amber-200 text-slate-700 active:scale-[.98] transition">' + m[0] + '</button>'; }).join('') + '</div>';
 
     // Cancelar
     if (PUEDE_CANCELAR.indexOf(p.estado) >= 0) {
@@ -529,9 +532,21 @@
     try { navigator.clipboard.writeText(url).then(function () { mostrarToast('¡Link copiado!'); }, function () { prompt('Copiá este link:', url); }); }
     catch (e) { prompt('Copiá este link:', url); }
   }
-  function pedidoWhatsApp() {
+  // El WhatsApp del comercio NO se ofrece de entrada: solo cuando hay un problema (o el comercio no responde)
+  var MOTIVOS_PROBLEMA = [
+    ['⏳ El pedido está demorado', 'mi pedido está demorado'],
+    ['✏️ Quiero cambiar algo del pedido', 'quiero cambiar algo de mi pedido'],
+    ['💳 Tengo un problema con el pago', 'tengo un problema con el pago'],
+    ['📦 Me llegó algo mal o incompleto', 'mi pedido llegó mal o incompleto'],
+    ['💬 Otro problema', 'necesito ayuda con mi pedido']
+  ];
+  function pedidoProblema() {
+    var b = el('ped-problema-box'); if (b) b.classList.toggle('hidden');
+  }
+  function pedidoWhatsApp(motivo) {
     var x = ctx(); if (!x || !x.c.telefono_whatsapp) return;
-    var texto = '¡Hola *' + (x.c.nombre || '') + '*! Hice el pedido *#' + x.p.numero + '* en *NecoVende*.\n' +
+    var m = MOTIVOS_PROBLEMA[motivo];
+    var texto = '¡Hola *' + (x.c.nombre || '') + '*! Te escribo por mi pedido *#' + x.p.numero + '* en *NecoVende*: ' + (m ? m[1] : 'necesito ayuda con mi pedido') + '.\n' +
                 'Total: ' + (x.p.total != null ? fmtPrecio(x.p.total) : 'a confirmar') + '\n' +
                 'Seguimiento: ' + linkSeguimiento(x.token);
     var url = 'https://wa.me/' + digitos(x.c.telefono_whatsapp) + '?text=' + encodeURIComponent(texto);
@@ -694,6 +709,6 @@
     pedidoCerrarCancelar: pedidoCerrarCancelar, pedidoConfirmarCancelar: pedidoConfirmarCancelar,
     pedidoRecibidoClick: pedidoRecibidoClick, pedidoRecibido: pedidoRecibido,
     pedidoSubirComprobante: pedidoSubirComprobante, pedidoCopiarAlias: pedidoCopiarAlias,
-    pedidoCopiarLink: pedidoCopiarLink, pedidoWhatsApp: pedidoWhatsApp
+    pedidoCopiarLink: pedidoCopiarLink, pedidoWhatsApp: pedidoWhatsApp, pedidoProblema: pedidoProblema
   });
 })();
