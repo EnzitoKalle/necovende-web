@@ -69,6 +69,15 @@
     return m;
   }
   function mios(x) { return P.comercios.some(function (c) { return c.id === x.comercio_id; }); }
+  // Enlace a NecoEnvíos con las direcciones ya cargadas: retiro = la del comercio, entrega = la que puso el cliente
+  function enlaceRepartidor(x) {
+    var c = P.comercios.find(function (k) { return k.id === x.comercio_id; }) || {};
+    var q = new URLSearchParams({
+      retiro: c.direccion || '', entrega: x.direccion || '',
+      nombre: c.nombre || '', whatsapp: c.whatsapp || '', comercio: c.nombre || ''
+    });
+    return 'https://neco-envios.vercel.app/?' + q.toString();
+  }
   function nombreComercio(id) { var c = P.comercios.find(function (x) { return x.id === id; }); return c ? c.nombre : ''; }
   function cuentaNuevos() { return P.pedidos.filter(function (x) { return NUEVOS.indexOf(x.estado) >= 0; }).length; }
 
@@ -92,8 +101,8 @@
     if (P.uid === user.id && P.cargado) return;
     P.uid = user.id;
     try {
-      var r = await _supabase.from('comercios').select('id, nombre').eq('user_id', user.id);
-      P.comercios = (r.data || []).map(function (c) { return { id: c.id, nombre: c.nombre }; });
+      var r = await _supabase.from('comercios').select('id, nombre, direccion, telefono_whatsapp').eq('user_id', user.id);
+      P.comercios = (r.data || []).map(function (c) { return { id: c.id, nombre: c.nombre, direccion: c.direccion || '', whatsapp: c.telefono_whatsapp || '' }; });
     } catch (e) { P.comercios = []; }
     P.cargado = true;
     pintarBoton();
@@ -265,6 +274,10 @@
     if (x.estado === 'preparando') {
       h += '<button type="button" onclick="panelDespachar()" class="' + BIG + 'bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg shadow-sky-500/25">' +
            (x.tipo_entrega === 'envio' ? '🛵 Marcar “En camino”' : '🏪 Marcar “Listo para retirar”') + '</button>';
+    }
+    if (x.tipo_entrega === 'envio' && x.estado !== 'cancelado' && x.estado !== 'entregado') {
+      h += '<a href="' + esc(enlaceRepartidor(x)) + '" target="_blank" rel="noopener" class="' + BIG + 'bg-gradient-to-r from-violet-500 to-violet-600 text-white shadow-lg shadow-violet-500/25 block text-center">🛵 Solicitar repartidor YA</a>' +
+           '<p class="text-[11px] text-slate-500 text-center -mt-1.5">Te lleva a NecoEnvíos con el retiro (tu local) y la entrega (' + esc(x.direccion || 'dirección del cliente') + ') ya cargados.</p>';
     }
     if (PAGO_TRANSF.indexOf(x.medio_pago) >= 0 && x.estado !== 'cancelado') {
       if (x.pago_recibido_en) {
