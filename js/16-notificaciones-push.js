@@ -168,6 +168,38 @@ const NV_VAPID_PUBLIC_KEY = 'BDTw7eeBhWjhfaVOVT8Zatjjp_VfFxFRUllzvXdznFpyyuNkUhD
     } catch (e) { /* ok */ }
   };
 
+
+  /* ---------- Cartel "Activá las notificaciones" (arriba de los pedidos) ---------- */
+  var BANNERS = [];
+  async function pintarBanner(id) {
+    var c = document.getElementById(id); if (!c) return;
+    c.innerHTML = '';
+    try {
+      if (!claveConfigurada()) return;
+      var cuerpo = null;
+      if (esIOS() && !esStandalone()) {
+        cuerpo = ['Instalá la app para recibir avisos de tus pedidos.', '<button type="button" onclick="nvPushVerInstrucciones()" class="' + BTN_PRIN + '">Cómo instalar</button>'];
+      } else if (!soportado() || Notification.permission === 'denied') {
+        return;
+      } else if (typeof usuarioActual === 'undefined' || !usuarioActual) {
+        cuerpo = ['Registrate con Google para recibir avisos de tus pedidos.', '<button type="button" onclick="iniciarSesionGoogle()" class="' + BTN_PRIN + '">Registrarme</button>'];
+      } else {
+        var sub = null;
+        try { sub = await suscripcionLocal(); } catch (e) { /* ok */ }
+        if (sub && Notification.permission === 'granted') return;      // ya está activado: no se muestra nada
+        cuerpo = ['Activá las notificaciones para seguir tus pedidos.', '<button type="button" onclick="nvPushActivarBanner(this)" class="' + BTN_PRIN + '">Activar</button>'];
+      }
+      c.innerHTML = '<div class="bg-sky-50 border border-sky-200 rounded-2xl p-3 flex items-center gap-3">' +
+        '<span class="text-xl flex-shrink-0">🔔</span><p class="flex-1 text-xs font-bold text-sky-900 leading-snug">' + cuerpo[0] + '</p>' +
+        '<span class="flex-shrink-0">' + cuerpo[1] + '</span></div>';
+    } catch (e) { /* sin cartel */ }
+  }
+  window.nvPushBanner = function (id) { if (BANNERS.indexOf(id) < 0) BANNERS.push(id); return pintarBanner(id); };
+  window.nvPushActivarBanner = async function (btn) {
+    await window.nvPushActivar(btn);
+    BANNERS.forEach(pintarBanner);
+  };
+
   /* Al iniciar sesión: si ya había permiso, el dispositivo queda asociado a esta cuenta sin pedir nada. */
   if (typeof _supabase !== 'undefined' && soportado()) {
     _supabase.auth.onAuthStateChange(function (evento, session) {

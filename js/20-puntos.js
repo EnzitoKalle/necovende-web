@@ -73,6 +73,17 @@
   }
 
   /* ------------------------------------------------------------ historial */
+  var POR_PAGINA = 8;
+  function nvTogHistorial(id, btn) {
+    var b = el(id); if (!b) return;
+    var abierto = b.classList.toggle('hidden') === false;
+    var f = btn && btn.querySelector('.nv-flecha'); if (f) f.textContent = abierto ? '⌄' : '›';
+  }
+  function nvMasHistorial(id, btn) {
+    var b = el(id); if (!b) return;
+    b.querySelectorAll('.nv-extra').forEach(function (li) { li.classList.remove('hidden'); });
+    if (btn) btn.remove();
+  }
   var MOTIVOS = { pedido: 'Sumaste por el pedido', canje: 'Canjeaste en el pedido', canje_devuelto: 'Te devolvimos por cancelar el pedido' };
   function etiquetaMov(m) {
     if (m.motivo === 'canje' && m.estado === 'reservado') return 'Reservados para el pedido (se descuentan al marcar Recibido)';
@@ -105,20 +116,25 @@
       var ids2 = saldosVisibles();
       if (!ids2.length) { box.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">Todavía no tenés puntos. Los sumás cuando marcás “Recibido” en pedidos de comercios que dan puntos.</p>'; return; }
       box.innerHTML = ids2.map(function (f) {
-        var filas = (porC[f.id] || []).map(function (m) {
+        var movsC = porC[f.id] || [];
+        var filas = movsC.map(function (m, k) {
           var pos = m.puntos >= 0;
           var num = m.pedido_id && nums[m.pedido_id] ? ' #' + nums[m.pedido_id] : '';
           var f1 = new Date(m.creado_en).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
-          return '<li class="flex justify-between items-center gap-3 py-2 text-xs"><span class="min-w-0"><span class="font-semibold text-slate-700">' +
-                 esc(etiquetaMov(m) + num) +
-                 '</span><br><span class="text-[10px] text-slate-400">' + f1 + '</span></span>' +
+          return '<li class="' + (k >= POR_PAGINA ? 'hidden nv-extra ' : '') + 'flex justify-between items-center gap-3 py-2 text-xs"><span class="min-w-0"><span class="font-semibold text-slate-700">' +
+                 esc(etiquetaMov(m) + num) + '</span><br><span class="text-[10px] text-slate-400">' + f1 + '</span></span>' +
                  '<span class="font-black flex-shrink-0 ' + (pos ? 'text-emerald-600' : 'text-rose-500') + '">' + (pos ? '+' : '') + m.puntos + '</span></li>';
         }).join('');
+        var idH = 'hist-' + String(f.id).replace(/[^a-z0-9]/gi, '');
         return '<div class="border border-slate-200 rounded-2xl overflow-hidden">' +
                '<div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center gap-3"><button type="button" onclick="nvIrAComercio(\'' + esc(f.id) + '\')" class="font-black text-sm text-left underline decoration-dotted underline-offset-4 min-w-0 truncate">' + esc(f.nombre) + ' ›</button>' +
                '<span class="font-black text-amber-300 text-sm flex-shrink-0">' + nPuntos(f.pts) + '</span></div>' +
                (f.res > 0 ? '<div class="bg-amber-50 text-amber-800 text-[11px] font-bold px-4 py-2">🔒 ' + nPuntos(f.res) + ' reservados en pedidos en curso. Tu saldo ya los descontó; se confirman al marcar “Recibido” y vuelven si se cancela.</div>' : '') +
-               '<ul class="px-4 divide-y divide-slate-100">' + (filas || '<li class="py-3 text-xs text-slate-400">Sin movimientos.</li>') + '</ul></div>';
+               (movsC.length
+                 ? '<button type="button" onclick="nvTogHistorial(\'' + idH + '\', this)" class="w-full flex justify-between items-center px-4 py-3 text-xs font-black text-slate-600 active:bg-slate-50 transition"><span>🕘 Ver historial (' + movsC.length + ')</span><span class="nv-flecha">›</span></button>' +
+                   '<div id="' + idH + '" class="hidden border-t border-slate-100 px-4"><ul class="divide-y divide-slate-100">' + filas + '</ul>' +
+                   (movsC.length > POR_PAGINA ? '<button type="button" onclick="nvMasHistorial(\'' + idH + '\', this)" class="w-full text-xs font-black text-brand-600 py-3">Ver más (' + (movsC.length - POR_PAGINA) + ')</button>' : '') + '</div>'
+                 : '<p class="px-4 py-3 text-xs text-slate-400">Sin movimientos.</p>') + '</div>';
       }).join('');
     } catch (e) {
       box.innerHTML = '<p class="text-sm text-rose-600 text-center py-6">No pudimos cargar tus puntos. Probá de nuevo en un rato.</p>';
@@ -301,7 +317,7 @@
     nvDetalleProductoPuntos: nvDetalleProductoPuntos, nvPrepararCanjeModal: nvPrepararCanjeModal,
     nvResumenPuntosCarrito: nvResumenPuntosCarrito, nvValidarCanjeCarrito: nvValidarCanjeCarrito,
     navCuenta: function () { if (sesion()) abrirPanelControl(); else iniciarSesionGoogle(); },
-    nvIrAComercio: nvIrAComercio,
+    nvIrAComercio: nvIrAComercio, nvTogHistorial: nvTogHistorial, nvMasHistorial: nvMasHistorial,
     nvSaldoPuntos: saldoDe
   });
 })();

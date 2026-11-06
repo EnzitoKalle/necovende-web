@@ -59,7 +59,7 @@
   var ESPERANDO_COMERCIO = ['esperando_confirmacion', 'esperando_total_comercio'];
   var NECESITA_RESPUESTA = ['esperando_confirmar_cliente', 'en_camino', 'listo_retirar'];
 
-  var PED = { token: null, data: null, sig: '', timer: null, nuevo: false, ocupado: false };
+  var PED = { token: null, data: null, sig: '', timer: null, nuevo: false, ocupado: false, det: false };
   var enviando = false;
 
   /* ---------------------------------------------------------------- utilidades */
@@ -286,16 +286,12 @@
 
     tituloPedido('Pedido #' + p.numero, c.nombre || '');
 
-    if (PED.nuevo) {
-      h += '<div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-800 space-y-1">' +
-           '<p class="font-black text-sm flex items-center gap-1.5"><i data-lucide="party-popper" class="w-4 h-4"></i> ¡Pedido enviado!</p>' +
-           '<p class="leading-snug">Te avisamos acá cada vez que el comercio avance. ' +
-           (usuarioActual ? 'Lo vas a encontrar siempre en <b>Mis pedidos</b>.' :
-             'Guardá este link para seguirlo (también queda en <b>Mis pedidos</b> en este dispositivo).') + '</p></div>';
-    }
+    // Cartel para activar las notificaciones (se completa solo si hace falta)
+    h += '<div id="ped-push-banner"></div>';
 
-    // Estado actual
+    // Estado actual (corto)
     var detalleEstado = e.d;
+    if (p.estado === 'esperando_confirmacion' && PED.nuevo) detalleEstado = '¡Pedido enviado! El comercio tiene que aceptarlo.';
     if (p.estado === 'cancelado') {
       var quien = p.cancelado_por === 'comercio' ? 'el comercio' : (p.cancelado_por === 'cliente' ? 'vos' : 'el sistema');
       detalleEstado = 'Lo canceló ' + quien + '.' + (p.motivo_cancelacion ? ' Motivo: ' + p.motivo_cancelacion : '');
@@ -344,43 +340,45 @@
            '</div></div></div>';
     }
 
-    // Pago por transferencia: alias y comprobante opcional
+    // Pago por transferencia: recién cuando el total está firme (con envío a convenir, después de que lo confirmás)
     var conComprobante = PAGO_CON_COMPROBANTE.indexOf(p.medio_pago) >= 0;
-    if (conComprobante && abierto) {
-      h += '<div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs space-y-2">';
+    var totalFirme = p.total != null && p.estado !== 'esperando_total_comercio' && p.estado !== 'esperando_confirmar_cliente';
+    if (conComprobante && abierto && totalFirme) {
+      h += '<div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs space-y-3">';
       if (p.pago_recibido_en) {
         h += '<p class="font-black text-emerald-800 flex items-center gap-1.5"><i data-lucide="badge-check" class="w-4 h-4"></i> El comercio confirmó que recibió tu pago</p>';
       } else {
+        h += '<div class="text-center"><p class="text-[11px] font-black text-emerald-700 uppercase tracking-wider">Total a transferir</p>' +
+             '<p class="text-3xl font-black text-emerald-900 leading-tight">' + fmtPrecio(p.total) + '</p></div>';
         if (c.alias) {
-          h += '<div class="flex justify-between items-center gap-2"><span class="font-black text-emerald-800">Alias para pagar' + (c.titular_alias ? ' · ' + esc(c.titular_alias) : '') + '</span>' +
-               '<button type="button" onclick="pedidoCopiarAlias()" class="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 flex-shrink-0"><i data-lucide="copy" class="w-3 h-3"></i> Copiar</button></div>' +
-               '<p class="font-mono font-bold text-emerald-900 text-sm select-all break-all">' + esc(c.alias) + '</p>';
+          h += '<div class="bg-white border border-emerald-200 rounded-xl p-3 flex items-center justify-between gap-2">' +
+               '<div class="min-w-0"><p class="text-[10px] font-black text-emerald-700 uppercase">Alias' + (c.titular_alias ? ' · ' + esc(c.titular_alias) : '') + '</p>' +
+               '<p class="font-mono font-bold text-emerald-900 text-sm select-all break-all">' + esc(c.alias) + '</p></div>' +
+               '<button type="button" onclick="pedidoCopiarAlias()" class="bg-emerald-600 text-white text-xs font-black px-3 py-2 rounded-lg flex items-center gap-1 flex-shrink-0 active:scale-95 transition"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar</button></div>';
         }
-        // 1) Un solo toque: "Ya transferí" (el comercio mira su cuenta y confirma)
         if (p.pago_avisado_en) {
           h += '<p class="font-black text-emerald-800 bg-white border border-emerald-300 rounded-xl p-3 flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0 mt-0.5"></i><span>Le avisaste al comercio que ya pagaste. Apenas vea la transferencia confirma tu pago.</span></p>';
         } else {
-          h += '<p class="text-emerald-800 leading-snug font-semibold">1. Transferí al alias de arriba.<br>2. Después tocá este botón:</p>' +
-               '<button type="button" onclick="pedidoYaTransferi()" class="w-full bg-emerald-600 text-white font-black text-sm py-3.5 rounded-xl shadow-lg shadow-emerald-600/25 active:scale-95 transition">✅ Ya transferí</button>';
+          h += '<button type="button" onclick="pedidoYaTransferi()" class="w-full bg-emerald-600 text-white font-black text-sm py-3.5 rounded-xl shadow-lg shadow-emerald-600/25 active:scale-95 transition">✅ Ya transferí</button>';
         }
-        // 2) El comprobante es opcional: por WhatsApp (compartir desde la app del banco) o subiendo la foto
-        if (p.comprobante_path) {
-          h += '<p class="font-bold text-emerald-700 flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Comprobante enviado. El comercio lo va a revisar.</p>';
-        } else {
-          h += '<p class="text-emerald-700 leading-snug pt-1">¿Querés mandar el comprobante? <span class="font-semibold">(es opcional)</span></p>';
-        }
-        h += '<div class="grid grid-cols-2 gap-2">' +
+        h += '<details class="text-emerald-800"><summary class="cursor-pointer font-bold text-center py-1">' + (p.comprobante_path ? '📎 Comprobante enviado' : '📎 Enviar comprobante (opcional)') + '</summary>' +
+             '<div class="grid grid-cols-2 gap-2 pt-2">' +
              (c.telefono_whatsapp ? '<button type="button" onclick="pedidoComprobanteWhatsApp()" class="bg-white border border-emerald-300 text-emerald-700 font-black text-xs px-2 py-2.5 rounded-xl active:scale-95 transition">Por WhatsApp</button>' : '') +
              '<label class="block' + (c.telefono_whatsapp ? '' : ' col-span-2') + '"><span class="block text-center bg-white border border-emerald-300 text-emerald-700 font-black text-xs px-2 py-2.5 rounded-xl cursor-pointer active:scale-95 transition">' +
              (p.comprobante_path ? 'Cambiar foto' : 'Subir foto') + '</span>' +
              '<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="hidden" onchange="pedidoSubirComprobante(this)"></label></div>' +
-             (c.telefono_whatsapp ? '<p class="text-[11px] text-emerald-700 leading-snug">Tip: en la app de tu banco tocá <b>Compartir</b> en el comprobante y elegí <b>WhatsApp</b>.</p>' : '');
+             (c.telefono_whatsapp ? '<p class="text-[11px] leading-snug pt-2">Tip: en la app de tu banco tocá <b>Compartir</b> en el comprobante y elegí <b>WhatsApp</b>.</p>' : '') + '</details>';
       }
       h += '</div>';
     }
 
+    // Todo el resto, escondido en "Detalles del pedido"
+    var totalTxt = p.total != null ? fmtPrecio(p.total) : 'A confirmar';
+    h += '<details class="border border-slate-200 rounded-2xl bg-white" ' + (PED.det ? 'open' : '') + ' ontoggle="pedidoDetalles(this.open)">' +
+         '<summary class="cursor-pointer flex justify-between items-center gap-3 p-3.5 text-sm font-black text-slate-800"><span>Detalles del pedido</span><span class="text-slate-500 font-bold text-xs">' + totalTxt + '</span></summary>' +
+         '<div class="px-3.5 pb-3.5 space-y-3.5">';
     // Detalle del pedido
-    h += '<div class="border border-slate-200 rounded-2xl p-3.5 space-y-2.5">' +
+    h += '<div class="space-y-2.5">' +
          '<p class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Tu pedido</p>';
     items.forEach(function (it) {
       var extra = [it.sabores, it.nota ? '📝 ' + it.nota : ''].filter(Boolean).join(' · ');
@@ -419,6 +417,20 @@
          '<p class="text-xs font-black text-amber-800">¿Qué pasó? Elegí y le escribís al comercio por WhatsApp:</p>' +
          MOTIVOS_PROBLEMA.map(function (m, k) { return '<button type="button" onclick="pedidoWhatsApp(' + k + ')" class="w-full text-left text-xs font-bold px-3.5 py-3 rounded-xl bg-white border border-amber-200 text-slate-700 active:scale-[.98] transition">' + m[0] + '</button>'; }).join('') + '</div>';
 
+    // Historial
+    if (hist.length) {
+      h += '<div class="space-y-2"><p class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Historial</p><ol class="space-y-2 border-l-2 border-slate-200 ml-1.5 pl-3.5">';
+      hist.forEach(function (x) {
+        var ee = ESTADOS[x.estado] || { c: x.estado };
+        h += '<li class="text-xs"><span class="font-bold text-slate-700">' + esc(ee.c) + '</span> <span class="text-slate-400">· ' + esc(fmtFecha(x.fecha)) + '</span>' +
+             (x.nota ? '<p class="text-[11px] text-slate-500 leading-snug">' + esc(x.nota) + '</p>' : '') + '</li>';
+      });
+      h += '</ol></div>';
+    }
+
+    if (!usuarioActual) h += '<p class="text-[11px] text-slate-500 leading-snug">Guardá el link del pedido para seguirlo (también queda en <b>Mis pedidos</b> en este dispositivo).</p>';
+    h += '</div></details>';
+
     // Cancelar
     if (PUEDE_CANCELAR.indexOf(p.estado) >= 0) {
       h += '<div><button id="ped-btn-cancelar" type="button" onclick="pedidoAbrirCancelar()" class="w-full text-xs font-black text-rose-600 py-2.5 rounded-xl border border-rose-200 bg-rose-50 active:scale-95 transition">Cancelar pedido</button>' +
@@ -433,19 +445,10 @@
       h += '<p class="text-[11px] text-slate-400 text-center leading-snug">Ya salió, así que no se puede cancelar desde acá. Si hay un problema, escribile al comercio.</p>';
     }
 
-    // Historial
-    if (hist.length) {
-      h += '<div class="space-y-2"><p class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Historial</p><ol class="space-y-2 border-l-2 border-slate-200 ml-1.5 pl-3.5">';
-      hist.forEach(function (x) {
-        var ee = ESTADOS[x.estado] || { c: x.estado };
-        h += '<li class="text-xs"><span class="font-bold text-slate-700">' + esc(ee.c) + '</span> <span class="text-slate-400">· ' + esc(fmtFecha(x.fecha)) + '</span>' +
-             (x.nota ? '<p class="text-[11px] text-slate-500 leading-snug">' + esc(x.nota) + '</p>' : '') + '</li>';
-      });
-      h += '</ol></div>';
-    }
 
     el('pedido-contenido').innerHTML = h;
     icono();
+    if (window.nvPushBanner) nvPushBanner('ped-push-banner');
   }
 
   /* ---------------------------------------------------------------- acciones del cliente */
@@ -511,6 +514,8 @@
     if (r && r.puntos > 0) mostrarToast('¡Sumaste ' + r.puntos + ' puntos!');
     else if (r) mostrarToast('¡Gracias! Pedido marcado como recibido.');
   }
+
+  function pedidoDetalles(abierto) { PED.det = Boolean(abierto); }
 
   function pedidoYaTransferi() {
     var x = ctx(); if (!x) return;
@@ -637,7 +642,7 @@
   }
 
   function renderMisPedidos(lista) {
-    var h = '';
+    var h = '<div id="mis-pedidos-push"></div>';
     if (!usuarioActual) {
       h += '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-800 space-y-2">' +
            '<p class="leading-snug"><b>Estás sin sesión.</b> Acá ves los pedidos de este dispositivo. Iniciá sesión para tenerlos en todos tus dispositivos, recibir avisos y sumar puntos.</p>' +
@@ -660,6 +665,7 @@
            (window.nvHayNovedad && nvHayNovedad(x.id, x.estado) ? '<p class="text-[11px] font-black text-rose-600 flex items-center gap-1.5"><span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500"></span> Novedad en este pedido</p>' : '') + '</button>';
     });
     el('mis-pedidos-contenido').innerHTML = h;
+    if (window.nvPushBanner) nvPushBanner('mis-pedidos-push');
     icono();
   }
 
@@ -737,6 +743,6 @@
     pedidoCerrarCancelar: pedidoCerrarCancelar, pedidoConfirmarCancelar: pedidoConfirmarCancelar,
     pedidoRecibidoClick: pedidoRecibidoClick, pedidoRecibido: pedidoRecibido,
     pedidoSubirComprobante: pedidoSubirComprobante, pedidoCopiarAlias: pedidoCopiarAlias,
-    pedidoCopiarLink: pedidoCopiarLink, pedidoYaTransferi: pedidoYaTransferi, pedidoComprobanteWhatsApp: pedidoComprobanteWhatsApp, pedidoWhatsApp: pedidoWhatsApp, pedidoProblema: pedidoProblema
+    pedidoCopiarLink: pedidoCopiarLink, pedidoDetalles: pedidoDetalles, pedidoYaTransferi: pedidoYaTransferi, pedidoComprobanteWhatsApp: pedidoComprobanteWhatsApp, pedidoWhatsApp: pedidoWhatsApp, pedidoProblema: pedidoProblema
   });
 })();
