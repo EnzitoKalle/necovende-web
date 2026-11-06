@@ -13,7 +13,7 @@
   var COLUMNAS = 'id, numero, comercio_id, cliente_id, cliente_nombre, cliente_telefono, tipo_entrega, direccion, direccion_notas, ' +
     'medio_pago, nota, subtotal, envio_modo, costo_envio, total, estado, motivo_cancelacion, cancelado_por, cierre_automatico, ' +
     'puntos_otorgados, creado_en, actualizado_en, pago_recibido_en, comprobante_path, comprobante_en';
-  var COLUMNAS_AVISO = COLUMNAS + ', pago_avisado_en';   // la columna nueva existe una vez corrido 10-pago-avisado.sql
+  var COLUMNAS_AVISO = COLUMNAS + ', pago_avisado_en, pago_titular, comprobante_pedido_en';   // la columna nueva existe una vez corrido 10-pago-avisado.sql
   var NUEVOS = ['esperando_confirmacion', 'esperando_total_comercio'];
   var EN_CURSO = ['esperando_confirmar_cliente', 'preparando', 'en_camino', 'listo_retirar'];
   var TERMINADOS = ['entregado', 'cancelado'];
@@ -285,9 +285,11 @@
         h += '<p class="text-sm font-black text-emerald-700 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3.5 text-center">✓ Pago recibido</p>';
       } else {
         h += '<div class="border-2 border-emerald-200 bg-emerald-50/60 rounded-2xl p-4 space-y-3"><p class="text-sm font-black text-emerald-800">Pago por ' + esc(MEDIO_TXT[x.medio_pago]) + '</p>' +
-             (x.pago_avisado_en ? '<p class="text-sm font-black text-amber-800 bg-amber-100 border border-amber-300 rounded-xl p-3">💬 El cliente avisó que ya transfirió (' + esc(hace(x.pago_avisado_en)) + '). Revisá tu cuenta y marcá “Pago recibido”.</p>' : '') +
-             (x.comprobante_path ? '<button type="button" onclick="panelVerComprobante()" class="' + BIG + 'bg-white border-2 border-sky-300 text-sky-700">📎 Ver comprobante</button>' : '<p class="text-xs text-emerald-700">El cliente todavía no adjuntó comprobante (es opcional).</p>') +
-             '<button type="button" onclick="panelMarcarPago()" class="' + BIG + 'bg-emerald-600 text-white">Marcar “Pago recibido”</button></div>';
+             (x.pago_avisado_en ? '<p class="text-sm font-black text-amber-800 bg-amber-100 border border-amber-300 rounded-xl p-3">💬 Dice que ya transfirió ' + (x.total != null ? fmtPrecio(x.total) : '') + ' a nombre de <u>' + esc(x.pago_titular || 'sin nombre') + '</u> (' + esc(hace(x.pago_avisado_en)) + '). Revisá tus movimientos y confirmá.</p>' : '') +
+             (x.comprobante_pedido_en && !x.comprobante_path ? '<p class="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl p-3">📎 Le pediste el comprobante al cliente (' + esc(hace(x.comprobante_pedido_en)) + '). Cuando lo suba lo vas a ver acá.</p>' : '') +
+             (x.comprobante_path ? '<button type="button" onclick="panelVerComprobante()" class="' + BIG + 'bg-white border-2 border-sky-300 text-sky-700">📎 Ver comprobante</button>' : '') +
+             '<button type="button" onclick="panelMarcarPago()" class="' + BIG + 'bg-emerald-600 text-white">Marcar “Pago recibido”</button>' +
+             '<button type="button" onclick="panelPedirComprobante()" class="' + BIG + 'bg-white border-2 border-rose-300 text-rose-700">No llegó el pago · pedir comprobante</button></div>';
       }
     }
 
@@ -376,6 +378,11 @@
     var x = actual(); if (!x) return;
     accion('pv_comercio_despachar', { p_pedido: x.id }, x.tipo_entrega === 'envio' ? 'Marcado “En camino”.' : 'Marcado “Listo para retirar”.');
   }
+  function panelPedirComprobante() {
+    var x = actual(); if (!x) return;
+    if (!confirm('Le avisamos al cliente que no encontraste su pago y le pedimos que suba el comprobante. ¿Seguimos?')) return;
+    accion('pv_comercio_pedir_comprobante', { p_pedido: x.id }, 'Le pedimos el comprobante al cliente.');
+  }
   function panelMarcarPago() { var x = actual(); if (x) accion('pv_comercio_marcar_pago', { p_pedido: x.id }, 'Pago registrado.'); }
   function panelEnvioPreview() {
     var x = actual(), i = el('panel-envio'), t = el('panel-envio-total'); if (!x || !i || !t) return;
@@ -427,7 +434,7 @@
   Object.assign(window, {
     abrirPanelPedidos: abrirPanelPedidos, cerrarPanelPedidos: cerrarPanelPedidos, abrirDetallePedido: abrirDetallePedido,
     ubicarBotonPanel: ubicarBoton, panelPedidosTab: panelPedidosTab, panelPedidosComercio: panelPedidosComercio, panelVolver: volverALista,
-    panelAceptar: panelAceptar, panelDespachar: panelDespachar, panelMarcarPago: panelMarcarPago,
+    panelAceptar: panelAceptar, panelDespachar: panelDespachar, panelMarcarPago: panelMarcarPago, panelPedirComprobante: panelPedirComprobante,
     panelFijarEnvio: panelFijarEnvio, panelEnvioPreview: panelEnvioPreview, panelAbrirCancelar: panelAbrirCancelar,
     panelCerrarCancelar: panelCerrarCancelar, panelConfirmarCancelar: panelConfirmarCancelar, panelVerComprobante: panelVerComprobante
   });

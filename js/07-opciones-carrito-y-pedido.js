@@ -611,21 +611,12 @@
       }
     }
 
+    // En el carrito NO se muestra el alias: aparece en el pedido, cuando el total ya está confirmado
     function toggleAliasMercadoPago() {
       const medioPago = document.getElementById('cart-medio-pago').value;
-      const boxAlias = document.getElementById('box-alias-mercadopago');
-      const lblAlias = document.getElementById('lbl-alias-comercio');
-
-      if (medioPago === 'Transferencia' || medioPago === 'MercadoPago / QR') {
-        if (comercioCarrito && comercioCarrito.alias_mp && comercioCarrito.alias_mp.trim() !== '') {
-          lblAlias.innerText = comercioCarrito.alias_mp;
-          boxAlias.classList.remove('hidden');
-        } else {
-          boxAlias.classList.add('hidden');
-        }
-      } else {
-        boxAlias.classList.add('hidden');
-      }
+      const aviso = document.getElementById('box-alias-mercadopago');
+      const esTransferencia = medioPago === 'Transferencia' || medioPago === 'MercadoPago / QR';
+      aviso.classList.toggle('hidden', !(esTransferencia && comercioCarrito && comercioCarrito.alias_mp && comercioCarrito.alias_mp.trim() !== ''));
     }
 
     function copiarAliasPago() {
