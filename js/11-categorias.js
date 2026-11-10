@@ -12,7 +12,7 @@
     function flagsDeSubcategorias(subs) {
       const lista = Array.isArray(subs) ? subs : [];
       const tiene = campo => lista.some(s => CATEGORIAS_FLAGS[s] && CATEGORIAS_FLAGS[s][campo]);
-      return { sabores: tiene('sabores'), coccion: tiene('coccion'), talles: tiene('talles') };
+      return { sabores: tiene('sabores'), coccion: tiene('coccion'), talles: tiene('talles'), calendario: tiene('calendario') };
     }
 
     async function cargarCategorias() {
@@ -28,7 +28,7 @@
         categoriasAdmin.forEach(r => {
           jerarquia[r.nombre] = r.subs.filter(s => s.activa !== false).map(s => s.nombre);
           iconos[r.nombre] = r.icono || '🏷️';
-          r.subs.forEach(s => { flags[s.nombre] = { sabores: !!s.usa_sabores, coccion: !!s.usa_coccion, talles: !!s.usa_talles }; });
+          r.subs.forEach(s => { flags[s.nombre] = { sabores: !!s.usa_sabores, coccion: !!s.usa_coccion, talles: !!s.usa_talles, calendario: !!s.usa_calendario }; });
         });
         CATEGORIAS_JERARQUICAS = jerarquia;
         CATEGORIAS_FLAGS = flags;
@@ -158,6 +158,7 @@
               ${chipOpcionCat(s.id, 'usa_sabores', s.usa_sabores, '🍦 Sabores')}
               ${chipOpcionCat(s.id, 'usa_coccion', s.usa_coccion, '🔥 Cocción')}
               ${chipOpcionCat(s.id, 'usa_talles', s.usa_talles, '👕 Talles y colores')}
+              ${chipOpcionCat(s.id, 'usa_calendario', s.usa_calendario, '📅 Calendario')}
             </div>
           </div>`;
         });
@@ -317,7 +318,7 @@
     }
 
     async function adminToggleFlagSub(id, campo) {
-      if (!['usa_sabores', 'usa_coccion', 'usa_talles'].includes(campo)) return;
+      if (!['usa_sabores', 'usa_coccion', 'usa_talles', 'usa_calendario'].includes(campo)) return;
       const f = buscarSub(id);
       if (!f) return;
       const { error } = await _supabase.from('subcategorias').update({ [campo]: !f.sub[campo] }).eq('id', id);

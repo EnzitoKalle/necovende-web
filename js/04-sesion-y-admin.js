@@ -171,6 +171,7 @@
                   ${htmlPlanComercio(c)}
                 </div>
               </div>
+              ${c.calendario_activo ? `<button onclick="cerrarModal('modal-panel'); nvAbrirCalendario('${c.id}')" class="p-2 rounded-lg hover:bg-slate-100 transition flex-shrink-0" title="Calendario">📅</button>` : ''}
               <button onclick="cerrarModal('modal-panel'); prepararModalEditarComercio('${c.id}')" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex-shrink-0" title="Editar datos">
                 <i data-lucide="edit-3" class="w-4 h-4 text-brand-500"></i>
               </button>

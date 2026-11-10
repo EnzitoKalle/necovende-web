@@ -126,6 +126,7 @@
       document.getElementById('comercio-color-primario').value = "#f8fafc";
       document.getElementById('comercio-color-acento').value = "#ea580c";
       document.getElementById('comercio-posicion-portada').value = "object-center";
+      if (window.nvCalCargarForm) { nvCalCargarForm(null); var _cc = document.getElementById('comercio-calendario'); if (_cc) delete _cc.dataset.tocado; }
 
       document.getElementById('pago-efectivo').checked = true;
       document.getElementById('pago-transferencia').checked = true;
@@ -165,6 +166,7 @@
       document.getElementById('comercio-color-primario').value = c.color_primario || "#f8fafc";
       document.getElementById('comercio-color-acento').value = c.color_acento || "#ea580c";
       document.getElementById('comercio-posicion-portada').value = c.posicion_portada || "object-center";
+      if (window.nvCalCargarForm) { nvCalCargarForm(c); var _cd = document.getElementById('comercio-calendario'); if (_cd) _cd.dataset.tocado = '1'; }
 
       document.getElementById('sabores-input').value = c.sabores ? c.sabores.join(', ') : '';
       leCargar('sabores-input', c.sabores, (c.opciones_ocultas || {}).sabores);

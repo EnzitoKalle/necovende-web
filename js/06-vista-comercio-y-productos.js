@@ -133,7 +133,7 @@
       const header = document.getElementById('detalle-comercio-header');
       header.innerHTML = `
         ${(esUltra && comercioActivo.portada_url) ? `
-          <div class="h-44 sm:h-60 w-full relative overflow-hidden bg-slate-100">
+          <div class="h-60 sm:h-96 w-full relative overflow-hidden bg-slate-100">
             <img src="${esc(comercioActivo.portada_url)}" class="w-full h-full ${posPortada} object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/10 to-transparent"></div>
           </div>
@@ -251,6 +251,7 @@
           <div class="px-5 pb-4 bg-white flex flex-wrap gap-2">
             <button type="button" onclick="alternarPausaHoy()" class="text-xs font-bold px-3 py-2 rounded-xl border transition ${estaPausado(comercioActivo) ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'}">${estaPausado(comercioActivo) ? '▶️ Reabrir el local' : '⏸ Pausar por hoy'}</button>
             <button type="button" onclick="abrirModalAvisoComercio()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 transition">📢 Aviso</button>
+            ${comercioActivo.calendario_activo ? `<button type="button" onclick="nvAbrirCalendario('${comercioActivo.id}')" class="text-xs font-bold px-3 py-2 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition">📅 Calendario</button>` : ''}
             <button type="button" onclick="abrirModalQrComercio()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 transition">▦ QR</button>
           </div>`);
         const topSolicitados = [...(comercioActivo.productos || [])].filter(p => !p.es_combo)
@@ -261,7 +262,8 @@
 
       document.getElementById('vista-inicio').classList.add('hidden');
       document.getElementById('vista-comercio').classList.remove('hidden');
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (window.nvCalRenderEnComercio) nvCalRenderEnComercio(comercioActivo, header);
 
       if (window.lucide) lucide.createIcons();
     }

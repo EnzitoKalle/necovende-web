@@ -137,7 +137,7 @@
       document.getElementById('vista-inicio').classList.remove('hidden');
       document.body.style.backgroundColor = '#f8fafc';
       comercioActivo = null;
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
 
     function filtrarProductosComercioActual() {
