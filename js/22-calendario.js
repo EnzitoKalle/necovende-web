@@ -160,14 +160,11 @@
     ORDEN.forEach(function (x) { var i = document.getElementById('cal-turno-' + x); if (i) i.checked = t.indexOf(x) >= 0; });
     var m = document.getElementById('cal-modo'); if (m) m.value = (c && c.calendario_modo) || 'turnos';
     var set = function (id, v) { var e = document.getElementById(id); if (e) e.value = v; };
-    set('cal-desde', (c && c.cal_desde) || '09:00'); set('cal-hasta', (c && c.cal_hasta) || '23:00');
     set('cal-bloque', String((c && c.cal_bloque_min) || 60));
     set('cal-espacios', (c && c.cal_espacios && c.cal_espacios.length) ? c.cal_espacios.join(', ') : 'Cancha 1');
     set('cal-confirmacion', (c && c.cal_confirmacion) || 'aceptar'); set('cal-espera', String((c && c.cal_espera_min) || 120));
     set('cal-precio', (c && c.cal_precio_bloque != null) ? c.cal_precio_bloque : '');
     set('cal-sena-tipo', (c && c.cal_sena_tipo) || 'monto'); set('cal-sena-valor', (c && c.cal_sena_valor != null) ? c.cal_sena_valor : '');
-    var dd = (c && Array.isArray(c.cal_dias)) ? c.cal_dias : [0,1,2,3,4,5,6];
-    for (var i = 0; i < 7; i++) { var ch = document.getElementById('cal-dia-' + i); if (ch) ch.checked = dd.indexOf(i) >= 0; }
     nvCalToggleForm();
   };
   window.nvCalToggleForm = function () {
@@ -194,19 +191,16 @@
       out.calendario_modo = modo;
       if (modo === 'horarios' && activo) {
         var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
-        var desde = v('cal-desde'), hasta = v('cal-hasta'), bloque = parseInt(v('cal-bloque'), 10) || 60;
+        var bloque = parseInt(v('cal-bloque'), 10);
         var esp = [...new Set(v('cal-espacios').split(',').map(function (x) { return x.trim(); }).filter(Boolean))].slice(0, 12);
-        var dias = []; for (var i = 0; i < 7; i++) { var ch = document.getElementById('cal-dia-' + i); if (ch && ch.checked) dias.push(i); }
-        var am = function (x) { var p = x.split(':'); return (+p[0]) * 60 + (+p[1] || 0); };
-        if (!desde || !hasta || am(hasta) - am(desde) < bloque) return { error: 'Revisá el horario de apertura y cierre: tiene que entrar al menos un bloque.' };
+        if (!(bloque >= 15 && bloque <= 480)) return { error: 'La duración del turno tiene que estar entre 15 y 480 minutos.' };
         if (!esp.length) return { error: 'Escribí al menos un espacio (ej: Cancha 1).' };
-        if (!dias.length) return { error: 'Elegí al menos un día de atención.' };
         var conf = v('cal-confirmacion'), tipo = v('cal-sena-tipo'), valor = parseFloat(v('cal-sena-valor')), precio = parseFloat(v('cal-precio'));
         if (conf === 'sena') {
           if (!(valor > 0)) return { error: 'Indicá el valor de la seña.' };
           if (tipo === 'porcentaje' && (valor > 100 || !(precio > 0))) return { error: 'Para una seña en porcentaje cargá el precio por bloque y un porcentaje hasta 100.' };
         }
-        Object.assign(out, { cal_desde: desde, cal_hasta: hasta, cal_bloque_min: bloque, cal_dias: dias, cal_espacios: esp, cal_confirmacion: conf,
+        Object.assign(out, { cal_bloque_min: bloque, cal_espacios: esp, cal_confirmacion: conf,
           cal_espera_min: parseInt(v('cal-espera'), 10) || 120, cal_precio_bloque: precio > 0 ? precio : null, cal_sena_tipo: tipo, cal_sena_valor: valor > 0 ? valor : null });
       }
     }

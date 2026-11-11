@@ -19,10 +19,24 @@
   function ahoraMin() { var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
   function lindaFecha(k) { var d = deClave(k); return DIAS[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth() + 1); }
   function plata(n) { return '$' + Math.round(Number(n) || 0).toLocaleString('es-AR'); }
+  var DK = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
   function cfg(c) {
-    return { desde: aMin(c.cal_desde || '09:00'), hasta: aMin(c.cal_hasta || '23:00'), bloque: +c.cal_bloque_min || 60,
-      dias: Array.isArray(c.cal_dias) ? c.cal_dias : [0,1,2,3,4,5,6], esp: (Array.isArray(c.cal_espacios) && c.cal_espacios.length) ? c.cal_espacios : ['Cancha 1'] };
+    return { bloque: +c.cal_bloque_min || 60, esp: (Array.isArray(c.cal_espacios) && c.cal_espacios.length) ? c.cal_espacios : ['Cancha 1'] };
   }
+  // Tramos de atención de un día de la semana (usa el horario de atención que el comercio ya cargó)
+  function rangos(c, dow) {
+    var hd = c.horarios_dias, out = [];
+    if (!hd) {
+      var dias = Array.isArray(c.cal_dias) ? c.cal_dias : [0,1,2,3,4,5,6];
+      return dias.indexOf(dow) >= 0 ? [{ d: aMin(c.cal_desde || '09:00'), h: aMin(c.cal_hasta || '23:00') }] : [];
+    }
+    var j = hd[DK[dow]]; if (!j || j.cerrado) return out;
+    [['desde', 'hasta'], ['desde2', 'hasta2']].forEach(function (p) {
+      if (j[p[0]] && j[p[1]]) { var d = aMin(j[p[0]]), h = aMin(j[p[1]]); if (h <= d) h = 1440; out.push({ d: d, h: h }); }
+    });
+    return out;
+  }
+  function atiende(c, dow) { return rangos(c, dow).length > 0; }
   function msgErr(e) { return (e && e.message) ? e.message.replace(/^.*?:\s*/, '') : 'Error'; }
   function minutosTxt(m) { return m >= 60 && m % 60 === 0 ? (m / 60) + ' h' : m + ' min'; }
 
@@ -55,7 +69,7 @@
   function tiraFechas() {
     var k = cfg(R.c), h = hoy(), out = '<div class="flex gap-1.5 overflow-x-auto pb-1">';
     for (var i = 0; i < 14; i++) {
-      var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i), key = clave(d), ok = k.dias.indexOf(d.getDay()) >= 0, sel = key === R.fecha;
+      var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i), key = clave(d), ok = atiende(R.c, d.getDay()), sel = key === R.fecha;
       out += '<button type="button" ' + (ok ? '' : 'disabled') + ' onclick="nvResFecha(\'' + key + '\')" class="flex-shrink-0 w-14 py-2 rounded-xl border text-center ' +
         (sel ? 'bg-slate-800 text-white border-slate-800' : (ok ? 'bg-white text-slate-700 border-slate-200' : 'bg-slate-50 text-slate-300 border-slate-100')) + '"><span class="block text-[10px] font-bold">' + DIAS[d.getDay()] + '</span><span class="block text-base font-black leading-tight">' + d.getDate() + '</span><span class="block text-[9px] font-semibold opacity-70">' + MESES[d.getMonth()] + '</span></button>';
     }
@@ -65,18 +79,22 @@
 
   // ---------- CLIENTE
   function bloquesCliente() {
-    var k = cfg(R.c), out = '<div class="grid grid-cols-3 gap-1.5 mt-3">', hoyKey = clave(hoy());
-    for (var m = k.desde; m + k.bloque <= k.hasta; m += k.bloque) {
-      var fin = m + k.bloque, st = estadoBloque(m, fin), pasado = R.fecha === hoyKey && m <= ahoraMin();
-      var sel = R.sel && m >= R.sel.ini && fin <= R.sel.fin;
-      var cls, txt = '';
-      if (pasado || st === 'ocupado') { cls = 'bg-slate-100 text-slate-300 line-through border-slate-100'; }
-      else if (st === 'pendiente') { cls = 'bg-amber-50 text-amber-600 border-amber-200'; txt = '<span class="block text-[9px] font-semibold no-underline">en trámite</span>'; }
-      else if (sel) { cls = 'bg-emerald-500 text-white border-emerald-600'; }
-      else { cls = 'bg-emerald-50 text-emerald-700 border-emerald-300'; }
-      var libre = !pasado && st === 'libre';
-      out += '<button type="button" ' + (libre ? '' : 'disabled') + ' onclick="nvResBloque(' + m + ')" class="py-2 rounded-xl border text-xs font-black ' + cls + '">' + hhmm(m) + txt + '</button>';
-    }
+    var k = cfg(R.c), hoyKey = clave(hoy()), rg = rangos(R.c, deClave(R.fecha).getDay());
+    if (!rg.length) return '<p class="text-xs text-slate-400 text-center mt-3">Ese día el comercio no atiende.</p>';
+    var out = '<div class="grid grid-cols-3 gap-1.5 mt-3">';
+    rg.forEach(function (r) {
+      for (var m = r.d; m + k.bloque <= r.h; m += k.bloque) {
+        var fin = m + k.bloque, st = estadoBloque(m, fin), pasado = R.fecha === hoyKey && m <= ahoraMin();
+        var sel = R.sel && m >= R.sel.ini && fin <= R.sel.fin;
+        var cls, txt = '';
+        if (pasado || st === 'ocupado') { cls = 'bg-slate-100 text-slate-300 line-through border-slate-100'; }
+        else if (st === 'pendiente') { cls = 'bg-amber-50 text-amber-600 border-amber-200'; txt = '<span class="block text-[9px] font-semibold no-underline">en trámite</span>'; }
+        else if (sel) { cls = 'bg-emerald-500 text-white border-emerald-600'; }
+        else { cls = 'bg-emerald-50 text-emerald-700 border-emerald-300'; }
+        var libre = !pasado && st === 'libre';
+        out += '<button type="button" ' + (libre ? '' : 'disabled') + ' onclick="nvResBloque(' + m + ')" class="py-2 rounded-xl border text-xs font-black ' + cls + '">' + hhmm(m) + txt + '</button>';
+      }
+    });
     return out + '</div>';
   }
   function resumenCliente() {
@@ -87,6 +105,7 @@
     if (!nombre && usr() && usr().user_metadata) nombre = usr().user_metadata.full_name || usr().user_metadata.name || '';
     var modoTxt = c.cal_confirmacion === 'automatica' ? 'Reserva automática: queda confirmada al instante.' :
       (c.cal_confirmacion === 'sena' ? 'Para confirmar hay que transferir una seña (te mostramos los datos al solicitar).' : 'El comercio tiene que aceptar tu solicitud.');
+    if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2"><p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p><p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (es un toque). Así el comercio sabe quién sos y te avisamos cuando responda.</p><button type="button" onclick="iniciarSesionGoogle()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google para reservar</button></div>';
     return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">' +
       '<p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p>' +
       '<input id="res-nombre" type="text" maxlength="80" placeholder="Tu nombre" value="' + E(nombre) + '" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
@@ -105,7 +124,7 @@
     if (!c || c.calendario_activo !== true || !header) return;
     header.insertAdjacentHTML('beforeend', '<div id="cal-cliente-wrap" class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-slate-200 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-slate-700 mb-3">📅 Reservar horario</h3><div id="cal-cliente"></div></div></div>');
     var k = cfg(c), h = hoy(), f = null;
-    for (var i = 0; i < 14; i++) { var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i); if (k.dias.indexOf(d.getDay()) >= 0) { f = clave(d); break; } }
+    for (var i = 0; i < 14; i++) { var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i); if (atiende(c, d.getDay())) { f = clave(d); break; } }
     R = { c: c, esp: k.esp[0], fecha: f, ocup: [], sel: null, box: 'cal-cliente', modo: 'cliente', lista: [] };
     pintarCliente();
     await cargarDia(); if (R.c !== c) return; pintarCliente();
@@ -201,16 +220,20 @@
       '<div class="flex gap-1.5 mt-1.5">' + botones + '</div></div>';
   }
   function agendaDueno() {
-    var k = cfg(R.c), out = '<div class="space-y-1 mt-2">';
-    for (var m = k.desde; m + k.bloque <= k.hasta; m += k.bloque) {
-      var fin = m + k.bloque;
-      var r = R.lista.find(function (x) { return x.espacio === R.esp && x.fecha === R.fecha && x.inicio_min < fin && x.fin_min > m && (x.estado === 'confirmada' || x.estado === 'pendiente' || x.estado === 'sena_avisada'); });
-      var cont;
-      if (r && r.estado === 'confirmada') cont = '<span class="font-black text-rose-700">' + E(r.cliente_nombre) + '</span>' + (r.origen === 'comercio' ? ' <span class="text-[9px] text-slate-400">(cargada a mano)</span>' : '') + (r.inicio_min === m ? ' <button type="button" onclick="nvResResp(\'' + r.id + '\',\'cancelar\')" class="ml-1 text-[10px] font-bold text-slate-400 underline">cancelar</button>' : '');
-      else if (r) cont = '<span class="font-bold text-amber-600">En trámite: ' + E(r.cliente_nombre) + '</span>';
-      else cont = '<button type="button" onclick="nvResBloquear(' + m + ')" class="text-emerald-600 font-bold">Libre · tocá para ocupar</button>';
-      out += '<div class="flex items-center gap-2 text-xs rounded-lg px-2 py-1.5 ' + (r ? (r.estado === 'confirmada' ? 'bg-rose-50' : 'bg-amber-50') : 'bg-emerald-50/60') + '"><span class="w-12 font-black text-slate-600">' + hhmm(m) + '</span><span class="flex-1 min-w-0 truncate">' + cont + '</span></div>';
-    }
+    var k = cfg(R.c), rg = rangos(R.c, deClave(R.fecha).getDay());
+    if (!rg.length) return '<p class="text-xs text-slate-400 text-center mt-3">Ese día no atendés según tus horarios.</p>';
+    var out = '<div class="space-y-1 mt-2">';
+    rg.forEach(function (t) {
+      for (var m = t.d; m + k.bloque <= t.h; m += k.bloque) {
+        var fin = m + k.bloque, ini = m;
+        var r = R.lista.find(function (x) { return x.espacio === R.esp && x.fecha === R.fecha && x.inicio_min < fin && x.fin_min > ini && (x.estado === 'confirmada' || x.estado === 'pendiente' || x.estado === 'sena_avisada'); });
+        var cont;
+        if (r && r.estado === 'confirmada') cont = '<span class="font-black text-rose-700">' + E(r.cliente_nombre) + '</span>' + (r.origen === 'comercio' ? ' <span class="text-[9px] text-slate-400">(cargada a mano)</span>' : '') + (r.inicio_min >= ini && r.inicio_min < fin ? ' <button type="button" onclick="nvResResp(\'' + r.id + '\',\'cancelar\')" class="ml-1 text-[10px] font-bold text-slate-400 underline">cancelar</button>' : '');
+        else if (r) cont = '<span class="font-bold text-amber-600">En trámite: ' + E(r.cliente_nombre) + '</span>';
+        else cont = '<button type="button" onclick="nvResBloquear(' + m + ')" class="text-emerald-600 font-bold">Libre · tocá para ocupar</button>';
+        out += '<div class="flex items-center gap-2 text-xs rounded-lg px-2 py-1.5 ' + (r ? (r.estado === 'confirmada' ? 'bg-rose-50' : 'bg-amber-50') : 'bg-emerald-50/60') + '"><span class="w-12 font-black text-slate-600">' + hhmm(m) + '</span><span class="flex-1 min-w-0 truncate">' + cont + '</span></div>';
+      }
+    });
     return out + '</div>';
   }
   function pintarDueno() {
