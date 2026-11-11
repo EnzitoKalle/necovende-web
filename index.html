@@ -596,6 +596,8 @@
         </div>
       </div>
 
+      <button type="button" onclick="cerrarModal('modal-panel'); nvResMis()" class="w-full py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-black text-slate-700">📋 Mis reservas de canchas y salones</button>
+
       <div class="grid grid-cols-2 gap-3">
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
           <span id="panel-stat-comercios" class="text-2xl font-black text-brand-500">0</span>
@@ -909,13 +911,68 @@
             <span class="text-xs font-bold text-slate-700">📅 Habilitar calendario para registrar turnos y que los clientes vean horarios y días disponibles
               <span class="block font-normal text-[10px] text-slate-400">Ideal para salones de eventos, peloteros, canchas. Después lo editás desde tu menú.</span></span>
           </label>
-          <div id="cal-turnos-form" class="hidden pt-1">
-            <p class="text-[11px] font-bold text-slate-600 mb-1.5">¿Qué turnos ofrecés?</p>
-            <div class="grid grid-cols-2 gap-1.5 text-xs font-semibold text-slate-700">
-              <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-manana" checked class="accent-brand-500"> 🌅 Mañana</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-mediodia" checked class="accent-brand-500"> ☀️ Mediodía</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-tarde" checked class="accent-brand-500"> 🌇 Tarde</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-noche" checked class="accent-brand-500"> 🌙 Noche</label>
+          <div id="cal-turnos-form" class="hidden pt-1 space-y-2.5">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">¿Cómo se reserva?</label>
+              <select id="cal-modo" onchange="nvCalToggleForm()" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+                <option value="turnos">Por turnos (mañana, mediodía, tarde, noche) · salones, peloteros</option>
+                <option value="horarios">Por horarios (cada 30 min, 1 hora…) · canchas, espacios</option>
+              </select>
+            </div>
+            <div id="cal-turnos-box">
+              <p class="text-[11px] font-bold text-slate-600 mb-1.5">¿Qué turnos ofrecés?</p>
+              <div class="grid grid-cols-2 gap-1.5 text-xs font-semibold text-slate-700">
+                <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-manana" checked class="accent-brand-500"> 🌅 Mañana</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-mediodia" checked class="accent-brand-500"> ☀️ Mediodía</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-tarde" checked class="accent-brand-500"> 🌇 Tarde</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" id="cal-turno-noche" checked class="accent-brand-500"> 🌙 Noche</label>
+              </div>
+            </div>
+            <div id="cal-horarios-form" class="hidden space-y-2.5">
+              <div class="grid grid-cols-3 gap-2">
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-0.5">Abre</label><input type="time" id="cal-desde" value="09:00" class="w-full clean-input px-2 py-2 rounded-xl text-xs font-semibold"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-0.5">Cierra</label><input type="time" id="cal-hasta" value="23:00" class="w-full clean-input px-2 py-2 rounded-xl text-xs font-semibold"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-0.5">Cada</label>
+                  <select id="cal-bloque" class="w-full clean-input px-2 py-2 rounded-xl text-xs font-semibold"><option value="30">30 min</option><option value="60" selected>1 hora</option><option value="90">1:30 h</option><option value="120">2 horas</option></select></div>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-slate-500 mb-1">Días que atendés</p>
+                <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-slate-700">
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-1" checked class="accent-brand-500"> Lun</label>
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-2" checked class="accent-brand-500"> Mar</label>
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-3" checked class="accent-brand-500"> Mié</label>
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-4" checked class="accent-brand-500"> Jue</label>
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-5" checked class="accent-brand-500"> Vie</label>
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-6" checked class="accent-brand-500"> Sáb</label>
+                  <label class="flex items-center gap-1"><input type="checkbox" id="cal-dia-0" checked class="accent-brand-500"> Dom</label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Espacios o canchas <span class="font-normal">(separados por coma)</span></label>
+                <input type="text" id="cal-espacios" value="Cancha 1" placeholder="Ej: Cancha 1, Cancha 2, Cancha 3" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Precio por bloque <span class="font-normal">(opcional)</span></label>
+                <input type="number" id="cal-precio" min="0" step="100" inputmode="numeric" placeholder="Ej: 12000" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">¿Cuándo queda confirmada una reserva?</label>
+                <select id="cal-confirmacion" onchange="nvCalToggleForm()" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+                  <option value="aceptar">Cuando yo acepto la solicitud</option>
+                  <option value="sena">Cuando llega la seña</option>
+                  <option value="automatica">Automática (al instante)</option>
+                </select>
+              </div>
+              <div id="cal-sena-box" class="hidden grid grid-cols-2 gap-2">
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-0.5">Seña</label>
+                  <select id="cal-sena-tipo" class="w-full clean-input px-2 py-2 rounded-xl text-xs font-semibold"><option value="monto">Monto fijo ($)</option><option value="porcentaje">Porcentaje (%)</option></select></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-0.5">Valor</label><input type="number" id="cal-sena-valor" min="0" step="any" inputmode="decimal" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"></div>
+                <p class="col-span-2 text-[10px] text-slate-400">Se usa el alias y el titular que cargaste arriba para transferencias.</p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Tiempo que se retiene un horario sin confirmar</label>
+                <select id="cal-espera" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"><option value="30">30 minutos</option><option value="120" selected>2 horas</option><option value="360">6 horas</option><option value="1440">24 horas</option></select>
+              </div>
             </div>
           </div>
         </div>
@@ -1432,6 +1489,16 @@
   </nav>
 
   <!-- MODAL: MI PLAN (plan actual y vencimiento) -->
+  <div id="modal-mis-reservas" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+        <h3 class="text-lg font-black text-slate-900">📋 Mis reservas</h3>
+        <button onclick="cerrarModal('modal-mis-reservas')" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+      </div>
+      <div id="mis-reservas-lista" class="space-y-2"></div>
+    </div>
+  </div>
+
   <div id="modal-calendario" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
@@ -1545,5 +1612,6 @@
   <script src="js/20-puntos.js"></script>
   <script src="js/21-nav-avisos.js"></script>
   <script src="js/22-calendario.js"></script>
+  <script src="js/23-reservas.js"></script>
 </body>
 </html>

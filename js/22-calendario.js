@@ -128,6 +128,7 @@
   window.nvCalRenderEnComercio = async function (c, header) {
     var viejo = document.getElementById('cal-cliente-wrap'); if (viejo) viejo.remove();
     if (!c || c.calendario_activo !== true || !header) return;
+    if (c.calendario_modo === 'horarios' && window.nvResRenderEnComercio) return nvResRenderEnComercio(c, header);
     header.insertAdjacentHTML('beforeend', '<div id="cal-cliente-wrap" class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-slate-200 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-slate-700 mb-3">📅 Fechas disponibles</h3><div id="cal-cliente"><p class="text-xs text-slate-400">Cargando…</p></div></div></div>');
     S.com = c; S.modo = 'cliente'; S.box = 'cal-cliente'; S.sel = null;
     var d = hoy(); S.mes = new Date(d.getFullYear(), d.getMonth(), 1);
@@ -141,6 +142,7 @@
   window.nvAbrirCalendario = async function (id) {
     var c = (comerciosGlobales || []).find(function (x) { return String(x.id) === String(id); });
     if (!c || !usuarioActual || c.user_id !== usuarioActual.id) return;
+    if (c.calendario_modo === 'horarios' && window.nvResAbrirPanel) return nvResAbrirPanel(c);
     S.com = c; S.modo = 'dueno'; S.box = 'cal-editor'; S.sel = null;
     var d = hoy(); S.mes = new Date(d.getFullYear(), d.getMonth(), 1);
     document.getElementById('cal-editor-nombre').textContent = c.nombre;
@@ -156,11 +158,26 @@
     chk.checked = !!(c && c.calendario_activo);
     var t = c ? turnosDe(c) : ORDEN;
     ORDEN.forEach(function (x) { var i = document.getElementById('cal-turno-' + x); if (i) i.checked = t.indexOf(x) >= 0; });
+    var m = document.getElementById('cal-modo'); if (m) m.value = (c && c.calendario_modo) || 'turnos';
+    var set = function (id, v) { var e = document.getElementById(id); if (e) e.value = v; };
+    set('cal-desde', (c && c.cal_desde) || '09:00'); set('cal-hasta', (c && c.cal_hasta) || '23:00');
+    set('cal-bloque', String((c && c.cal_bloque_min) || 60));
+    set('cal-espacios', (c && c.cal_espacios && c.cal_espacios.length) ? c.cal_espacios.join(', ') : 'Cancha 1');
+    set('cal-confirmacion', (c && c.cal_confirmacion) || 'aceptar'); set('cal-espera', String((c && c.cal_espera_min) || 120));
+    set('cal-precio', (c && c.cal_precio_bloque != null) ? c.cal_precio_bloque : '');
+    set('cal-sena-tipo', (c && c.cal_sena_tipo) || 'monto'); set('cal-sena-valor', (c && c.cal_sena_valor != null) ? c.cal_sena_valor : '');
+    var dd = (c && Array.isArray(c.cal_dias)) ? c.cal_dias : [0,1,2,3,4,5,6];
+    for (var i = 0; i < 7; i++) { var ch = document.getElementById('cal-dia-' + i); if (ch) ch.checked = dd.indexOf(i) >= 0; }
     nvCalToggleForm();
   };
   window.nvCalToggleForm = function () {
     var chk = document.getElementById('comercio-calendario'), box = document.getElementById('cal-turnos-form');
     if (chk && box) box.classList.toggle('hidden', !chk.checked);
+    var m = document.getElementById('cal-modo'), h = document.getElementById('cal-horarios-form'), t = document.getElementById('cal-turnos-box');
+    if (m && h) h.classList.toggle('hidden', m.value !== 'horarios');
+    if (m && t) t.classList.toggle('hidden', m.value === 'horarios');
+    var cf = document.getElementById('cal-confirmacion'), sb = document.getElementById('cal-sena-box');
+    if (cf && sb) sb.classList.toggle('hidden', cf.value !== 'sena');
   };
   // Devuelve los campos a guardar (vacío si no corresponde, para no romper si todavía no corriste el SQL 12)
   window.nvCalLeerForm = function (existente, subs) {
@@ -171,6 +188,28 @@
     if (!activo && !(tiene && existente.calendario_activo)) return {};
     var t = ORDEN.filter(function (x) { var i = document.getElementById('cal-turno-' + x); return i && i.checked; });
     if (activo && !t.length) t = ORDEN.slice();
-    return { calendario_activo: activo, calendario_turnos: t };
+    var out = { calendario_activo: activo, calendario_turnos: t };
+    var modo = (document.getElementById('cal-modo') || {}).value || 'turnos';
+    if (modo === 'horarios' || (existente && existente.calendario_modo === 'horarios')) {
+      out.calendario_modo = modo;
+      if (modo === 'horarios' && activo) {
+        var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
+        var desde = v('cal-desde'), hasta = v('cal-hasta'), bloque = parseInt(v('cal-bloque'), 10) || 60;
+        var esp = [...new Set(v('cal-espacios').split(',').map(function (x) { return x.trim(); }).filter(Boolean))].slice(0, 12);
+        var dias = []; for (var i = 0; i < 7; i++) { var ch = document.getElementById('cal-dia-' + i); if (ch && ch.checked) dias.push(i); }
+        var am = function (x) { var p = x.split(':'); return (+p[0]) * 60 + (+p[1] || 0); };
+        if (!desde || !hasta || am(hasta) - am(desde) < bloque) return { error: 'Revisá el horario de apertura y cierre: tiene que entrar al menos un bloque.' };
+        if (!esp.length) return { error: 'Escribí al menos un espacio (ej: Cancha 1).' };
+        if (!dias.length) return { error: 'Elegí al menos un día de atención.' };
+        var conf = v('cal-confirmacion'), tipo = v('cal-sena-tipo'), valor = parseFloat(v('cal-sena-valor')), precio = parseFloat(v('cal-precio'));
+        if (conf === 'sena') {
+          if (!(valor > 0)) return { error: 'Indicá el valor de la seña.' };
+          if (tipo === 'porcentaje' && (valor > 100 || !(precio > 0))) return { error: 'Para una seña en porcentaje cargá el precio por bloque y un porcentaje hasta 100.' };
+        }
+        Object.assign(out, { cal_desde: desde, cal_hasta: hasta, cal_bloque_min: bloque, cal_dias: dias, cal_espacios: esp, cal_confirmacion: conf,
+          cal_espera_min: parseInt(v('cal-espera'), 10) || 120, cal_precio_bloque: precio > 0 ? precio : null, cal_sena_tipo: tipo, cal_sena_valor: valor > 0 ? valor : null });
+      }
+    }
+    return out;
   };
 })();

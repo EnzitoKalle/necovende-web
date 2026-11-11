@@ -100,7 +100,11 @@
         activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false
       };
 
-      if (window.nvCalLeerForm) Object.assign(datosComercio, nvCalLeerForm(comercioExistente, subcategoriasVal));
+      if (window.nvCalLeerForm) {
+        const _cal = nvCalLeerForm(comercioExistente, subcategoriasVal);
+        if (_cal.error) { alert(_cal.error); return; }
+        Object.assign(datosComercio, _cal);
+      }
 
       // Colores y posición de portada: solo Ultra. Fuera de Ultra no se tocan al editar (así no se pierden si se renueva el plan).
       if (planFuncion === 'ultra') {
