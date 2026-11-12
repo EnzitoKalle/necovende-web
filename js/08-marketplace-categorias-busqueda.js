@@ -66,6 +66,7 @@
       // Link directo a un producto (?menu=local&producto=ID): abre su detalle
       const productoUrlId = params.get('producto');
       if (productoUrlId && comercioActivo && (menuUrlId || comercioUrlId)) abrirVerProducto(productoUrlId);
+      if (window.nvResRestaurar) nvResRestaurar();
     }
 
     // RENDERIZADO DE LAS TARJETAS DE CATEGORÍAS PRINCIPALES EN EL INICIO

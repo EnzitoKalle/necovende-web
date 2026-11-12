@@ -105,7 +105,7 @@
     if (!nombre && usr() && usr().user_metadata) nombre = usr().user_metadata.full_name || usr().user_metadata.name || '';
     var modoTxt = c.cal_confirmacion === 'automatica' ? 'Reserva automática: queda confirmada al instante.' :
       (c.cal_confirmacion === 'sena' ? 'Para confirmar hay que transferir una seña (te mostramos los datos al solicitar).' : 'El comercio tiene que aceptar tu solicitud.');
-    if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2"><p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p><p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (es un toque). Así el comercio sabe quién sos y te avisamos cuando responda.</p><button type="button" onclick="iniciarSesionGoogle()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google para reservar</button></div>';
+    if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2"><p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p><p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (un toque). Así el comercio sabe quién sos y te avisamos cuando responda. Guardamos lo que elegiste y al volver solo tenés que enviar.</p><button type="button" onclick="nvResLogin()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google (vas a volver acá con tu horario elegido)</button></div>';
     return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">' +
       '<p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p>' +
       '<input id="res-nombre" type="text" maxlength="80" placeholder="Tu nombre" value="' + E(nombre) + '" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
@@ -126,8 +126,45 @@
     var k = cfg(c), h = hoy(), f = null;
     for (var i = 0; i < 14; i++) { var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i); if (atiende(c, d.getDay())) { f = clave(d); break; } }
     R = { c: c, esp: k.esp[0], fecha: f, ocup: [], sel: null, box: 'cal-cliente', modo: 'cliente', lista: [] };
+    var pend = leerPend(), restaurar = pend && String(pend.cid) === String(c.id);
+    if (restaurar) { R.esp = k.esp.indexOf(pend.esp) >= 0 ? pend.esp : R.esp; if (pend.fecha && pend.fecha >= clave(h)) R.fecha = pend.fecha; }
     pintarCliente();
-    await cargarDia(); if (R.c !== c) return; pintarCliente();
+    await cargarDia(); if (R.c !== c) return;
+    if (restaurar) {
+      if (pend.ini != null && estadoBloque(pend.ini, pend.fin) === 'libre') R.sel = { ini: pend.ini, fin: pend.fin };
+      pintarCliente();
+      var wrap = document.getElementById('cal-cliente-wrap'); if (wrap) wrap.scrollIntoView({ block: 'center', behavior: 'instant' });
+      var nom = document.getElementById('res-nombre'), tl = document.getElementById('res-tel');
+      if (nom && !nom.value && pend.nombre) nom.value = pend.nombre; if (tl && !tl.value && pend.tel) tl.value = pend.tel;
+      if (usr()) borrarPend();
+      else { var n = 0, w = setInterval(function () { n++; if (usr()) { clearInterval(w); pintarCliente(); borrarPend(); } else if (n > 25) clearInterval(w); }, 300); }
+    } else pintarCliente();
+    if (usr() && usr().id === c.user_id) nvResBadge(c);
+  };
+  window.nvResBadge = async function (c) {
+    var r = await _supabase.rpc('nv_res_panel', { p_comercio: c.id }); if (r.error) return;
+    var n = (r.data || []).filter(function (x) { return x.estado === 'pendiente' || x.estado === 'sena_avisada'; }).length;
+    var b = document.getElementById('res-badge'); if (b && n) { b.textContent = n; b.classList.remove('hidden'); }
+  };
+  var CLAVE = 'nv_res_pend';
+  window.nvResLogin = function () {
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify({ cid: R.c.id, slug: R.c.slug || R.c.id, esp: R.esp, fecha: R.fecha, ini: R.sel ? R.sel.ini : null, fin: R.sel ? R.sel.fin : null,
+        nombre: (document.getElementById('res-nombre') || {}).value || '', tel: (document.getElementById('res-tel') || {}).value || '', t: Date.now() }));
+    } catch (e) {}
+    if (typeof iniciarSesionGoogle === 'function') iniciarSesionGoogle();
+  };
+  function leerPend() { try { var p = JSON.parse(localStorage.getItem(CLAVE) || 'null'); if (p && Date.now() - p.t < 60 * 60 * 1000) return p; } catch (e) {} return null; }
+  function borrarPend() { try { localStorage.removeItem(CLAVE); } catch (e) {} }
+  // Al volver de Google: si caímos en el inicio, reabre el comercio; la selección se restaura al dibujar el calendario
+  window.nvResRestaurar = function () {
+    var p = leerPend(); if (!p) return;
+    if (typeof comercioActivo !== 'undefined' && comercioActivo && String(comercioActivo.id) === String(p.cid)) return; // ya está abierto: lo restaura el dibujo del calendario
+    var intentos = 0, t = setInterval(function () {
+      intentos++;
+      if (usr()) { clearInterval(t); if (typeof abrirVistaComercio === 'function') abrirVistaComercio(p.slug, false); }
+      else if (intentos > 25) { clearInterval(t); }
+    }, 300);
   };
   window.nvResEsp = function (i) { R.esp = cfg(R.c).esp[i]; R.sel = null; pintarCliente(); if (R.modo === 'dueno') pintarDueno(); };
   window.nvResFecha = async function (k) { if (!k) return; R.fecha = k; R.sel = null; if (R.modo === 'dueno') { pintarDueno(); await cargarDia(); pintarDueno(); } else { pintarCliente(); await cargarDia(); pintarCliente(); } };
@@ -140,7 +177,7 @@
   };
 
   window.nvResSolicitar = async function () {
-    if (!usr()) { alert('Iniciá sesión con Google para reservar.'); if (typeof iniciarSesionGoogle === 'function') iniciarSesionGoogle(); return; }
+    if (!usr()) { nvResLogin(); return; }
     var nombre = (document.getElementById('res-nombre').value || '').trim(), tel = (document.getElementById('res-tel').value || '').trim();
     if (nombre.length < 3) { alert('Ingresá tu nombre.'); return; }
     try { localStorage.setItem('nv_res_nombre', nombre); localStorage.setItem('nv_res_tel', tel); } catch (e) {}
@@ -153,22 +190,17 @@
   };
 
   function mostrarResultado(d, res) {
-    var c = R.c, cuando = E(res.espacio) + ' · ' + lindaFecha(res.fecha) + ' · ' + hhmm(res.ini) + ' a ' + hhmm(res.fin);
-    var h = '';
+    var cuando = E(res.espacio) + ' · ' + lindaFecha(res.fecha) + ' · ' + hhmm(res.ini) + ' a ' + hhmm(res.fin);
+    var h;
     if (d.estado === 'confirmada') h = '<p class="text-4xl text-center">✅</p><p class="text-center font-black text-slate-900">¡Reservado!</p><p class="text-center text-xs text-slate-600">' + cuando + '</p>';
-    else if (d.confirmacion === 'sena') {
-      h = '<p class="text-center font-black text-slate-900">Casi listo: falta la seña</p><p class="text-center text-xs text-slate-600">' + cuando + '</p>' +
-        '<div class="rounded-xl bg-white border border-emerald-200 p-3 text-xs space-y-1">' +
-        (d.sena_monto ? '<p>Seña a transferir: <b>' + plata(d.sena_monto) + '</b></p>' : '<p>Consultá con el comercio el monto de la seña.</p>') +
-        (d.alias ? '<p>Alias: <b>' + E(d.alias) + '</b></p>' : '') + (d.titular_alias ? '<p>A nombre de: <b>' + E(d.titular_alias) + '</b></p>' : '') +
-        '<p class="text-slate-500">Tenés hasta las ' + new Date(d.vence_en).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) + ' hs para transferir; después el horario se libera.</p></div>' +
-        '<input id="res-titular" type="text" maxlength="80" placeholder="A nombre de quién hiciste la transferencia" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
-        '<button type="button" onclick="nvResYaTransferi(\'' + d.id + '\', \'res-titular\')" class="w-full py-3 rounded-xl bg-emerald-500 text-white text-xs font-black">Ya transferí</button>';
-    } else h = '<p class="text-4xl text-center">⏳</p><p class="text-center font-black text-slate-900">Solicitud enviada</p><p class="text-center text-xs text-slate-600">' + cuando + '</p><p class="text-center text-xs text-slate-500">El comercio la tiene que aceptar. Te avisamos cuando responda.</p>';
+    else h = '<p class="text-4xl text-center">⏳</p><p class="text-center font-black text-slate-900">Solicitud enviada</p><p class="text-center text-xs text-slate-600">' + cuando + '</p>' +
+      '<p class="text-center text-xs text-slate-500">El horario queda reservado para vos mientras el comercio la confirma. ' + (d.confirmacion === 'sena' ? 'Cuando la acepte te avisamos y ahí te mostramos cómo pagar la seña' + (d.sena_monto ? ' de ' + plata(d.sena_monto) : '') + '.' : 'Te avisamos apenas responda.') + '</p>';
     var el = document.getElementById('res-resultado');
     if (!el) { var m = document.createElement('div'); m.id = 'res-resultado'; m.className = 'modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50'; document.body.appendChild(m); el = m; }
     el.classList.remove('hidden');
-    el.innerHTML = '<div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl text-slate-800 bg-white">' + h + '<button type="button" onclick="document.getElementById(\'res-resultado\').classList.add(\'hidden\')" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Cerrar</button></div>';
+    el.innerHTML = '<div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl text-slate-800 bg-white">' + h +
+      '<button type="button" onclick="document.getElementById(\'res-resultado\').classList.add(\'hidden\'); nvResMis()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Ver el estado en Mis reservas</button>' +
+      '<button type="button" onclick="document.getElementById(\'res-resultado\').classList.add(\'hidden\')" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Cerrar</button></div>';
   }
 
   window.nvResYaTransferi = async function (id, inputId) {
@@ -177,12 +209,26 @@
     var r = await _supabase.rpc('nv_res_cliente_sena', { p_id: id, p_titular: t });
     if (r.error) { alert(msgErr(r.error)); return; }
     var el = document.getElementById('res-resultado'); if (el) el.classList.add('hidden');
-    alert('Listo, avisamos al comercio. Cuando confirme la seña tu horario queda reservado.');
-    if (!document.getElementById('modal-mis-reservas').classList.contains('hidden')) nvResMis();
+    nvResMis();
   };
 
   // ---------- Mis reservas (cliente)
-  var ET = { pendiente: ['⏳ Esperando respuesta', 'text-amber-700 bg-amber-50'], sena_avisada: ['💸 Seña avisada, esperando confirmación', 'text-amber-700 bg-amber-50'], confirmada: ['✅ Confirmada', 'text-emerald-700 bg-emerald-50'], rechazada: ['❌ Rechazada', 'text-rose-700 bg-rose-50'], cancelada: ['Cancelada', 'text-slate-500 bg-slate-100'], vencida: ['Vencida (se liberó el horario)', 'text-slate-500 bg-slate-100'] };
+  var ET = {
+    pendiente: ['⏳ Esperando confirmación del comercio', 'text-amber-700 bg-amber-50'],
+    esperando_sena: ['⏳ Reserva en proceso · falta la seña', 'text-amber-700 bg-amber-50'],
+    sena_avisada: ['💸 Seña avisada · esperando que el comercio la confirme', 'text-sky-700 bg-sky-50'],
+    confirmada: ['✅ Reserva aceptada', 'text-emerald-700 bg-emerald-50'],
+    rechazada: ['❌ Reserva rechazada', 'text-rose-700 bg-rose-50'],
+    cancelada: ['❌ Reserva cancelada', 'text-rose-700 bg-rose-50'],
+    vencida: ['Venció (se liberó el horario)', 'text-slate-500 bg-slate-100']
+  };
+  window.nvResCopiar = function (texto, btn) {
+    var ok = function () { if (btn) { var t = btn.textContent; btn.textContent = '¡Copiado!'; setTimeout(function () { btn.textContent = t; }, 1500); } };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(texto).then(ok, function () { copiaVieja(texto); ok(); }); return; } } catch (e) {}
+    copiaVieja(texto); ok();
+  };
+  function copiaVieja(t) { var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); }
+
   window.nvResMis = async function () {
     if (!usr()) { alert('Iniciá sesión para ver tus reservas.'); return; }
     abrirModal('modal-mis-reservas');
@@ -192,14 +238,23 @@
     var l = r.data || [];
     if (!l.length) { cont.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Todavía no reservaste ningún horario.</p>'; return; }
     cont.innerHTML = l.map(function (x) {
-      var e = ET[x.estado] || [x.estado, 'bg-slate-100 text-slate-500'], act = '';
-      if (x.estado === 'pendiente' && x.confirmacion === 'sena') {
-        act += '<div class="text-[11px] bg-slate-50 rounded-lg p-2 mt-2">' + (x.sena_monto ? 'Seña: <b>' + plata(x.sena_monto) + '</b> · ' : '') + (x.alias ? 'Alias <b>' + E(x.alias) + '</b>' : '') + (x.titular_alias ? ' (' + E(x.titular_alias) + ')' : '') + '</div>' +
-          '<input id="mt-' + x.id + '" type="text" maxlength="80" placeholder="A nombre de quién transferiste" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold mt-2">' +
+      var e = ET[x.estado] || [x.estado, 'bg-slate-100 text-slate-500'], act = '', det = '';
+      var vence = x.vence_en ? new Date(x.vence_en).toLocaleString('es-AR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+      if (x.estado === 'pendiente') det = '<p class="text-[11px] text-slate-500 mt-2">El horario está reservado para vos' + (vence ? ' hasta ' + vence + ' hs' : '') + ' mientras el comercio responde.' + (x.confirmacion === 'sena' && x.sena_monto ? ' Si la acepta, vas a tener que transferir una seña de ' + plata(x.sena_monto) + '.' : '') + '</p>';
+      if (x.estado === 'esperando_sena') {
+        var al = x.alias || '';
+        det = '<div class="rounded-xl bg-emerald-50 border border-emerald-200 p-3 mt-2 space-y-1.5 text-xs">' +
+          '<p class="font-black text-slate-800">Falta la seña' + (x.sena_monto ? ' de ' + plata(x.sena_monto) : '') + '</p>' +
+          (al ? '<p class="flex items-center justify-between gap-2"><span>Transferí al alias <b>' + E(al) + '</b></span><button type="button" onclick="nvResCopiar(\'' + E(al).replace(/'/g, '') + '\', this)" class="px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-700 text-[11px] font-black">Copiar</button></p>' : '<p>Consultá con el comercio los datos para transferir.</p>') +
+          (x.titular_alias ? '<p class="text-slate-600">Titular: <b>' + E(x.titular_alias) + '</b></p>' : '') +
+          (vence ? '<p class="text-slate-500">Tenés hasta ' + vence + ' hs; después el horario se libera.</p>' : '') + '</div>' +
+          '<input id="mt-' + x.id + '" type="text" maxlength="80" placeholder="A nombre de quién hiciste la transferencia" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold mt-2">' +
           '<button type="button" onclick="nvResYaTransferi(\'' + x.id + '\', \'mt-' + x.id + '\')" class="w-full mt-1.5 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-black">Ya transferí</button>';
       }
-      if (['pendiente', 'sena_avisada', 'confirmada'].indexOf(x.estado) >= 0) act += '<button type="button" onclick="nvResCancelarMia(\'' + x.id + '\')" class="w-full mt-1.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 text-[11px] font-bold">Cancelar reserva</button>';
-      return '<div class="rounded-2xl border border-slate-200 p-3"><p class="text-xs font-black text-slate-800">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + '</p><span class="inline-block mt-1 text-[10px] font-black px-2 py-0.5 rounded ' + e[1] + '">' + e[0] + '</span>' + act + '</div>';
+      if (x.estado === 'sena_avisada') det = '<p class="text-[11px] text-slate-500 mt-2">Avisaste que transferiste' + (x.titular ? ' a nombre de <b>' + E(x.titular) + '</b>' : '') + '. Cuando el comercio la confirme queda reservado.</p>';
+      if ((x.estado === 'rechazada' || x.estado === 'cancelada') && x.motivo) det = '<p class="text-[11px] text-slate-600 mt-2">Motivo: ' + E(x.motivo) + '</p>';
+      if (['pendiente', 'esperando_sena', 'sena_avisada', 'confirmada'].indexOf(x.estado) >= 0) act = '<button type="button" onclick="nvResCancelarMia(\'' + x.id + '\')" class="w-full mt-1.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 text-[11px] font-bold">Cancelar reserva</button>';
+      return '<div class="rounded-2xl border border-slate-200 p-3"><p class="text-xs font-black text-slate-800">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1 text-[10px] font-black px-2 py-0.5 rounded ' + e[1] + '">' + e[0] + '</span>' + det + act + '</div>';
     }).join('');
   };
   window.nvResCancelarMia = async function (id) {
@@ -210,15 +265,31 @@
   };
 
   // ---------- DUEÑO
-  function filaSolicitud(x) {
-    var sena = x.estado === 'sena_avisada', c = R.c;
-    var botones = sena
-      ? '<button type="button" onclick="nvResResp(\'' + x.id + '\',\'confirmar_sena\')" class="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-[11px] font-black">Confirmar seña</button><button type="button" onclick="nvResResp(\'' + x.id + '\',\'rechazar\')" class="flex-1 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-black">No llegó</button>'
-      : '<button type="button" onclick="nvResResp(\'' + x.id + '\',\'aceptar\')" class="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-[11px] font-black">Aceptar</button><button type="button" onclick="nvResResp(\'' + x.id + '\',\'rechazar\')" class="flex-1 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-black">Rechazar</button>';
-    return '<div class="rounded-xl border border-amber-200 bg-amber-50/50 p-2.5"><p class="text-xs font-black text-slate-800">' + E(x.cliente_nombre) + (x.cliente_telefono ? ' · ' + E(x.cliente_telefono) : '') + '</p><p class="text-[11px] text-slate-600">' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.sena_monto ? ' · seña ' + plata(x.sena_monto) : '') + '</p>' +
-      (sena && x.titular ? '<p class="text-[11px] font-bold text-emerald-700">Transfirió a nombre de: ' + E(x.titular) + '</p>' : (c.cal_confirmacion === 'sena' ? '<p class="text-[11px] text-slate-500">Esperando la transferencia…</p>' : '')) +
-      '<div class="flex gap-1.5 mt-1.5">' + botones + '</div></div>';
+  var FILTROS = [['pend', 'Pendientes'], ['sena', 'Esperando seña'], ['ok', 'Aceptadas'], ['todas', 'Todas']];
+  var filtro = 'pend';
+  function enFiltro(x, f) {
+    if (f === 'pend') return x.estado === 'pendiente' || x.estado === 'sena_avisada';
+    if (f === 'sena') return x.estado === 'esperando_sena';
+    if (f === 'ok') return x.estado === 'confirmada';
+    return true;
   }
+  var ETD = { pendiente: 'Pendiente', esperando_sena: 'Esperando la transferencia', sena_avisada: 'Seña avisada', confirmada: 'Aceptada', rechazada: 'Rechazada', cancelada: 'Cancelada', vencida: 'Vencida' };
+  function filaSolicitud(x) {
+    var b = '';
+    if (x.estado === 'pendiente') b = btn(x.id, 'aceptar', 'Aceptar', 'bg-emerald-500 text-white') + btn(x.id, 'rechazar', 'Rechazar', 'bg-rose-50 border border-rose-200 text-rose-700');
+    else if (x.estado === 'sena_avisada') b = btn(x.id, 'confirmar_sena', 'Confirmar seña', 'bg-emerald-500 text-white') + btn(x.id, 'no_llego', 'No llegó', 'bg-rose-50 border border-rose-200 text-rose-700');
+    else if (x.estado === 'esperando_sena') b = btn(x.id, 'confirmar_sena', 'Ya me llegó la seña', 'bg-emerald-500 text-white') + btn(x.id, 'rechazar', 'Rechazar', 'bg-rose-50 border border-rose-200 text-rose-700');
+    else if (x.estado === 'confirmada') b = btn(x.id, 'cancelar', 'Cancelar reserva', 'bg-white border border-slate-200 text-slate-500');
+    else if (x.estado === 'vencida' && x.sena_monto != null && x.titular) b = btn(x.id, 'confirmar_sena', 'Confirmar igual (si sigue libre)', 'bg-emerald-500 text-white');
+    var col = x.estado === 'confirmada' ? 'border-emerald-200 bg-emerald-50/40' : (x.estado === 'pendiente' || x.estado === 'sena_avisada' ? 'border-amber-200 bg-amber-50/50' : 'border-slate-200 bg-white');
+    return '<div class="rounded-xl border ' + col + ' p-2.5"><div class="flex items-start justify-between gap-2"><p class="text-xs font-black text-slate-800 min-w-0">' + E(x.cliente_nombre) + (x.cliente_telefono ? ' · ' + E(x.cliente_telefono) : '') + '</p><span class="text-[9px] font-black text-slate-500 flex-shrink-0">' + (ETD[x.estado] || x.estado) + '</span></div>' +
+      '<p class="text-[11px] text-slate-600">' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.sena_monto ? ' · seña ' + plata(x.sena_monto) : '') + (x.origen === 'comercio' ? ' · cargada a mano' : '') + '</p>' +
+      (x.titular && x.estado !== 'confirmada' ? '<p class="text-[11px] font-bold text-emerald-700">Transfirió a nombre de: ' + E(x.titular) + '</p>' : '') +
+      (x.motivo ? '<p class="text-[11px] text-slate-500">Motivo: ' + E(x.motivo) + '</p>' : '') +
+      (b ? '<div class="flex gap-1.5 mt-1.5">' + b + '</div>' : '') + '</div>';
+  }
+  function btn(id, acc, txt, cls) { return '<button type="button" onclick="nvResResp(\'' + id + '\',\'' + acc + '\')" class="flex-1 py-2 rounded-xl text-[11px] font-black ' + cls + '">' + txt + '</button>'; }
+  window.nvResFiltro = function (f) { filtro = f; pintarDueno(); };
   function agendaDueno() {
     var k = cfg(R.c), rg = rangos(R.c, deClave(R.fecha).getDay());
     if (!rg.length) return '<p class="text-xs text-slate-400 text-center mt-3">Ese día no atendés según tus horarios.</p>';
@@ -238,20 +309,20 @@
   }
   function pintarDueno() {
     var b = document.getElementById('cal-editor'); if (!b) return;
-    var pend = R.lista.filter(function (x) { return x.estado === 'pendiente' || x.estado === 'sena_avisada'; });
-    var venc = R.lista.filter(function (x) { return x.estado === 'vencida' && x.sena_monto != null && x.titular; });
-    var h = '';
-    if (pend.length || venc.length) {
-      h += '<div class="space-y-2 mb-3"><p class="text-xs font-black uppercase tracking-wide text-amber-700">Solicitudes (' + pend.length + ')</p>' + pend.map(filaSolicitud).join('') +
-        venc.map(function (x) { return '<div class="rounded-xl border border-slate-200 p-2.5"><p class="text-[11px] text-slate-600"><b>' + E(x.cliente_nombre) + '</b> avisó la seña pero el horario venció (' + lindaFecha(x.fecha) + ' ' + hhmm(x.inicio_min) + ').</p><button type="button" onclick="nvResResp(\'' + x.id + '\',\'confirmar_sena\')" class="mt-1.5 w-full py-2 rounded-xl bg-emerald-500 text-white text-[11px] font-black">Confirmar igual (si sigue libre)</button></div>'; }).join('') + '</div>';
-    }
-    h += '<p class="text-xs font-black uppercase tracking-wide text-slate-700 mb-1">Agenda</p>' + selectorEspacio() + tiraFechas() + agendaDueno() +
+    var chips = FILTROS.map(function (f) {
+      var n = R.lista.filter(function (x) { return enFiltro(x, f[0]) && x.estado !== 'vencida' || (f[0] === 'todas' && x.estado === 'vencida'); }).length;
+      return '<button type="button" onclick="nvResFiltro(\'' + f[0] + '\')" class="flex-shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-black border ' + (filtro === f[0] ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200') + '">' + f[1] + (n ? ' (' + n + ')' : '') + '</button>';
+    }).join('');
+    var lista = R.lista.filter(function (x) { return enFiltro(x, filtro); });
+    var h = '<p class="text-xs font-black uppercase tracking-wide text-slate-700 mb-1.5">Reservas</p><div class="flex gap-1.5 overflow-x-auto pb-1">' + chips + '</div>' +
+      '<div class="space-y-1.5 mt-2 max-h-72 overflow-y-auto">' + (lista.length ? lista.map(filaSolicitud).join('') : '<p class="text-xs text-slate-400 text-center py-3">No hay reservas en esta lista.</p>') + '</div>';
+    h += '<p class="text-xs font-black uppercase tracking-wide text-slate-700 mt-4 mb-1">Agenda</p>' + selectorEspacio() + tiraFechas() + agendaDueno() +
       '<div id="res-bloq" class="hidden mt-2 rounded-xl border border-slate-200 p-2.5 space-y-1.5"><p id="res-bloq-t" class="text-xs font-black"></p><input id="res-bloq-nombre" type="text" maxlength="80" placeholder="Nombre (ej: Marcos, por teléfono)" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"><button type="button" onclick="nvResBloquearOk()" class="w-full py-2.5 rounded-xl bg-slate-800 text-white text-xs font-black">Marcar ocupado</button></div>';
     b.innerHTML = h;
   }
   window.nvResAbrirPanel = async function (c) {
     var k = cfg(c), h = hoy(), f = clave(h);
-    R = { c: c, esp: k.esp[0], fecha: f, ocup: [], sel: null, box: 'cal-editor', modo: 'dueno', lista: [] };
+    R = { c: c, esp: k.esp[0], fecha: f, ocup: [], sel: null, box: 'cal-editor', modo: 'dueno', lista: [] }; filtro = 'pend';
     document.getElementById('cal-editor-nombre').textContent = c.nombre;
     document.getElementById('cal-editor').innerHTML = '<p class="text-xs text-slate-400">Cargando…</p>';
     abrirModal('modal-calendario');
@@ -259,9 +330,16 @@
   };
   window.nvResResp = async function (id, accion) {
     var motivo = null;
-    if (accion === 'rechazar') { motivo = prompt('Motivo (opcional, se lo mostramos al cliente):', '') ; if (motivo === null) return; }
-    if (accion === 'cancelar' && !confirm('¿Cancelar esta reserva confirmada? Se avisa al cliente.')) return;
-    var r = await _supabase.rpc('nv_res_responder', { p_id: id, p_accion: accion, p_motivo: motivo || null });
+    if (accion === 'no_llego') { if (!confirm('¿Avisarle al cliente que no llegó la seña y liberar el horario?')) return; accion = 'rechazar'; motivo = 'No llegó la seña'; }
+    else if (accion === 'rechazar' || accion === 'cancelar') {
+      while (true) {
+        motivo = prompt('Motivo (se lo mostramos al cliente):', '');
+        if (motivo === null) return;
+        if (motivo.trim().length >= 3) break;
+        alert('Escribí el motivo para avisarle al cliente.');
+      }
+    }
+    var r = await _supabase.rpc('nv_res_responder', { p_id: id, p_accion: accion, p_motivo: motivo });
     if (r.error) { alert(msgErr(r.error)); }
     await cargarDia(); pintarDueno();
   };

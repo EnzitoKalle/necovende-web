@@ -1,7 +1,7 @@
     async function iniciarSesionGoogle() {
       const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin }
+        options: { redirectTo: window.location.origin + window.location.pathname + window.location.search }
       });
       if (error) alert('Error al conectar con Google: ' + error.message);
     }
