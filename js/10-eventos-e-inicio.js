@@ -100,12 +100,6 @@
         activo: editId ? (comercioExistente ? comercioExistente.activo : true) : false
       };
 
-      if (window.nvCalLeerForm) {
-        const _cal = nvCalLeerForm(comercioExistente, subcategoriasVal);
-        if (_cal.error) { alert(_cal.error); return; }
-        Object.assign(datosComercio, _cal);
-      }
-
       // Colores y posición de portada: solo Ultra. Fuera de Ultra no se tocan al editar (así no se pierden si se renueva el plan).
       if (planFuncion === 'ultra') {
         datosComercio.color_primario = document.getElementById('comercio-color-primario').value;
@@ -291,9 +285,15 @@
         res = await _supabase.from('productos').insert([datosProducto]).select();
       }
 
+      if (!res.error && datosProducto.reservable && comercioActivo) {
+        // el SQL 15 activa el calendario del comercio; acá se refleja al instante
+        [comercioActivo, ...(comerciosGlobales || []).filter(x => x.id === comercioActivo.id)].forEach(x => { x.calendario_activo = true; x.calendario_modo = 'horarios'; });
+      }
+
       if (res.error) {
         if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/res_(modo|duracion|confirmacion|sena|espera|desde|hasta|dias|espacios)|reservable/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré los archivos 12 al 15 (en orden, una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/puntos_(suma|canje)/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo 07-puntos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/plan Ultra/i.test(res.error.message || '')) avisoPlan('ultra', /puntos/i.test(res.error.message) ? 'El sistema de puntos' : '');
         else alert("Error al guardar producto: " + res.error.message);

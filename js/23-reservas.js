@@ -60,11 +60,8 @@
   }
 
   // ---------- piezas visuales comunes
-  function espaciosDe(c, prod) {
-    var k = cfg(c).esp;
-    if (prod && Array.isArray(prod.res_espacios) && prod.res_espacios.length) { var f = prod.res_espacios.filter(function (e) { return k.indexOf(e) >= 0; }); if (f.length) return f; }
-    return k;
-  }
+  function espaciosDe(c, prod) { return (prod && Array.isArray(prod.res_espacios) && prod.res_espacios.length) ? prod.res_espacios : ['General']; }
+  function espTxt(e) { return (!e || e === 'General') ? '' : e + ' · '; }
   function diaOk(d) {
     if (R.prod) {
       var ds = R.prod.res_dias; if (Array.isArray(ds) && ds.length && ds.indexOf(d) < 0) return false;
@@ -117,9 +114,9 @@
     if (!nombre && usr() && usr().user_metadata) nombre = usr().user_metadata.full_name || usr().user_metadata.name || '';
     var modoTxt = c.cal_confirmacion === 'automatica' ? 'Reserva automática: queda confirmada al instante.' :
       (c.cal_confirmacion === 'sena' ? 'Para confirmar hay que transferir una seña (te mostramos los datos al solicitar).' : 'El comercio tiene que aceptar tu solicitud.');
-    if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2"><p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p><p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (un toque). Así el comercio sabe quién sos y te avisamos cuando responda. Guardamos lo que elegiste y al volver solo tenés que enviar.</p><button type="button" onclick="nvResLogin()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google (vas a volver acá con tu horario elegido)</button></div>';
+    if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2"><p class="text-xs font-black text-slate-800">' + E(espTxt(R.esp)) + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p><p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (un toque). Así el comercio sabe quién sos y te avisamos cuando responda. Guardamos lo que elegiste y al volver solo tenés que enviar.</p><button type="button" onclick="nvResLogin()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google (vas a volver acá con tu horario elegido)</button></div>';
     return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">' +
-      '<p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p>' +
+      '<p class="text-xs font-black text-slate-800">' + E(espTxt(R.esp)) + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + (precio ? ' · ' + plata(precio) : '') + '</p>' +
       '<input id="res-nombre" type="text" maxlength="80" placeholder="Tu nombre" value="' + E(nombre) + '" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
       '<input id="res-tel" type="tel" maxlength="30" placeholder="Tu teléfono (opcional)" value="' + E(tel) + '" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
       '<p class="text-[10px] text-slate-500">' + modoTxt + '</p>' +
@@ -131,26 +128,11 @@
       '<button type="button" onclick="nvResMis()" class="mt-3 w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-[11px] font-black">📋 Mis reservas</button>';
   }
 
+  // La reserva se hace solo desde el producto (turno): no hay calendario suelto en la página del comercio
   window.nvResRenderEnComercio = async function (c, header) {
     var viejo = document.getElementById('cal-cliente-wrap'); if (viejo) viejo.remove();
-    if (!c || c.calendario_activo !== true || !header) return;
-    header.insertAdjacentHTML('beforeend', '<div id="cal-cliente-wrap" class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-slate-200 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-slate-700 mb-3">📅 Reservar horario</h3><div id="cal-cliente"></div></div></div>');
-    var k = cfg(c), h = hoy(), f = null;
-    for (var i = 0; i < 14; i++) { var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i); if (atiende(c, d.getDay())) { f = clave(d); break; } }
-    R = { c: c, esp: k.esp[0], fecha: f, ocup: [], sel: null, box: 'cal-cliente', modo: 'cliente', lista: [] };
-    var pend = leerPend(), restaurar = pend && String(pend.cid) === String(c.id);
-    if (restaurar) { R.esp = k.esp.indexOf(pend.esp) >= 0 ? pend.esp : R.esp; if (pend.fecha && pend.fecha >= clave(h)) R.fecha = pend.fecha; }
-    pintarCliente();
-    await cargarDia(); if (R.c !== c) return;
-    if (restaurar) {
-      if (pend.ini != null && estadoBloque(pend.ini, pend.fin) === 'libre') R.sel = { ini: pend.ini, fin: pend.fin };
-      pintarCliente();
-      var wrap = document.getElementById('cal-cliente-wrap'); if (wrap) wrap.scrollIntoView({ block: 'center', behavior: 'instant' });
-      var nom = document.getElementById('res-nombre'), tl = document.getElementById('res-tel');
-      if (nom && !nom.value && pend.nombre) nom.value = pend.nombre; if (tl && !tl.value && pend.tel) tl.value = pend.tel;
-      if (usr()) borrarPend();
-      else { var n = 0, w = setInterval(function () { n++; if (usr()) { clearInterval(w); pintarCliente(); borrarPend(); } else if (n > 25) clearInterval(w); }, 300); }
-    } else pintarCliente();
+    if (!c || !tieneTurnos(c)) return;
+    restaurarProd(c);
     if (usr() && usr().id === c.user_id) nvResBadge(c);
   };
   window.nvResBadge = async function (c) {
@@ -178,7 +160,7 @@
       else if (intentos > 25) { clearInterval(t); }
     }, 300);
   };
-  function repintar() { if (R.modo === 'turno') pintarProducto(); else if (R.modo === 'dueno') pintarDueno(); else pintarCliente(); }
+  function repintar() { if (R.modo === 'turno') pintarProducto(); else if (R.modo === 'manual') pintarManual(); else if (R.modo === 'dueno') pintarDueno(); else pintarCliente(); }
   window.nvResEsp = function (i) { R.esp = espaciosDe(R.c, R.prod)[i]; R.sel = null; repintar(); };
   window.nvResFecha = async function (k) { if (!k) return; R.fecha = k; R.sel = null; repintar(); await cargarDia(); repintar(); };
   window.nvResBloque = function (m) {
@@ -206,7 +188,7 @@
   };
 
   function mostrarResultado(d, res) {
-    var cuando = E(res.espacio) + ' · ' + lindaFecha(res.fecha) + ' · ' + hhmm(res.ini) + ' a ' + hhmm(res.fin);
+    var cuando = E(espTxt(res.espacio)) + lindaFecha(res.fecha) + ' · ' + hhmm(res.ini) + ' a ' + hhmm(res.fin);
     var h;
     if (d.estado === 'confirmada') h = '<p class="text-4xl text-center">✅</p><p class="text-center font-black text-slate-900">¡Reservado!</p><p class="text-center text-xs text-slate-600">' + cuando + '</p>';
     else h = '<p class="text-4xl text-center">⏳</p><p class="text-center font-black text-slate-900">Solicitud enviada</p><p class="text-center text-xs text-slate-600">' + cuando + '</p>' +
@@ -264,7 +246,7 @@
     if (x.estado === 'sena_avisada') det = '<p class="text-[11px] text-slate-500 mt-2">Avisaste que transferiste' + (x.titular ? ' a nombre de <b>' + E(x.titular) + '</b>' : '') + '. Cuando el comercio la confirme queda reservado.</p>';
     if ((x.estado === 'rechazada' || x.estado === 'cancelada') && x.motivo) det = '<p class="text-[11px] text-slate-600 mt-2">Motivo: ' + E(x.motivo) + '</p>';
     if (ACTIVAS.indexOf(x.estado) >= 0 && x.fecha >= clave(hoy())) act = '<button type="button" onclick="nvResCancelarMia(\'' + x.id + '\')" class="w-full mt-1.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 text-[11px] font-bold">Cancelar reserva</button>';
-    return '<div class="rounded-2xl border p-3.5 ' + (atencion ? 'border-orange-300 bg-orange-50/60' : 'border-slate-200 bg-white') + '"><p class="text-sm font-black text-slate-900">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">📅 ' + (x.producto_titulo ? '<b>' + E(x.producto_titulo) + '</b> · ' : '') + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1.5 text-[11px] font-black px-2.5 py-1 rounded-full ' + e[1] + '">' + e[0] + '</span>' + (atencion ? '<p class="text-[11px] font-bold text-orange-700 mt-1">Necesita tu respuesta</p>' : '') + det + act + '</div>';
+    return '<div class="rounded-2xl border p-3.5 ' + (atencion ? 'border-orange-300 bg-orange-50/60' : 'border-slate-200 bg-white') + '"><p class="text-sm font-black text-slate-900">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">📅 ' + (x.producto_titulo ? '<b>' + E(x.producto_titulo) + '</b> · ' : '') + E(espTxt(x.espacio)) + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1.5 text-[11px] font-black px-2.5 py-1 rounded-full ' + e[1] + '">' + e[0] + '</span>' + (atencion ? '<p class="text-[11px] font-bold text-orange-700 mt-1">Necesita tu respuesta</p>' : '') + det + act + '</div>';
   }
   // Próximas primero (la fecha más cercana arriba) y después las anteriores / cerradas
   function ordenarMias(l) {
@@ -319,7 +301,7 @@
     else if (x.estado === 'vencida' && x.sena_monto != null && x.titular) b = btn(x.id, 'confirmar_sena', 'Confirmar igual (si sigue libre)', 'bg-emerald-500 text-white');
     var col = x.estado === 'confirmada' ? 'border-emerald-200 bg-emerald-50/40' : (x.estado === 'pendiente' || x.estado === 'sena_avisada' ? 'border-amber-200 bg-amber-50/50' : 'border-slate-200 bg-white');
     return '<div class="rounded-xl border ' + col + ' p-2.5"><div class="flex items-start justify-between gap-2"><p class="text-xs font-black text-slate-800 min-w-0">' + E(x.cliente_nombre) + (x.cliente_telefono ? ' · ' + E(x.cliente_telefono) : '') + '</p><span class="text-[9px] font-black text-slate-500 flex-shrink-0">' + (ETD[x.estado] || x.estado) + '</span></div>' +
-      '<p class="text-[11px] text-slate-600">' + (x.producto_titulo ? '<b>' + E(x.producto_titulo) + '</b> · ' : '') + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.sena_monto ? ' · seña ' + plata(x.sena_monto) : '') + (x.origen === 'comercio' ? ' · cargada a mano' : '') + '</p>' +
+      '<p class="text-[11px] text-slate-600">' + (x.producto_titulo ? '<b>' + E(x.producto_titulo) + '</b> · ' : '') + E(espTxt(x.espacio)) + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.sena_monto ? ' · seña ' + plata(x.sena_monto) : '') + (x.origen === 'comercio' ? ' · cargada a mano' : '') + '</p>' +
       (x.titular && x.estado !== 'confirmada' ? '<p class="text-[11px] font-bold text-emerald-700">Transfirió a nombre de: ' + E(x.titular) + '</p>' : '') +
       (x.motivo ? '<p class="text-[11px] text-slate-500">Motivo: ' + E(x.motivo) + '</p>' : '') +
       (b ? '<div class="flex gap-1.5 mt-1.5">' + b + '</div>' : '') + '</div>';
@@ -327,39 +309,57 @@
   function btn(id, acc, txt, cls) { return '<button type="button" onclick="nvResResp(\'' + id + '\',\'' + acc + '\')" class="flex-1 py-2 rounded-xl text-[11px] font-black ' + cls + '">' + txt + '</button>'; }
   window.nvResFiltro = function (f) { filtro = f; pintarDueno(); };
   window.nvResFiltroPanel = function (f) { filtro = f; nvResPanelRender('panel-reservas-box'); };
-  function agendaDueno() {
-    var k = cfg(R.c), rg = rangos(R.c, deClave(R.fecha).getDay());
-    if (!rg.length) return '<p class="text-xs text-slate-400 text-center mt-3">Ese día no atendés según tus horarios.</p>';
-    var out = '<div class="space-y-1 mt-2">';
-    rg.forEach(function (t) {
-      for (var m = t.d; m + k.bloque <= t.h; m += k.bloque) {
-        var fin = m + k.bloque, ini = m;
-        var r = R.lista.find(function (x) { return x.espacio === R.esp && x.fecha === R.fecha && x.inicio_min < fin && x.fin_min > ini && (x.estado === 'confirmada' || x.estado === 'pendiente' || x.estado === 'sena_avisada'); });
-        var cont;
-        if (r && r.estado === 'confirmada') cont = '<span class="font-black text-rose-700">' + E(r.cliente_nombre) + '</span>' + (r.origen === 'comercio' ? ' <span class="text-[9px] text-slate-400">(cargada a mano)</span>' : '') + (r.inicio_min >= ini && r.inicio_min < fin ? ' <button type="button" onclick="nvResResp(\'' + r.id + '\',\'cancelar\')" class="ml-1 text-[10px] font-bold text-slate-400 underline">cancelar</button>' : '');
-        else if (r) cont = '<span class="font-bold text-amber-600">En trámite: ' + E(r.cliente_nombre) + '</span>';
-        else cont = '<button type="button" onclick="nvResBloquear(' + m + ')" class="text-emerald-600 font-bold">Libre · tocá para ocupar</button>';
-        out += '<div class="flex items-center gap-2 text-xs rounded-lg px-2 py-1.5 ' + (r ? (r.estado === 'confirmada' ? 'bg-rose-50' : 'bg-amber-50') : 'bg-emerald-50/60') + '"><span class="w-12 font-black text-slate-600">' + hhmm(m) + '</span><span class="flex-1 min-w-0 truncate">' + cont + '</span></div>';
-      }
-    });
-    return out + '</div>';
-  }
   function pintarDueno() {
     var b = document.getElementById('cal-editor'); if (!b) return;
     var chips = FILTROS.map(function (f) {
       var n = R.lista.filter(function (x) { return enFiltro(x, f[0]) && x.estado !== 'vencida' || (f[0] === 'todas' && x.estado === 'vencida'); }).length;
       return '<button type="button" onclick="nvResFiltro(\'' + f[0] + '\')" class="flex-shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-black border ' + (filtro === f[0] ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200') + '">' + f[1] + (n ? ' (' + n + ')' : '') + '</button>';
     }).join('');
+    var hk = clave(hoy());
     var lista = R.lista.filter(function (x) { return enFiltro(x, filtro); });
-    var h = '<p class="text-xs font-black uppercase tracking-wide text-slate-700 mb-1.5">Reservas</p><div class="flex gap-1.5 overflow-x-auto pb-1">' + chips + '</div>' +
-      '<div class="space-y-1.5 mt-2 max-h-72 overflow-y-auto">' + (lista.length ? lista.map(filaSolicitud).join('') : '<p class="text-xs text-slate-400 text-center py-3">No hay reservas en esta lista.</p>') + '</div>';
-    h += '<p class="text-xs font-black uppercase tracking-wide text-slate-700 mt-4 mb-1">Agenda</p>' + selectorEspacio() + tiraFechas() + agendaDueno() +
-      '<div id="res-bloq" class="hidden mt-2 rounded-xl border border-slate-200 p-2.5 space-y-1.5"><p id="res-bloq-t" class="text-xs font-black"></p><input id="res-bloq-nombre" type="text" maxlength="80" placeholder="Nombre (ej: Marcos, por teléfono)" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"><button type="button" onclick="nvResBloquearOk()" class="w-full py-2.5 rounded-xl bg-slate-800 text-white text-xs font-black">Marcar ocupado</button></div>';
-    b.innerHTML = h;
+    lista.sort(function (a, b) { var pa = a.fecha < hk ? 1 : 0, pb = b.fecha < hk ? 1 : 0; if (pa !== pb) return pa - pb; var k = (a.fecha + String(1000 + a.inicio_min)).localeCompare(b.fecha + String(1000 + b.inicio_min)); return pa ? -k : k; });
+    b.innerHTML = '<button type="button" onclick="nvResManual()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black mb-3">➕ Cargar una reserva a mano (teléfono / WhatsApp)</button>' +
+      '<div class="flex gap-1.5 overflow-x-auto pb-1">' + chips + '</div>' +
+      '<div class="space-y-1.5 mt-2 max-h-96 overflow-y-auto">' + (lista.length ? lista.map(filaSolicitud).join('') : '<p class="text-xs text-slate-400 text-center py-4">No hay reservas en esta lista.</p>') + '</div>';
   }
+
+  // ---- cargar una reserva a mano: eligen el turno, el día y el horario libre, y le ponen un nombre
+  async function pintarManual() {
+    var b = document.getElementById('cal-editor'); if (!b) return;
+    var prods = R.prods || [];
+    var chipsProd = prods.length > 1 ? '<div class="flex gap-1.5 overflow-x-auto pb-1 mb-2">' + prods.map(function (p, i) {
+      return '<button type="button" onclick="nvResManualProd(' + i + ')" class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-black border ' + (R.prod && p.id === R.prod.id ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200') + '">' + E(p.titulo) + '</button>';
+    }).join('') + '</div>' : '';
+    var pie = R.sel ? '<div class="mt-3 rounded-xl border border-slate-200 p-2.5 space-y-1.5"><p class="text-xs font-black">' + E(espTxt(R.esp)) + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + '</p>' +
+      '<input id="res-man-nombre" type="text" maxlength="80" placeholder="Nombre (ej: Marcos, por teléfono)" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"><button type="button" onclick="nvResManualOk()" class="w-full py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-black">Marcar ocupado</button></div>'
+      : '<p class="text-[11px] text-slate-400 text-center mt-3">Tocá un horario libre.</p>';
+    b.innerHTML = '<button type="button" onclick="nvResManualVolver()" class="text-xs font-bold text-slate-500 mb-2">‹ Volver a las reservas</button>' +
+      (R.prod ? chipsProd + selectorEspacio() + tiraFechas() + slotsProducto() + pie : '<p class="text-xs text-slate-400 text-center py-4">Todavía no tenés turnos reservables cargados.</p>');
+  }
+  window.nvResManual = async function () {
+    var r = await _supabase.from('productos').select('*').eq('comercio_id', R.c.id).eq('reservable', true);
+    var prods = (r && r.data) ? r.data : [];
+    if (!prods.length) { alert('Todavía no tenés turnos reservables. Agregá un producto y tildá "Es un turno reservable".'); return; }
+    R.modo = 'manual'; R.prods = prods; R.prod = prods[0]; R.esp = espaciosDe(R.c, R.prod)[0]; R.sel = null; R.ocup = [];
+    var h = hoy(); R.fecha = null;
+    for (var i = 0; i < 90 && !R.fecha; i++) { var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i); if (diaOk(d.getDay()) && inicios(R.prod, d.getDay()).length) R.fecha = clave(d); }
+    pintarManual(); await cargarDia(); pintarManual();
+  };
+  window.nvResManualProd = async function (i) {
+    R.prod = R.prods[i]; R.esp = espaciosDe(R.c, R.prod)[0]; R.sel = null; pintarManual(); await cargarDia(); pintarManual();
+  };
+  window.nvResManualVolver = async function () { R.modo = 'dueno'; R.prod = null; R.sel = null; await cargarDia(); pintarDueno(); };
+  window.nvResManualOk = async function () {
+    if (!R.sel) return;
+    var n = (document.getElementById('res-man-nombre') || {}).value || '';
+    var r = await _supabase.rpc('nv_res_bloquear', { p_comercio: R.c.id, p_espacio: R.esp, p_fecha: R.fecha, p_inicio: R.sel.ini, p_fin: R.sel.fin, p_nombre: n });
+    if (r.error) { alert(msgErr(r.error)); R.sel = null; await cargarDia(); pintarManual(); return; }
+    R.modo = 'dueno'; R.prod = null; R.sel = null; await cargarDia(); pintarDueno();
+    if (window.panelRefrescar) panelRefrescar();
+  };
+
   window.nvResAbrirPanel = async function (c) {
-    var k = cfg(c), h = hoy(), f = clave(h);
-    R = { c: c, esp: k.esp[0], fecha: f, ocup: [], sel: null, box: 'cal-editor', modo: 'dueno', lista: [] }; filtro = 'pend';
+    R = { c: c, prod: null, esp: null, fecha: clave(hoy()), ocup: [], sel: null, box: 'cal-editor', modo: 'dueno', lista: [] }; filtro = 'pend';
     document.getElementById('cal-editor-nombre').textContent = c.nombre;
     document.getElementById('cal-editor').innerHTML = '<p class="text-xs text-slate-400">Cargando…</p>';
     abrirModal('modal-calendario');
@@ -390,10 +390,15 @@
     var l1 = document.getElementById('prod-res-lbl-desde'), l2 = document.getElementById('prod-res-lbl-hasta');
     if (l1) l1.textContent = fijo ? 'Empieza a las' : 'Primer horario de inicio';
     if (l2) l2.textContent = fijo ? 'Termina a las' : 'Tiene que terminar antes de';
+    var conf = (document.getElementById('prod-res-conf') || {}).value;
+    var sb = document.getElementById('prod-res-box-sena'); if (sb) sb.classList.toggle('hidden', conf !== 'sena');
+    var eb = document.getElementById('prod-res-box-espera'); if (eb) eb.classList.toggle('hidden', conf === 'automatica');
   };
+  // El bloque de turnos aparece solo en comercios de una categoría con "Calendario" (o si el producto ya es un turno)
   window.nvResProdCargar = function (c, p) {
     var box = document.getElementById('box-prod-reserva'); if (!box) return;
-    var habilita = c && c.calendario_activo === true && c.calendario_modo === 'horarios';
+    var subs = c && (c.subcategorias || c.categorias || [c.categoria]);
+    var habilita = (p && p.reservable) || (typeof flagsDeSubcategorias === 'function' && c && flagsDeSubcategorias(subs).calendario);
     box.classList.toggle('hidden', !habilita);
     if (!habilita) return;
     var set = function (id, v) { var e = document.getElementById(id); if (e) e.value = v; };
@@ -403,10 +408,12 @@
     set('prod-res-desde', (p && p.res_desde) || ''); set('prod-res-hasta', (p && p.res_hasta) || '');
     var ds = (p && Array.isArray(p.res_dias) && p.res_dias.length) ? p.res_dias : [0, 1, 2, 3, 4, 5, 6];
     for (var i = 0; i < 7; i++) { var ch = document.getElementById('prod-res-dia-' + i); if (ch) ch.checked = ds.indexOf(i) >= 0; }
-    var esps = cfg(c).esp, sel = (p && Array.isArray(p.res_espacios)) ? p.res_espacios : [];
-    document.getElementById('prod-res-espacios').innerHTML = esps.map(function (e, i) {
-      return '<label class="flex items-center gap-1"><input type="checkbox" class="accent-brand-500 prod-res-esp" data-esp="' + E(e) + '"' + (sel.indexOf(e) >= 0 ? ' checked' : '') + '> ' + E(e) + '</label>';
-    }).join('');
+    set('prod-res-espacios-txt', (p && Array.isArray(p.res_espacios)) ? p.res_espacios.join(', ') : '');
+    set('prod-res-conf', (p && p.res_confirmacion) || 'aceptar');
+    set('prod-res-sena-tipo', (p && p.res_sena_tipo) || 'monto'); set('prod-res-sena-valor', (p && p.res_sena_valor != null) ? p.res_sena_valor : '');
+    var esp = String((p && p.res_espera_min) || 120), se = document.getElementById('prod-res-espera');
+    if (se && !Array.prototype.some.call(se.options, function (o) { return o.value === esp; })) { var op = document.createElement('option'); op.value = esp; op.textContent = durTxt(+esp); se.appendChild(op); }
+    set('prod-res-espera', esp);
     nvResProdToggle();
   };
   window.nvResProdLeer = function (existente) {
@@ -423,9 +430,15 @@
     }
     var dias = []; for (var i = 0; i < 7; i++) { var ch = document.getElementById('prod-res-dia-' + i); if (ch && ch.checked) dias.push(i); }
     if (!dias.length) return { error: 'Elegí al menos un día en que se ofrece el turno.' };
-    var all = Array.prototype.slice.call(document.querySelectorAll('.prod-res-esp')), marc = all.filter(function (x) { return x.checked; }).map(function (x) { return x.dataset.esp; });
+    var esps = [...new Set(v('prod-res-espacios-txt').split(',').map(function (x) { return x.trim(); }).filter(Boolean))].slice(0, 12);
+    var conf = v('prod-res-conf'), tipo = v('prod-res-sena-tipo'), valor = parseFloat(v('prod-res-sena-valor'));
+    if (conf === 'sena') {
+      if (!(valor > 0)) return { error: 'Indicá cuánto es la seña.' };
+      if (tipo === 'porcentaje' && valor > 100) return { error: 'El porcentaje de la seña no puede pasar de 100.' };
+    }
     return { campos: { reservable: true, res_modo: modo, res_duracion_min: modo === 'duracion' ? dur : null, res_paso_min: (modo === 'duracion' && paso > 0) ? paso : null,
-      res_desde: desde || null, res_hasta: hasta || null, res_dias: dias.length === 7 ? null : dias, res_espacios: (marc.length && marc.length < all.length) ? marc : null } };
+      res_desde: desde || null, res_hasta: hasta || null, res_dias: dias.length === 7 ? null : dias, res_espacios: esps.length ? esps : null,
+      res_confirmacion: conf, res_sena_tipo: tipo, res_sena_valor: conf === 'sena' ? valor : null, res_espera_min: parseInt(v('prod-res-espera'), 10) || 120 } };
   };
 
   // ---- reserva de un turno (modal)
@@ -452,12 +465,12 @@
   }
   window.nvResSlot = function (ini) {
     var s = inicios(R.prod, deClave(R.fecha).getDay()).find(function (x) { return x.ini === ini; });
-    R.sel = (R.sel && R.sel.ini === ini) ? null : (s ? { ini: s.ini, fin: s.fin } : null); pintarProducto();
+    R.sel = (R.sel && R.sel.ini === ini) ? null : (s ? { ini: s.ini, fin: s.fin } : null); repintar();
   };
   function resumenProducto() {
     var p = R.prod, c = R.c;
     if (!R.sel) return '<p class="text-[11px] text-slate-400 text-center mt-3">Tocá un horario libre.</p>';
-    var cab = '<p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + ' · ' + plata(p.precio) + '</p>';
+    var cab = '<p class="text-xs font-black text-slate-800">' + E(espTxt(R.esp)) + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + ' · ' + plata(p.precio) + '</p>';
     if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">' + cab + '<p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (un toque). Guardamos lo que elegiste y al volver solo tenés que enviar.</p><button type="button" onclick="nvResLogin()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google (vas a volver acá con tu turno elegido)</button></div>';
     var nombre = '', tel = '';
     try { nombre = localStorage.getItem('nv_res_nombre') || ''; tel = localStorage.getItem('nv_res_tel') || ''; } catch (e) {}
@@ -549,18 +562,5 @@
     if (r.error) { alert(msgErr(r.error)); }
     if (document.getElementById('panel-reservas-box') && window.panelRefrescar) { await panelRefrescar(); }
     if (R.modo === 'dueno' && document.getElementById('cal-editor') && document.getElementById('cal-editor').offsetParent !== null) { await cargarDia(); pintarDueno(); }
-  };
-  var _bloq = null;
-  window.nvResBloquear = function (m) {
-    _bloq = m; var b = document.getElementById('res-bloq'); b.classList.remove('hidden');
-    document.getElementById('res-bloq-t').textContent = R.esp + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(m) + ' a ' + hhmm(m + cfg(R.c).bloque);
-    document.getElementById('res-bloq-nombre').focus();
-  };
-  window.nvResBloquearOk = async function () {
-    if (_bloq == null) return;
-    var n = document.getElementById('res-bloq-nombre').value;
-    var r = await _supabase.rpc('nv_res_bloquear', { p_comercio: R.c.id, p_espacio: R.esp, p_fecha: R.fecha, p_inicio: _bloq, p_fin: _bloq + cfg(R.c).bloque, p_nombre: n });
-    if (r.error) alert(msgErr(r.error));
-    _bloq = null; await cargarDia(); pintarDueno();
   };
 })();

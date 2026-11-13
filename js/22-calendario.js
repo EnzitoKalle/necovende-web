@@ -127,8 +127,10 @@
   // ---- Vista del cliente (dentro de la página del comercio)
   window.nvCalRenderEnComercio = async function (c, header) {
     var viejo = document.getElementById('cal-cliente-wrap'); if (viejo) viejo.remove();
+    // La reserva se hace solo dentro del producto (turno): acá solo se restaura una reserva pendiente tras entrar con Google
+    if (window.nvResRenderEnComercio) return nvResRenderEnComercio(c, header);
+    return;
     if (!c || c.calendario_activo !== true || !header) return;
-    if (c.calendario_modo === 'horarios' && window.nvResRenderEnComercio) return nvResRenderEnComercio(c, header);
     header.insertAdjacentHTML('beforeend', '<div id="cal-cliente-wrap" class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-slate-200 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-slate-700 mb-3">📅 Fechas disponibles</h3><div id="cal-cliente"><p class="text-xs text-slate-400">Cargando…</p></div></div></div>');
     S.com = c; S.modo = 'cliente'; S.box = 'cal-cliente'; S.sel = null;
     var d = hoy(); S.mes = new Date(d.getFullYear(), d.getMonth(), 1);
