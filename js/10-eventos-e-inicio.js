@@ -263,6 +263,13 @@
       if (puntosCampos.error) { alert(puntosCampos.error); return; }
       if (puntosCampos.habilitado) { datosProducto.puntos_suma = puntosCampos.suma; datosProducto.puntos_canje = puntosCampos.canje; }
 
+      // Turno reservable (SQL 14)
+      if (window.nvResProdLeer) {
+        const _rp = nvResProdLeer(comercioActivo?.productos?.find(x => String(x.id) === String(prodEditId)));
+        if (_rp.error) { alert(_rp.error); return; }
+        Object.assign(datosProducto, _rp.campos);
+      }
+
       // Stock por talle (columna de sql/04-extras-comercios.sql)
       const stockTalles = leerStockTalles(datosProducto.talles_disponibles);
       if (!stockTalles.ok) { alert(stockTalles.error); return; }

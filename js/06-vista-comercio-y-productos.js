@@ -364,6 +364,21 @@
       return String(t == null ? '' : t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
 
+    // Talles de un vistazo en la tarjeta: los que hay con stock normales, los últimos en ámbar y los agotados tachados
+    function chipsTallesProducto(p) {
+      const t = Array.isArray(p.talles_disponibles) ? p.talles_disponibles : [];
+      if (!t.length || p.es_combo) return '';
+      const st = (p.stock_talles && typeof p.stock_talles === 'object') ? p.stock_talles : {};
+      const items = t.map(x => {
+        const n = Object.prototype.hasOwnProperty.call(st, x) ? parseInt(st[x]) : null;
+        return { x, sin: n !== null && n <= 0, poco: n !== null && n > 0 && n <= 2, n };
+      });
+      const MAX = 9, vis = items.slice(0, MAX), resto = items.length - vis.length;
+      return '<div class="flex items-center gap-1 flex-wrap mt-1.5" aria-label="Talles disponibles">' + vis.map(i =>
+        `<span title="${i.sin ? 'Sin stock' : (i.poco ? 'Quedan ' + i.n : 'Disponible')}" class="text-[10px] font-black px-1.5 py-0.5 rounded-md border ${i.sin ? 'text-slate-300 line-through border-slate-200 bg-slate-50' : (i.poco ? 'text-amber-700 border-amber-300 bg-amber-50' : 'text-slate-700 border-slate-300 bg-white')}">${esc(i.x)}</span>`).join('') +
+        (resto > 0 ? `<span class="text-[10px] font-bold text-slate-400">+${resto}</span>` : '') + '</div>';
+    }
+
     function renderizarProductosComercio(productos, esDuenio = false, colorBoton = '#f97316') {
       const container = document.getElementById('productos-container');
       if (!/^#[0-9a-fA-F]{6}$/.test(colorBoton || '')) colorBoton = '#f97316';
@@ -419,7 +434,8 @@
 
         const requiereOpcionesModal = esCombo || Boolean(p.requiere_sabores) || Boolean(p.requiere_coccion) || (p.talles_disponibles || []).length > 0 || (p.colores_disponibles || []).length > 0 || Boolean(p.opciones_custom && p.opciones_custom.length > 0) || (p.requiere_sabores === undefined && flagsCat.sabores);
 
-        const textoBotonAccion = requiereOpcionesModal ? 'Elegir opciones' : 'Agregar';
+        const esTurno = Boolean(p.reservable) && !esCombo;
+        const textoBotonAccion = esTurno ? 'Reservar' : (requiereOpcionesModal ? 'Elegir opciones' : 'Agregar');
 
         let badgeStock = '';
         if (esAgotadoPorStock) {
@@ -446,6 +462,8 @@
                   ${(!estaDisponible && !esAgotadoPorStock) ? '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">AGOTADO</span>' : ''}
                 </div>
                 <p class="text-xs text-slate-500 truncate mt-0.5">${esc(p.descripcion || 'Tocar para ver detalles')}</p>
+                ${esTurno && window.nvResResumenTurno ? `<p class="text-[11px] font-bold text-emerald-700 mt-0.5">📅 ${esc(nvResResumenTurno(p))}</p>` : ''}
+                ${chipsTallesProducto(p)}
                 
                 <div class="flex items-center gap-x-2 gap-y-1 mt-1.5 flex-wrap">
                   <p class="${configPromo(p) ? 'text-base' : 'text-lg'} font-black text-brand-600 whitespace-nowrap">${precioTextoPromo(p)}</p>
@@ -478,7 +496,7 @@
 
               ${estaDisponible ? `
                 <button onclick="intentarAgregarProducto('${p.id}')" style="background-color: ${colorBoton};" class="text-white font-black px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-md transition flex items-center gap-1.5 active:scale-95 hover:opacity-90">
-                  <i data-lucide="plus" class="w-4 h-4"></i> ${textoBotonAccion}
+                  <i data-lucide="${esTurno ? 'calendar-check' : 'plus'}" class="w-4 h-4"></i> ${textoBotonAccion}
                 </button>
               ` : `
                 <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-2 rounded-xl">Agotado</span>

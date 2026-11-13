@@ -331,6 +331,7 @@
       else boxSoloPromoWrapper.classList.add('hidden');
       ajustarCampoOferta(plan);
       nvAjustarCamposPuntos(plan);
+      if (window.nvResProdCargar) nvResProdCargar(comercio, null);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio} (${plan.toUpperCase()})`;
@@ -397,6 +398,7 @@
       else boxSoloPromoWrapper.classList.add('hidden');
       ajustarCampoOferta(plan);
       nvAjustarCamposPuntos(plan, p);
+      if (window.nvResProdCargar) nvResProdCargar(comercioActivo, p);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Modificando: ${p.titulo}`;

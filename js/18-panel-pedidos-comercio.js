@@ -85,10 +85,15 @@
   /* ------------------------------------------------------------ botón fijo y contador */
   function pintarBoton() {
     var b = el('btn-panel-pedidos'); if (!b) return;
-    b.classList.toggle('hidden', P.comercios.length === 0);
     var n = cuentaNuevos(), badge = el('panel-pedidos-badge');
+    // El botón flotante aparece solo si el usuario tiene comercio Y hay algo para responder.
+    // El resto del tiempo se entra desde el Panel de Control ("Pedidos y reservas de mi comercio").
+    b.classList.toggle('hidden', P.comercios.length === 0 || n === 0);
     if (badge) { badge.innerText = n > 99 ? '99+' : String(n); badge.classList.toggle('hidden', n === 0); }
     b.classList.toggle('animate-pulse', n > 0);
+    var pb = el('panel-btn-pedidos-comercio'), pbb = el('panel-btn-pedidos-badge');
+    if (pb) pb.classList.toggle('hidden', P.comercios.length === 0);
+    if (pbb) { pbb.innerText = n > 99 ? '99+' : String(n); pbb.classList.toggle('hidden', n === 0); }
   }
   function ubicarBoton() {             // no tapar la barra del carrito
     var b = el('btn-panel-pedidos'), c = el('barra-flotante-carrito'); if (!b) return;

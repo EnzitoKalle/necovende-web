@@ -596,6 +596,10 @@
         </div>
       </div>
 
+      <button id="panel-btn-pedidos-comercio" type="button" onclick="cerrarModal('modal-panel'); abrirPanelPedidos()" class="hidden w-full py-3.5 rounded-2xl bg-slate-900 text-white text-sm font-black flex items-center justify-center gap-2 active:scale-95 transition">
+        🛎️ Pedidos y reservas de mi comercio <span id="panel-btn-pedidos-badge" class="hidden min-w-[20px] px-1.5 rounded-full bg-rose-500 text-white text-[11px]"></span>
+      </button>
+
       <button type="button" onclick="cerrarModal('modal-panel'); nvResMis()" class="w-full py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-black text-slate-700">📋 Mis reservas de canchas y salones</button>
 
       <div class="grid grid-cols-2 gap-3">
@@ -1155,6 +1159,52 @@
           <p id="prod-oferta-ayuda" class="text-[10px] text-slate-400 mt-1">Se muestra tachado y con el % de descuento. Dejalo vacío si no es oferta.</p>
         </div>
 
+        <div id="box-prod-reserva" class="hidden bg-emerald-50/50 border border-emerald-200 rounded-xl p-3.5 space-y-2.5">
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="prod-reservable" onchange="nvResProdToggle()" class="mt-0.5 w-4 h-4 accent-brand-500">
+            <span class="text-xs font-black text-emerald-800">📅 Es un turno reservable (con calendario)
+              <span class="block font-normal text-[10px] text-emerald-700">El cliente elige el día y el horario disponible y vos lo confirmás desde Pedidos. El precio de este producto es el precio del turno.</span></span>
+          </label>
+          <div id="prod-res-campos" class="hidden space-y-2.5">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-0.5">¿Cómo se elige el horario?</label>
+              <select id="prod-res-modo" onchange="nvResProdToggle()" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">
+                <option value="duracion">El cliente elige a qué hora empieza (ej: cancha de 1 hora)</option>
+                <option value="fijo">Horario fijo (ej: noche de 20 a 01)</option>
+              </select>
+            </div>
+            <div id="prod-res-box-dur" class="grid grid-cols-2 gap-2">
+              <div><label class="block text-[10px] font-bold text-slate-600 mb-0.5">Duración (minutos)</label>
+                <input type="number" id="prod-res-dur" min="15" max="1440" step="5" inputmode="numeric" placeholder="Ej: 60, 75, 240" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"></div>
+              <div><label class="block text-[10px] font-bold text-slate-600 mb-0.5">Empieza cada (min)</label>
+                <input type="number" id="prod-res-paso" min="5" max="1440" step="5" inputmode="numeric" placeholder="Igual a la duración" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><label id="prod-res-lbl-desde" class="block text-[10px] font-bold text-slate-600 mb-0.5">Primer horario de inicio</label>
+                <input type="time" id="prod-res-desde" class="w-full clean-input px-2 py-2 rounded-xl text-xs font-semibold"></div>
+              <div><label id="prod-res-lbl-hasta" class="block text-[10px] font-bold text-slate-600 mb-0.5">Tiene que terminar antes de</label>
+                <input type="time" id="prod-res-hasta" class="w-full clean-input px-2 py-2 rounded-xl text-xs font-semibold"></div>
+            </div>
+            <p id="prod-res-ayuda" class="text-[10px] text-slate-500">Si dejás los horarios vacíos se usa tu horario de atención. Si el fin es menor al inicio (ej: 20:00 a 01:00) cruza la medianoche.</p>
+            <div>
+              <p class="text-[10px] font-bold text-slate-600 mb-1">Días en que se ofrece</p>
+              <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-slate-700">
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-1" checked class="accent-brand-500"> Lun</label>
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-2" checked class="accent-brand-500"> Mar</label>
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-3" checked class="accent-brand-500"> Mié</label>
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-4" checked class="accent-brand-500"> Jue</label>
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-5" checked class="accent-brand-500"> Vie</label>
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-6" checked class="accent-brand-500"> Sáb</label>
+                <label class="flex items-center gap-1"><input type="checkbox" id="prod-res-dia-0" checked class="accent-brand-500"> Dom</label>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-600 mb-1">En qué espacios se ofrece <span class="font-normal">(ninguno tildado = todos)</span></p>
+              <div id="prod-res-espacios" class="flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-slate-700"></div>
+            </div>
+          </div>
+        </div>
+
         <div id="box-prod-puntos" class="bg-amber-50/50 border border-amber-200 rounded-xl p-3.5 space-y-3">
           <p class="text-xs font-black text-amber-800 flex items-center gap-1.5">✨ Puntos <span class="font-normal text-amber-600">(opcional · plan Ultra)</span></p>
           <div class="grid grid-cols-2 gap-3">
@@ -1478,6 +1528,20 @@
   </nav>
 
   <!-- MODAL: MI PLAN (plan actual y vencimiento) -->
+  <div id="modal-reservar-turno" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto text-slate-800">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-1"></div>
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+        <div class="min-w-0">
+          <h3 class="text-lg font-black text-slate-900 truncate" id="res-turno-titulo">Reservar</h3>
+          <p class="text-xs text-slate-500 mt-0.5" id="res-turno-sub"></p>
+        </div>
+        <button onclick="cerrarModal('modal-reservar-turno')" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+      </div>
+      <div id="res-turno-box"></div>
+    </div>
+  </div>
+
   <div id="modal-mis-reservas" class="modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-800">
       <div class="flex justify-between items-start border-b border-slate-100 pb-3">

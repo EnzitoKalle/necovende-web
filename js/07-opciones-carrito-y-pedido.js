@@ -1,4 +1,6 @@
     function intentarAgregarProducto(prodId) {
+      const pTurno = comercioActivo?.productos?.find(item => String(item.id) === String(prodId));
+      if (pTurno && pTurno.reservable && !pTurno.es_combo && window.nvResAbrirProducto) { nvResAbrirProducto(prodId); return; }
       const prodContado = comercioActivo?.productos?.find(x => String(x.id) === String(prodId));
       if (prodContado) {
         prodContado.solicitudes_count = (Number(prodContado.solicitudes_count) || 0) + 1;
@@ -523,6 +525,11 @@
         cerrarModal('modal-ver-producto');
       };
 
+      const bAdd = document.getElementById('view-prod-btn-agregar');
+      if (bAdd) {
+        if (!bAdd.dataset.orig) bAdd.dataset.orig = bAdd.innerHTML;
+        bAdd.innerHTML = (p.reservable && !p.es_combo) ? '<i data-lucide="calendar-check" class="w-5 h-5"></i> Reservar turno' : bAdd.dataset.orig;
+      }
       abrirModal('modal-ver-producto');
       if (window.lucide) lucide.createIcons();
     }

@@ -11,7 +11,7 @@
   function usr() { return (typeof usuarioActual !== 'undefined' && usuarioActual) ? usuarioActual : null; }
   function E(t) { return (typeof esc === 'function') ? esc(t) : String(t == null ? '' : t).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
   function p2(n) { return (n < 10 ? '0' : '') + n; }
-  function hhmm(m) { return p2(Math.floor(m / 60)) + ':' + p2(m % 60); }
+  function hhmm(m) { m = ((m % 1440) + 1440) % 1440; return p2(Math.floor(m / 60)) + ':' + p2(m % 60); }
   function aMin(s) { var p = String(s || '0:0').split(':'); return (+p[0]) * 60 + (+p[1] || 0); }
   function clave(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
   function deClave(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
@@ -60,16 +60,28 @@
   }
 
   // ---------- piezas visuales comunes
+  function espaciosDe(c, prod) {
+    var k = cfg(c).esp;
+    if (prod && Array.isArray(prod.res_espacios) && prod.res_espacios.length) { var f = prod.res_espacios.filter(function (e) { return k.indexOf(e) >= 0; }); if (f.length) return f; }
+    return k;
+  }
+  function diaOk(d) {
+    if (R.prod) {
+      var ds = R.prod.res_dias; if (Array.isArray(ds) && ds.length && ds.indexOf(d) < 0) return false;
+      if (R.prod.res_desde && R.prod.res_hasta) return true;
+    }
+    return atiende(R.c, d);
+  }
   function selectorEspacio() {
-    var k = cfg(R.c); if (k.esp.length < 2) return '';
-    return '<div class="flex gap-1.5 overflow-x-auto pb-1 mb-2">' + k.esp.map(function (e, i) {
+    var esps = espaciosDe(R.c, R.prod); if (esps.length < 2) return '';
+    return '<div class="flex gap-1.5 overflow-x-auto pb-1 mb-2">' + esps.map(function (e, i) {
       return '<button type="button" onclick="nvResEsp(' + i + ')" class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-black border ' + (e === R.esp ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200') + '">' + E(e) + '</button>';
     }).join('') + '</div>';
   }
   function tiraFechas() {
     var k = cfg(R.c), h = hoy(), out = '<div class="flex gap-1.5 overflow-x-auto pb-1">';
     for (var i = 0; i < 14; i++) {
-      var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i), key = clave(d), ok = atiende(R.c, d.getDay()), sel = key === R.fecha;
+      var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i), key = clave(d), ok = diaOk(d.getDay()), sel = key === R.fecha;
       out += '<button type="button" ' + (ok ? '' : 'disabled') + ' onclick="nvResFecha(\'' + key + '\')" class="flex-shrink-0 w-14 py-2 rounded-xl border text-center ' +
         (sel ? 'bg-slate-800 text-white border-slate-800' : (ok ? 'bg-white text-slate-700 border-slate-200' : 'bg-slate-50 text-slate-300 border-slate-100')) + '"><span class="block text-[10px] font-bold">' + DIAS[d.getDay()] + '</span><span class="block text-base font-black leading-tight">' + d.getDate() + '</span><span class="block text-[9px] font-semibold opacity-70">' + MESES[d.getMonth()] + '</span></button>';
     }
@@ -149,7 +161,7 @@
   var CLAVE = 'nv_res_pend';
   window.nvResLogin = function () {
     try {
-      localStorage.setItem(CLAVE, JSON.stringify({ cid: R.c.id, slug: R.c.slug || R.c.id, esp: R.esp, fecha: R.fecha, ini: R.sel ? R.sel.ini : null, fin: R.sel ? R.sel.fin : null,
+      localStorage.setItem(CLAVE, JSON.stringify({ cid: R.c.id, slug: R.c.slug || R.c.id, prod: R.prod ? R.prod.id : null, esp: R.esp, fecha: R.fecha, ini: R.sel ? R.sel.ini : null, fin: R.sel ? R.sel.fin : null,
         nombre: (document.getElementById('res-nombre') || {}).value || '', tel: (document.getElementById('res-tel') || {}).value || '', t: Date.now() }));
     } catch (e) {}
     if (typeof iniciarSesionGoogle === 'function') iniciarSesionGoogle();
@@ -166,8 +178,9 @@
       else if (intentos > 25) { clearInterval(t); }
     }, 300);
   };
-  window.nvResEsp = function (i) { R.esp = cfg(R.c).esp[i]; R.sel = null; pintarCliente(); if (R.modo === 'dueno') pintarDueno(); };
-  window.nvResFecha = async function (k) { if (!k) return; R.fecha = k; R.sel = null; if (R.modo === 'dueno') { pintarDueno(); await cargarDia(); pintarDueno(); } else { pintarCliente(); await cargarDia(); pintarCliente(); } };
+  function repintar() { if (R.modo === 'turno') pintarProducto(); else if (R.modo === 'dueno') pintarDueno(); else pintarCliente(); }
+  window.nvResEsp = function (i) { R.esp = espaciosDe(R.c, R.prod)[i]; R.sel = null; repintar(); };
+  window.nvResFecha = async function (k) { if (!k) return; R.fecha = k; R.sel = null; repintar(); await cargarDia(); repintar(); };
   window.nvResBloque = function (m) {
     var b = cfg(R.c).bloque, s = R.sel, max = b * 6;
     if (s && m === s.fin && (s.fin + b - s.ini) <= max && estadoBloque(m, m + b) === 'libre') s = { ini: s.ini, fin: m + b };
@@ -182,10 +195,13 @@
     if (nombre.length < 3) { alert('Ingresá tu nombre.'); return; }
     try { localStorage.setItem('nv_res_nombre', nombre); localStorage.setItem('nv_res_tel', tel); } catch (e) {}
     var btn = document.getElementById('res-btn'); btn.disabled = true; btn.textContent = 'Enviando…';
-    var r = await _supabase.rpc('nv_res_solicitar', { p_comercio: R.c.id, p_espacio: R.esp, p_fecha: R.fecha, p_inicio: R.sel.ini, p_fin: R.sel.fin, p_nombre: nombre, p_telefono: tel });
-    if (r.error) { alert(msgErr(r.error)); R.sel = null; await cargarDia(); pintarCliente(); return; }
+    var r = R.prod
+      ? await _supabase.rpc('nv_res_solicitar_prod', { p_producto: R.prod.id, p_espacio: R.esp, p_fecha: R.fecha, p_inicio: R.sel.ini, p_nombre: nombre, p_telefono: tel })
+      : await _supabase.rpc('nv_res_solicitar', { p_comercio: R.c.id, p_espacio: R.esp, p_fecha: R.fecha, p_inicio: R.sel.ini, p_fin: R.sel.fin, p_nombre: nombre, p_telefono: tel });
+    if (r.error) { alert(msgErr(r.error)); R.sel = null; await cargarDia(); repintar(); return; }
     var d = r.data || {}, res = { espacio: R.esp, fecha: R.fecha, ini: R.sel.ini, fin: R.sel.fin };
-    R.sel = null; await cargarDia(); pintarCliente();
+    R.sel = null; if (R.prod) cerrarModal('modal-reservar-turno');
+    await cargarDia(); repintar();
     mostrarResultado(d, res);
   };
 
@@ -248,7 +264,7 @@
     if (x.estado === 'sena_avisada') det = '<p class="text-[11px] text-slate-500 mt-2">Avisaste que transferiste' + (x.titular ? ' a nombre de <b>' + E(x.titular) + '</b>' : '') + '. Cuando el comercio la confirme queda reservado.</p>';
     if ((x.estado === 'rechazada' || x.estado === 'cancelada') && x.motivo) det = '<p class="text-[11px] text-slate-600 mt-2">Motivo: ' + E(x.motivo) + '</p>';
     if (ACTIVAS.indexOf(x.estado) >= 0 && x.fecha >= clave(hoy())) act = '<button type="button" onclick="nvResCancelarMia(\'' + x.id + '\')" class="w-full mt-1.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 text-[11px] font-bold">Cancelar reserva</button>';
-    return '<div class="rounded-2xl border p-3.5 ' + (atencion ? 'border-orange-300 bg-orange-50/60' : 'border-slate-200 bg-white') + '"><p class="text-sm font-black text-slate-900">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">📅 ' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1.5 text-[11px] font-black px-2.5 py-1 rounded-full ' + e[1] + '">' + e[0] + '</span>' + (atencion ? '<p class="text-[11px] font-bold text-orange-700 mt-1">Necesita tu respuesta</p>' : '') + det + act + '</div>';
+    return '<div class="rounded-2xl border p-3.5 ' + (atencion ? 'border-orange-300 bg-orange-50/60' : 'border-slate-200 bg-white') + '"><p class="text-sm font-black text-slate-900">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">📅 ' + (x.producto_titulo ? '<b>' + E(x.producto_titulo) + '</b> · ' : '') + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1.5 text-[11px] font-black px-2.5 py-1 rounded-full ' + e[1] + '">' + e[0] + '</span>' + (atencion ? '<p class="text-[11px] font-bold text-orange-700 mt-1">Necesita tu respuesta</p>' : '') + det + act + '</div>';
   }
   // Próximas primero (la fecha más cercana arriba) y después las anteriores / cerradas
   function ordenarMias(l) {
@@ -303,7 +319,7 @@
     else if (x.estado === 'vencida' && x.sena_monto != null && x.titular) b = btn(x.id, 'confirmar_sena', 'Confirmar igual (si sigue libre)', 'bg-emerald-500 text-white');
     var col = x.estado === 'confirmada' ? 'border-emerald-200 bg-emerald-50/40' : (x.estado === 'pendiente' || x.estado === 'sena_avisada' ? 'border-amber-200 bg-amber-50/50' : 'border-slate-200 bg-white');
     return '<div class="rounded-xl border ' + col + ' p-2.5"><div class="flex items-start justify-between gap-2"><p class="text-xs font-black text-slate-800 min-w-0">' + E(x.cliente_nombre) + (x.cliente_telefono ? ' · ' + E(x.cliente_telefono) : '') + '</p><span class="text-[9px] font-black text-slate-500 flex-shrink-0">' + (ETD[x.estado] || x.estado) + '</span></div>' +
-      '<p class="text-[11px] text-slate-600">' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.sena_monto ? ' · seña ' + plata(x.sena_monto) : '') + (x.origen === 'comercio' ? ' · cargada a mano' : '') + '</p>' +
+      '<p class="text-[11px] text-slate-600">' + (x.producto_titulo ? '<b>' + E(x.producto_titulo) + '</b> · ' : '') + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.sena_monto ? ' · seña ' + plata(x.sena_monto) : '') + (x.origen === 'comercio' ? ' · cargada a mano' : '') + '</p>' +
       (x.titular && x.estado !== 'confirmada' ? '<p class="text-[11px] font-bold text-emerald-700">Transfirió a nombre de: ' + E(x.titular) + '</p>' : '') +
       (x.motivo ? '<p class="text-[11px] text-slate-500">Motivo: ' + E(x.motivo) + '</p>' : '') +
       (b ? '<div class="flex gap-1.5 mt-1.5">' + b + '</div>' : '') + '</div>';
@@ -349,6 +365,140 @@
     abrirModal('modal-calendario');
     await cargarDia(); pintarDueno();
   };
+
+  // =====================================================================
+  // TURNOS COMO PRODUCTO (SQL 14): cada turno es un producto reservable
+  // =====================================================================
+  function tieneTurnos(c) { return (c.productos || []).some(function (p) { return p.reservable && !p.es_combo; }); }
+  function durTxt(m) { var h = Math.floor(m / 60), r = m % 60; return h ? (h + ' h' + (r ? ' ' + r + ' min' : '')) : (r + ' min'); }
+  var NOM_DIA = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  window.nvResResumenTurno = function (p) {
+    var partes = [];
+    if (p.res_modo === 'fijo' && p.res_desde && p.res_hasta) partes.push(p.res_desde + ' a ' + p.res_hasta + ' hs');
+    else partes.push(durTxt(+p.res_duracion_min || 60));
+    var ds = p.res_dias;
+    if (Array.isArray(ds) && ds.length && ds.length < 7) partes.push(ds.slice().sort(function (a, b) { return ((a + 6) % 7) - ((b + 6) % 7); }).map(function (d) { return NOM_DIA[d]; }).join(', '));
+    return partes.join(' · ');
+  };
+
+  // ---- formulario del producto
+  window.nvResProdToggle = function () {
+    var on = document.getElementById('prod-reservable'), campos = document.getElementById('prod-res-campos');
+    if (campos) campos.classList.toggle('hidden', !on || !on.checked);
+    var fijo = (document.getElementById('prod-res-modo') || {}).value === 'fijo';
+    var bd = document.getElementById('prod-res-box-dur'); if (bd) bd.classList.toggle('hidden', fijo);
+    var l1 = document.getElementById('prod-res-lbl-desde'), l2 = document.getElementById('prod-res-lbl-hasta');
+    if (l1) l1.textContent = fijo ? 'Empieza a las' : 'Primer horario de inicio';
+    if (l2) l2.textContent = fijo ? 'Termina a las' : 'Tiene que terminar antes de';
+  };
+  window.nvResProdCargar = function (c, p) {
+    var box = document.getElementById('box-prod-reserva'); if (!box) return;
+    var habilita = c && c.calendario_activo === true && c.calendario_modo === 'horarios';
+    box.classList.toggle('hidden', !habilita);
+    if (!habilita) return;
+    var set = function (id, v) { var e = document.getElementById(id); if (e) e.value = v; };
+    document.getElementById('prod-reservable').checked = !!(p && p.reservable);
+    set('prod-res-modo', (p && p.res_modo) || 'duracion');
+    set('prod-res-dur', (p && p.res_duracion_min) || ''); set('prod-res-paso', (p && p.res_paso_min) || '');
+    set('prod-res-desde', (p && p.res_desde) || ''); set('prod-res-hasta', (p && p.res_hasta) || '');
+    var ds = (p && Array.isArray(p.res_dias) && p.res_dias.length) ? p.res_dias : [0, 1, 2, 3, 4, 5, 6];
+    for (var i = 0; i < 7; i++) { var ch = document.getElementById('prod-res-dia-' + i); if (ch) ch.checked = ds.indexOf(i) >= 0; }
+    var esps = cfg(c).esp, sel = (p && Array.isArray(p.res_espacios)) ? p.res_espacios : [];
+    document.getElementById('prod-res-espacios').innerHTML = esps.map(function (e, i) {
+      return '<label class="flex items-center gap-1"><input type="checkbox" class="accent-brand-500 prod-res-esp" data-esp="' + E(e) + '"' + (sel.indexOf(e) >= 0 ? ' checked' : '') + '> ' + E(e) + '</label>';
+    }).join('');
+    nvResProdToggle();
+  };
+  window.nvResProdLeer = function (existente) {
+    var box = document.getElementById('box-prod-reserva');
+    if (!box || box.classList.contains('hidden')) return { campos: {} };
+    if (!document.getElementById('prod-reservable').checked) return { campos: (existente && existente.reservable) ? { reservable: false } : {} };
+    var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
+    var modo = v('prod-res-modo'), dur = parseInt(v('prod-res-dur'), 10), paso = parseInt(v('prod-res-paso'), 10), desde = v('prod-res-desde'), hasta = v('prod-res-hasta');
+    if (modo === 'fijo') { if (!desde || !hasta) return { error: 'Poné a qué hora empieza y a qué hora termina el turno.' }; }
+    else {
+      if (!(dur >= 15 && dur <= 1440)) return { error: 'Poné la duración del turno en minutos (por ejemplo 60 o 75).' };
+      if (v('prod-res-paso') && !(paso >= 5 && paso <= 1440)) return { error: 'Revisá cada cuántos minutos puede empezar el turno.' };
+      if ((desde && !hasta) || (!desde && hasta)) return { error: 'Completá los dos horarios o dejá los dos vacíos para usar tu horario de atención.' };
+    }
+    var dias = []; for (var i = 0; i < 7; i++) { var ch = document.getElementById('prod-res-dia-' + i); if (ch && ch.checked) dias.push(i); }
+    if (!dias.length) return { error: 'Elegí al menos un día en que se ofrece el turno.' };
+    var all = Array.prototype.slice.call(document.querySelectorAll('.prod-res-esp')), marc = all.filter(function (x) { return x.checked; }).map(function (x) { return x.dataset.esp; });
+    return { campos: { reservable: true, res_modo: modo, res_duracion_min: modo === 'duracion' ? dur : null, res_paso_min: (modo === 'duracion' && paso > 0) ? paso : null,
+      res_desde: desde || null, res_hasta: hasta || null, res_dias: dias.length === 7 ? null : dias, res_espacios: (marc.length && marc.length < all.length) ? marc : null } };
+  };
+
+  // ---- reserva de un turno (modal)
+  function inicios(p, dow) {
+    var out = [], desde = p.res_desde ? aMin(p.res_desde) : null, hasta = p.res_hasta ? aMin(p.res_hasta) : null;
+    if (hasta !== null && desde !== null && hasta <= desde) hasta += 1440;
+    if (p.res_modo === 'fijo') return desde === null ? out : [{ ini: desde, fin: hasta }];
+    var dur = +p.res_duracion_min || cfg(R.c).bloque, paso = +p.res_paso_min || dur;
+    var rg = (desde !== null && hasta !== null) ? [{ d: desde, h: hasta }] : rangos(R.c, dow);
+    rg.forEach(function (r) { for (var m = r.d; m + dur <= r.h; m += paso) out.push({ ini: m, fin: m + dur }); });
+    return out;
+  }
+  function slotsProducto() {
+    var l = inicios(R.prod, deClave(R.fecha).getDay()), hoyKey = clave(hoy());
+    if (!l.length) return '<p class="text-xs text-slate-400 text-center mt-3">Ese día no se ofrece este turno.</p>';
+    var fijo = R.prod.res_modo === 'fijo';
+    return '<div class="grid ' + (fijo ? 'grid-cols-1' : 'grid-cols-3') + ' gap-1.5 mt-3">' + l.map(function (s) {
+      var st = estadoBloque(s.ini, s.fin), pasado = R.fecha === hoyKey && s.ini <= ahoraMin(), sel = R.sel && R.sel.ini === s.ini;
+      var cls = (pasado || st === 'ocupado') ? 'bg-slate-100 text-slate-300 line-through border-slate-100'
+        : st === 'pendiente' ? 'bg-amber-50 text-amber-600 border-amber-200' : sel ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-emerald-50 text-emerald-700 border-emerald-300';
+      var txt = hhmm(s.ini) + (fijo ? ' a ' + hhmm(s.fin) : '') + (st === 'pendiente' && !pasado ? '<span class="block text-[9px] font-semibold no-underline">en trámite</span>' : '');
+      return '<button type="button" ' + ((!pasado && st === 'libre') ? '' : 'disabled') + ' onclick="nvResSlot(' + s.ini + ')" class="py-2.5 rounded-xl border text-xs font-black ' + cls + '">' + txt + '</button>';
+    }).join('') + '</div>';
+  }
+  window.nvResSlot = function (ini) {
+    var s = inicios(R.prod, deClave(R.fecha).getDay()).find(function (x) { return x.ini === ini; });
+    R.sel = (R.sel && R.sel.ini === ini) ? null : (s ? { ini: s.ini, fin: s.fin } : null); pintarProducto();
+  };
+  function resumenProducto() {
+    var p = R.prod, c = R.c;
+    if (!R.sel) return '<p class="text-[11px] text-slate-400 text-center mt-3">Tocá un horario libre.</p>';
+    var cab = '<p class="text-xs font-black text-slate-800">' + E(R.esp) + ' · ' + lindaFecha(R.fecha) + ' · ' + hhmm(R.sel.ini) + ' a ' + hhmm(R.sel.fin) + ' · ' + plata(p.precio) + '</p>';
+    if (!usr()) return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">' + cab + '<p class="text-[11px] text-slate-500">Para reservar entrás con tu cuenta de Google (un toque). Guardamos lo que elegiste y al volver solo tenés que enviar.</p><button type="button" onclick="nvResLogin()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Entrar con Google (vas a volver acá con tu turno elegido)</button></div>';
+    var nombre = '', tel = '';
+    try { nombre = localStorage.getItem('nv_res_nombre') || ''; tel = localStorage.getItem('nv_res_tel') || ''; } catch (e) {}
+    if (!nombre && usr().user_metadata) nombre = usr().user_metadata.full_name || usr().user_metadata.name || '';
+    var modoTxt = c.cal_confirmacion === 'automatica' ? 'Reserva automática: queda confirmada al instante.' : (c.cal_confirmacion === 'sena' ? 'El comercio la acepta y después te muestra cómo pagar la seña.' : 'El comercio tiene que aceptar tu solicitud.');
+    return '<div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">' + cab +
+      '<input id="res-nombre" type="text" maxlength="80" placeholder="Tu nombre" value="' + E(nombre) + '" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
+      '<input id="res-tel" type="tel" maxlength="30" placeholder="Tu teléfono (opcional)" value="' + E(tel) + '" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold">' +
+      '<p class="text-[10px] text-slate-500">' + modoTxt + '</p>' +
+      '<button type="button" id="res-btn" onclick="nvResSolicitar()" class="w-full py-3 rounded-xl bg-emerald-500 text-white text-xs font-black">' + (c.cal_confirmacion === 'automatica' ? 'Reservar' : 'Solicitar turno') + '</button></div>';
+  }
+  function pintarProducto() {
+    var b = document.getElementById('res-turno-box'); if (!b || !R.prod) return;
+    b.innerHTML = selectorEspacio() + tiraFechas() + slotsProducto() + resumenProducto() +
+      '<button type="button" onclick="cerrarModal(\'modal-reservar-turno\'); nvResMis()" class="mt-3 w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-[11px] font-black">📋 Mis reservas</button>';
+  }
+  window.nvResAbrirProducto = async function (id, pend) {
+    var c = (typeof comercioActivo !== 'undefined') ? comercioActivo : null; if (!c) return;
+    var p = (c.productos || []).find(function (x) { return String(x.id) === String(id); }); if (!p) return;
+    R = { c: c, prod: p, esp: espaciosDe(c, p)[0], fecha: null, ocup: [], sel: null, box: 'res-turno-box', modo: 'turno', lista: [] };
+    var h = hoy();
+    for (var i = 0; i < 90 && !R.fecha; i++) { var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + i); if (diaOk(d.getDay()) && inicios(p, d.getDay()).length) R.fecha = clave(d); }
+    var restaurar = pend && String(pend.prod) === String(p.id);
+    if (restaurar) { var ex = espaciosDe(c, p); if (ex.indexOf(pend.esp) >= 0) R.esp = pend.esp; if (pend.fecha && pend.fecha >= clave(h)) R.fecha = pend.fecha; }
+    document.getElementById('res-turno-titulo').textContent = p.titulo;
+    document.getElementById('res-turno-sub').textContent = nvResResumenTurno(p) + ' · ' + plata(p.precio);
+    abrirModal('modal-reservar-turno'); pintarProducto();
+    await cargarDia(); if (R.prod !== p) return;
+    if (restaurar && pend.ini != null) {
+      var sl = inicios(p, deClave(R.fecha).getDay()).find(function (x) { return x.ini === pend.ini; });
+      if (sl && estadoBloque(sl.ini, sl.fin) === 'libre') R.sel = { ini: sl.ini, fin: sl.fin };
+    }
+    pintarProducto();
+    if (restaurar) {
+      var nom = document.getElementById('res-nombre'), tl = document.getElementById('res-tel');
+      if (nom && !nom.value && pend.nombre) nom.value = pend.nombre; if (tl && !tl.value && pend.tel) tl.value = pend.tel;
+      if (usr()) borrarPend(); else { var n = 0, w = setInterval(function () { n++; if (usr()) { clearInterval(w); pintarProducto(); borrarPend(); } else if (n > 25) clearInterval(w); }, 300); }
+    }
+  };
+  function restaurarProd(c) { var pend = leerPend(); if (pend && pend.prod && String(pend.cid) === String(c.id)) nvResAbrirProducto(pend.prod, pend); }
+
   // ---------- Reservas dentro de Pedidos (panel del comercio)
   var PANEL = { lista: [], pend: 0, listo: false };
   function esHorarios(c) { return c && c.calendario_activo === true && c.calendario_modo === 'horarios'; }
