@@ -80,7 +80,7 @@
     return 'https://neco-envios.vercel.app/?' + q.toString();
   }
   function nombreComercio(id) { var c = P.comercios.find(function (x) { return x.id === id; }); return c ? c.nombre : ''; }
-  function cuentaNuevos() { return P.pedidos.filter(function (x) { return NUEVOS.indexOf(x.estado) >= 0; }).length; }
+  function cuentaNuevos() { return P.pedidos.filter(function (x) { return NUEVOS.indexOf(x.estado) >= 0; }).length + (window.NV_RES_PEND || 0); }
 
   /* ------------------------------------------------------------ botón fijo y contador */
   function pintarBoton() {
@@ -124,6 +124,7 @@
       if (P.avisar && nuevos.length) avisarNuevo(nuevos[0], nuevos.length);
       P.avisar = true;
     } catch (e) { console.error('panel pedidos', e); }
+    try { if (window.nvResCargarPend) await nvResCargarPend(P.comercios); } catch (e) { console.warn('reservas', e); }
     pintarBoton();
     if (panelAbierto()) { renderPanel(); if (P.detalleId) refrescarDetalle(true); }
   }
@@ -185,13 +186,25 @@
       h += '<select onchange="panelPedidosComercio(this.value)" class="w-full clean-input px-3.5 py-3 rounded-xl text-sm font-bold"><option value="todos">Todos mis comercios</option>' +
            P.comercios.map(function (c) { return '<option value="' + esc(c.id) + '"' + (P.comercioSel === c.id ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'; }).join('') + '</select>';
     }
+    var hayRes = window.nvResHayReservas && nvResHayReservas(P.comercios.map(function (c) { return c.id; }));
     var tabs = [['nuevos', 'Nuevos', contar(NUEVOS)], ['curso', 'En curso', contar(EN_CURSO)], ['fin', 'Terminados', contar(TERMINADOS)]];
-    h += '<div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-2xl">' + tabs.map(function (t) {
+    if (hayRes) tabs.push(['reservas', 'Reservas', window.NV_RES_PEND || 0]);
+    h += '<div class="grid ' + (hayRes ? 'grid-cols-4' : 'grid-cols-3') + ' gap-1.5 bg-slate-100 p-1 rounded-2xl">' + tabs.map(function (t) {
       var on = P.tab === t[0];
       return '<button type="button" onclick="panelPedidosTab(\'' + t[0] + '\')" class="py-3 rounded-xl text-xs font-black transition active:scale-95 ' +
              (on ? 'bg-white text-slate-900 shadow' : 'text-slate-500') + '">' + t[1] +
-             (t[2] ? ' <span class="ml-0.5 inline-block min-w-[18px] px-1 rounded-full text-[10px] ' + (t[0] === 'nuevos' && t[2] ? 'bg-rose-500 text-white' : 'bg-slate-300 text-slate-700') + '">' + t[2] + '</span>' : '') + '</button>';
+             (t[2] ? ' <span class="ml-0.5 inline-block min-w-[18px] px-1 rounded-full text-[10px] ' + ((t[0] === 'nuevos' || t[0] === 'reservas') && t[2] ? 'bg-rose-500 text-white' : 'bg-slate-300 text-slate-700') + '">' + t[2] + '</span>' : '') + '</button>';
     }).join('') + '</div>';
+
+    if (P.tab === 'reservas' && hayRes) {
+      h += '<div id="panel-reservas-box"></div>';
+      cont.innerHTML = h;
+      nvResPanelRender('panel-reservas-box', P.comercioSel);
+      el('panel-pedidos-titulo').innerText = 'Pedidos';
+      el('panel-pedidos-volver').classList.add('hidden');
+      icono();
+      return;
+    }
 
     var ls = lista();
     if (!ls.length) {
@@ -436,6 +449,6 @@
     ubicarBotonPanel: ubicarBoton, panelPedidosTab: panelPedidosTab, panelPedidosComercio: panelPedidosComercio, panelVolver: volverALista,
     panelAceptar: panelAceptar, panelDespachar: panelDespachar, panelMarcarPago: panelMarcarPago, panelPedirComprobante: panelPedirComprobante,
     panelFijarEnvio: panelFijarEnvio, panelEnvioPreview: panelEnvioPreview, panelAbrirCancelar: panelAbrirCancelar,
-    panelCerrarCancelar: panelCerrarCancelar, panelConfirmarCancelar: panelConfirmarCancelar, panelVerComprobante: panelVerComprobante
+    panelRefrescar: cargarPedidos, panelCerrarCancelar: panelCerrarCancelar, panelConfirmarCancelar: panelConfirmarCancelar, panelVerComprobante: panelVerComprobante
   });
 })();

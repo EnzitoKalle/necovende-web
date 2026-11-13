@@ -199,7 +199,7 @@
     if (!el) { var m = document.createElement('div'); m.id = 'res-resultado'; m.className = 'modal-bottom-sheet fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50'; document.body.appendChild(m); el = m; }
     el.classList.remove('hidden');
     el.innerHTML = '<div class="clean-modal rounded-3xl p-6 w-full max-w-md space-y-3 shadow-2xl text-slate-800 bg-white">' + h +
-      '<button type="button" onclick="document.getElementById(\'res-resultado\').classList.add(\'hidden\'); nvResMis()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Ver el estado en Mis reservas</button>' +
+      '<button type="button" onclick="document.getElementById(\'res-resultado\').classList.add(\'hidden\'); nvResMis()" class="w-full py-3 rounded-xl bg-slate-800 text-white text-xs font-black">Ver en Pedidos › Mis reservas</button>' +
       '<button type="button" onclick="document.getElementById(\'res-resultado\').classList.add(\'hidden\')" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Cerrar</button></div>';
   }
 
@@ -229,39 +229,59 @@
   };
   function copiaVieja(t) { var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); }
 
-  window.nvResMis = async function () {
-    if (!usr()) { alert('Iniciá sesión para ver tus reservas.'); return; }
-    abrirModal('modal-mis-reservas');
-    var cont = document.getElementById('mis-reservas-lista'); cont.innerHTML = '<p class="text-xs text-slate-400">Cargando…</p>';
+  var ACTIVAS = ['pendiente', 'esperando_sena', 'sena_avisada', 'confirmada'];
+  function cardMia(x) {
+    var e = ET[x.estado] || [x.estado, 'bg-slate-100 text-slate-500'], act = '', det = '';
+    var vence = x.vence_en ? new Date(x.vence_en).toLocaleString('es-AR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+    var atencion = x.estado === 'esperando_sena';
+    if (x.estado === 'pendiente') det = '<p class="text-[11px] text-slate-500 mt-2">El horario está reservado para vos' + (vence ? ' hasta ' + vence + ' hs' : '') + ' mientras el comercio responde.' + (x.confirmacion === 'sena' && x.sena_monto ? ' Si la acepta, vas a tener que transferir una seña de ' + plata(x.sena_monto) + '.' : '') + '</p>';
+    if (x.estado === 'esperando_sena') {
+      var al = x.alias || '';
+      det = '<div class="rounded-xl bg-emerald-50 border border-emerald-200 p-3 mt-2 space-y-1.5 text-xs">' +
+        '<p class="font-black text-slate-800">Falta la seña' + (x.sena_monto ? ' de ' + plata(x.sena_monto) : '') + '</p>' +
+        (al ? '<p class="flex items-center justify-between gap-2"><span>Transferí al alias <b>' + E(al) + '</b></span><button type="button" onclick="nvResCopiar(\'' + E(al).replace(/'/g, '') + '\', this)" class="px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-700 text-[11px] font-black">Copiar</button></p>' : '<p>Consultá con el comercio los datos para transferir.</p>') +
+        (x.titular_alias ? '<p class="text-slate-600">Titular: <b>' + E(x.titular_alias) + '</b></p>' : '') +
+        (vence ? '<p class="text-slate-500">Tenés hasta ' + vence + ' hs; después el horario se libera.</p>' : '') + '</div>' +
+        '<input id="mt-' + x.id + '" type="text" maxlength="80" placeholder="A nombre de quién hiciste la transferencia" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold mt-2">' +
+        '<button type="button" onclick="nvResYaTransferi(\'' + x.id + '\', \'mt-' + x.id + '\')" class="w-full mt-1.5 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-black">Ya transferí</button>';
+    }
+    if (x.estado === 'sena_avisada') det = '<p class="text-[11px] text-slate-500 mt-2">Avisaste que transferiste' + (x.titular ? ' a nombre de <b>' + E(x.titular) + '</b>' : '') + '. Cuando el comercio la confirme queda reservado.</p>';
+    if ((x.estado === 'rechazada' || x.estado === 'cancelada') && x.motivo) det = '<p class="text-[11px] text-slate-600 mt-2">Motivo: ' + E(x.motivo) + '</p>';
+    if (ACTIVAS.indexOf(x.estado) >= 0 && x.fecha >= clave(hoy())) act = '<button type="button" onclick="nvResCancelarMia(\'' + x.id + '\')" class="w-full mt-1.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 text-[11px] font-bold">Cancelar reserva</button>';
+    return '<div class="rounded-2xl border p-3.5 ' + (atencion ? 'border-orange-300 bg-orange-50/60' : 'border-slate-200 bg-white') + '"><p class="text-sm font-black text-slate-900">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">📅 ' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1.5 text-[11px] font-black px-2.5 py-1 rounded-full ' + e[1] + '">' + e[0] + '</span>' + (atencion ? '<p class="text-[11px] font-bold text-orange-700 mt-1">Necesita tu respuesta</p>' : '') + det + act + '</div>';
+  }
+  // Próximas primero (la fecha más cercana arriba) y después las anteriores / cerradas
+  function ordenarMias(l) {
+    var h = clave(hoy());
+    var prox = l.filter(function (x) { return ACTIVAS.indexOf(x.estado) >= 0 && x.fecha >= h; }).sort(function (a, b) { return (a.fecha + p2(0) + String(1000 + a.inicio_min)).localeCompare(b.fecha + p2(0) + String(1000 + b.inicio_min)); });
+    var ant = l.filter(function (x) { return prox.indexOf(x) < 0; }).sort(function (a, b) { return (b.fecha + String(1000 + b.inicio_min)).localeCompare(a.fecha + String(1000 + a.inicio_min)); });
+    return { prox: prox, ant: ant };
+  }
+  window.nvResMisDatos = async function () {
+    if (!usr()) return [];
     var r = await _supabase.rpc('nv_res_mis');
-    if (r.error) { cont.innerHTML = '<p class="text-xs text-slate-400">No se pudieron cargar (¿corriste el SQL 13?).</p>'; return; }
-    var l = r.data || [];
-    if (!l.length) { cont.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Todavía no reservaste ningún horario.</p>'; return; }
-    cont.innerHTML = l.map(function (x) {
-      var e = ET[x.estado] || [x.estado, 'bg-slate-100 text-slate-500'], act = '', det = '';
-      var vence = x.vence_en ? new Date(x.vence_en).toLocaleString('es-AR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-      if (x.estado === 'pendiente') det = '<p class="text-[11px] text-slate-500 mt-2">El horario está reservado para vos' + (vence ? ' hasta ' + vence + ' hs' : '') + ' mientras el comercio responde.' + (x.confirmacion === 'sena' && x.sena_monto ? ' Si la acepta, vas a tener que transferir una seña de ' + plata(x.sena_monto) + '.' : '') + '</p>';
-      if (x.estado === 'esperando_sena') {
-        var al = x.alias || '';
-        det = '<div class="rounded-xl bg-emerald-50 border border-emerald-200 p-3 mt-2 space-y-1.5 text-xs">' +
-          '<p class="font-black text-slate-800">Falta la seña' + (x.sena_monto ? ' de ' + plata(x.sena_monto) : '') + '</p>' +
-          (al ? '<p class="flex items-center justify-between gap-2"><span>Transferí al alias <b>' + E(al) + '</b></span><button type="button" onclick="nvResCopiar(\'' + E(al).replace(/'/g, '') + '\', this)" class="px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-700 text-[11px] font-black">Copiar</button></p>' : '<p>Consultá con el comercio los datos para transferir.</p>') +
-          (x.titular_alias ? '<p class="text-slate-600">Titular: <b>' + E(x.titular_alias) + '</b></p>' : '') +
-          (vence ? '<p class="text-slate-500">Tenés hasta ' + vence + ' hs; después el horario se libera.</p>' : '') + '</div>' +
-          '<input id="mt-' + x.id + '" type="text" maxlength="80" placeholder="A nombre de quién hiciste la transferencia" class="w-full clean-input px-3 py-2 rounded-xl text-xs font-semibold mt-2">' +
-          '<button type="button" onclick="nvResYaTransferi(\'' + x.id + '\', \'mt-' + x.id + '\')" class="w-full mt-1.5 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-black">Ya transferí</button>';
-      }
-      if (x.estado === 'sena_avisada') det = '<p class="text-[11px] text-slate-500 mt-2">Avisaste que transferiste' + (x.titular ? ' a nombre de <b>' + E(x.titular) + '</b>' : '') + '. Cuando el comercio la confirme queda reservado.</p>';
-      if ((x.estado === 'rechazada' || x.estado === 'cancelada') && x.motivo) det = '<p class="text-[11px] text-slate-600 mt-2">Motivo: ' + E(x.motivo) + '</p>';
-      if (['pendiente', 'esperando_sena', 'sena_avisada', 'confirmada'].indexOf(x.estado) >= 0) act = '<button type="button" onclick="nvResCancelarMia(\'' + x.id + '\')" class="w-full mt-1.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 text-[11px] font-bold">Cancelar reserva</button>';
-      return '<div class="rounded-2xl border border-slate-200 p-3"><p class="text-xs font-black text-slate-800">' + E(x.comercio_nombre) + '</p><p class="text-xs text-slate-600">' + E(x.espacio) + ' · ' + lindaFecha(x.fecha) + ' · ' + hhmm(x.inicio_min) + ' a ' + hhmm(x.fin_min) + (x.precio_total ? ' · ' + plata(x.precio_total) : '') + '</p><span class="inline-block mt-1 text-[10px] font-black px-2 py-0.5 rounded ' + e[1] + '">' + e[0] + '</span>' + det + act + '</div>';
-    }).join('');
+    return r.error ? null : (r.data || []);
+  };
+  window.nvResMisCuenta = function (l) { return (l || []).filter(function (x) { return x.estado === 'esperando_sena'; }).length || ((l || []).filter(function (x) { return x.estado === 'pendiente' || x.estado === 'sena_avisada'; }).length ? -1 : 0); };
+  window.nvResMisHtml = function (l) {
+    if (l === null) return '<p class="text-xs text-slate-400 text-center py-8">No se pudieron cargar tus reservas (¿corriste el SQL 13?).</p>';
+    if (!l.length) return '<p class="text-xs text-slate-400 text-center py-8 font-semibold">Todavía no reservaste ningún horario.</p>';
+    var o = ordenarMias(l), h = '';
+    if (typeof nvPedidoVisto === 'function') l.forEach(function (x) { nvPedidoVisto(x.id, x.estado); });
+    if (o.prox.length) h += '<p class="text-[11px] font-black uppercase tracking-wide text-slate-500">Próximas</p>' + o.prox.map(cardMia).join('');
+    if (o.ant.length) h += '<p class="text-[11px] font-black uppercase tracking-wide text-slate-400 mt-2">Anteriores</p>' + o.ant.map(cardMia).join('');
+    return '<div class="space-y-2.5">' + h + '</div>';
+  };
+  // "Mis reservas" vive dentro de Mis pedidos (pestaña Reservas)
+  window.nvResMis = function () {
+    if (!usr()) { alert('Iniciá sesión para ver tus reservas.'); return; }
+    if (typeof abrirMisPedidos === 'function') abrirMisPedidos('reservas');
   };
   window.nvResCancelarMia = async function (id) {
     if (!confirm('¿Cancelar esta reserva?')) return;
     var r = await _supabase.rpc('nv_res_cliente_cancelar', { p_id: id });
     if (r.error) { alert(msgErr(r.error)); return; }
-    nvResMis();
+    if (typeof abrirMisPedidos === 'function') abrirMisPedidos('reservas');
   };
 
   // ---------- DUEÑO
@@ -279,7 +299,7 @@
     if (x.estado === 'pendiente') b = btn(x.id, 'aceptar', 'Aceptar', 'bg-emerald-500 text-white') + btn(x.id, 'rechazar', 'Rechazar', 'bg-rose-50 border border-rose-200 text-rose-700');
     else if (x.estado === 'sena_avisada') b = btn(x.id, 'confirmar_sena', 'Confirmar seña', 'bg-emerald-500 text-white') + btn(x.id, 'no_llego', 'No llegó', 'bg-rose-50 border border-rose-200 text-rose-700');
     else if (x.estado === 'esperando_sena') b = btn(x.id, 'confirmar_sena', 'Ya me llegó la seña', 'bg-emerald-500 text-white') + btn(x.id, 'rechazar', 'Rechazar', 'bg-rose-50 border border-rose-200 text-rose-700');
-    else if (x.estado === 'confirmada') b = btn(x.id, 'cancelar', 'Cancelar reserva', 'bg-white border border-slate-200 text-slate-500');
+    else if (x.estado === 'confirmada' && x.fecha >= clave(hoy())) b = btn(x.id, 'cancelar', 'Cancelar reserva', 'bg-white border border-slate-200 text-slate-500');
     else if (x.estado === 'vencida' && x.sena_monto != null && x.titular) b = btn(x.id, 'confirmar_sena', 'Confirmar igual (si sigue libre)', 'bg-emerald-500 text-white');
     var col = x.estado === 'confirmada' ? 'border-emerald-200 bg-emerald-50/40' : (x.estado === 'pendiente' || x.estado === 'sena_avisada' ? 'border-amber-200 bg-amber-50/50' : 'border-slate-200 bg-white');
     return '<div class="rounded-xl border ' + col + ' p-2.5"><div class="flex items-start justify-between gap-2"><p class="text-xs font-black text-slate-800 min-w-0">' + E(x.cliente_nombre) + (x.cliente_telefono ? ' · ' + E(x.cliente_telefono) : '') + '</p><span class="text-[9px] font-black text-slate-500 flex-shrink-0">' + (ETD[x.estado] || x.estado) + '</span></div>' +
@@ -290,6 +310,7 @@
   }
   function btn(id, acc, txt, cls) { return '<button type="button" onclick="nvResResp(\'' + id + '\',\'' + acc + '\')" class="flex-1 py-2 rounded-xl text-[11px] font-black ' + cls + '">' + txt + '</button>'; }
   window.nvResFiltro = function (f) { filtro = f; pintarDueno(); };
+  window.nvResFiltroPanel = function (f) { filtro = f; nvResPanelRender('panel-reservas-box'); };
   function agendaDueno() {
     var k = cfg(R.c), rg = rangos(R.c, deClave(R.fecha).getDay());
     if (!rg.length) return '<p class="text-xs text-slate-400 text-center mt-3">Ese día no atendés según tus horarios.</p>';
@@ -328,6 +349,41 @@
     abrirModal('modal-calendario');
     await cargarDia(); pintarDueno();
   };
+  // ---------- Reservas dentro de Pedidos (panel del comercio)
+  var PANEL = { lista: [], pend: 0, listo: false };
+  function esHorarios(c) { return c && c.calendario_activo === true && c.calendario_modo === 'horarios'; }
+  window.nvResHayReservas = function (ids) {
+    return (typeof comerciosGlobales !== 'undefined' ? comerciosGlobales : []).some(function (c) { return (!ids || ids.indexOf(c.id) >= 0) && esHorarios(c); });
+  };
+  window.nvResCargarPend = async function (comercios) {
+    var ids = (comercios || []).map(function (c) { return c.id; });
+    var mios = (typeof comerciosGlobales !== 'undefined' ? comerciosGlobales : []).filter(function (c) { return ids.indexOf(c.id) >= 0 && esHorarios(c); });
+    if (!mios.length) { PANEL.lista = []; PANEL.pend = 0; window.NV_RES_PEND = 0; return; }
+    var todas = [];
+    for (var i = 0; i < mios.length; i++) {
+      var r = await _supabase.rpc('nv_res_panel', { p_comercio: mios[i].id });
+      if (!r.error) (r.data || []).forEach(function (x) { x._com = mios[i].nombre; todas.push(x); });
+    }
+    var n = todas.filter(function (x) { return x.estado === 'pendiente' || x.estado === 'sena_avisada'; }).length;
+    if (PANEL.listo && n > PANEL.pend) { try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {} if (typeof mostrarToast === 'function') mostrarToast('Tenés una reserva nueva para responder'); }
+    PANEL.lista = todas; PANEL.pend = n; PANEL.listo = true; window.NV_RES_PEND = n;
+  };
+  window.nvResPanelRender = function (boxId, comercioSel) {
+    var b = document.getElementById(boxId); if (!b) return;
+    if (comercioSel !== undefined) PANEL.sel = comercioSel;
+    var base = PANEL.lista.filter(function (x) { return !PANEL.sel || PANEL.sel === 'todos' || x.comercio_id === PANEL.sel; });
+    var chips = FILTROS.map(function (f) {
+      var n = base.filter(function (x) { return enFiltro(x, f[0]); }).length;
+      return '<button type="button" onclick="nvResFiltroPanel(\'' + f[0] + '\')" class="flex-shrink-0 px-3 py-2 rounded-xl text-xs font-black border ' + (filtro === f[0] ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200') + '">' + f[1] + (n ? ' (' + n + ')' : '') + '</button>';
+    }).join('');
+    var h = clave(hoy());
+    var l = base.filter(function (x) { return enFiltro(x, filtro); });
+    // la fecha más próxima arriba; lo ya pasado al final
+    l.sort(function (a, b) { var pa = a.fecha < h ? 1 : 0, pb = b.fecha < h ? 1 : 0; if (pa !== pb) return pa - pb; var k = (a.fecha + String(1000 + a.inicio_min)).localeCompare(b.fecha + String(1000 + b.inicio_min)); return pa ? -k : k; });
+    b.innerHTML = '<div class="flex gap-1.5 overflow-x-auto pb-1">' + chips + '</div><div class="space-y-2.5 mt-2.5">' +
+      (l.length ? l.map(function (x) { return filaSolicitud(x); }).join('') : '<p class="text-sm text-slate-400 text-center py-10 font-semibold">No hay reservas en esta lista.</p>') + '</div>';
+  };
+
   window.nvResResp = async function (id, accion) {
     var motivo = null;
     if (accion === 'no_llego') { if (!confirm('¿Avisarle al cliente que no llegó la seña y liberar el horario?')) return; accion = 'rechazar'; motivo = 'No llegó la seña'; }
@@ -341,7 +397,8 @@
     }
     var r = await _supabase.rpc('nv_res_responder', { p_id: id, p_accion: accion, p_motivo: motivo });
     if (r.error) { alert(msgErr(r.error)); }
-    await cargarDia(); pintarDueno();
+    if (document.getElementById('panel-reservas-box') && window.panelRefrescar) { await panelRefrescar(); }
+    if (R.modo === 'dueno' && document.getElementById('cal-editor') && document.getElementById('cal-editor').offsetParent !== null) { await cargarDia(); pintarDueno(); }
   };
   var _bloq = null;
   window.nvResBloquear = function (m) {

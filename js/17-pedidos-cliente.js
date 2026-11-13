@@ -595,7 +595,9 @@
   }
 
   /* ---------------------------------------------------------------- Mis pedidos */
-  function abrirMisPedidos() {
+  var MP = { tab: 'pedidos', lista: [], res: [] };
+  function abrirMisPedidos(tab) {
+    MP.tab = (tab === 'reservas') ? 'reservas' : 'pedidos';
     abrirModal('modal-mis-pedidos');
     el('mis-pedidos-contenido').innerHTML = '<p class="text-xs text-slate-400 text-center py-10 font-semibold">Cargando tus pedidos…</p>';
     cargarMisPedidos();
@@ -644,14 +646,33 @@
 
       lista.sort(function (a, b) { return new Date(b.creado) - new Date(a.creado); });
       if (window.nvRegistrarEstados) nvRegistrarEstados(lista);
+      MP.res = [];
+      if (usuarioActual && window.nvResMisDatos) { try { MP.res = await nvResMisDatos(); } catch (e) { MP.res = null; } }
+      MP.lista = lista;
       renderMisPedidos(lista);
     } catch (e) {
       cont.innerHTML = '<p class="text-xs text-rose-600 text-center py-10 font-bold">' + esc(mensajeError(e)) + '</p>';
     }
   }
 
+  function misPedidosTab(t) { MP.tab = t; renderMisPedidos(MP.lista); }
   function renderMisPedidos(lista) {
     var h = '<div id="mis-pedidos-push"></div>';
+    var hayRes = usuarioActual && MP.res && MP.res.length;
+    if (usuarioActual && (hayRes || MP.tab === 'reservas')) {
+      var nRes = hayRes ? MP.res.filter(function (x) { return x.estado === 'esperando_sena'; }).length : 0;
+      h += '<div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl">' +
+        [['pedidos', 'Pedidos', 0], ['reservas', 'Mis reservas', nRes]].map(function (t) {
+          return '<button type="button" onclick="misPedidosTab(\'' + t[0] + '\')" class="py-2.5 rounded-xl text-xs font-black transition active:scale-95 ' + (MP.tab === t[0] ? 'bg-white text-slate-900 shadow' : 'text-slate-500') + '">' + t[1] +
+            (t[2] ? ' <span class="ml-0.5 inline-block min-w-[18px] px-1 rounded-full text-[10px] bg-rose-500 text-white">' + t[2] + '</span>' : '') + '</button>';
+        }).join('') + '</div>';
+    }
+    if (MP.tab === 'reservas' && usuarioActual) {
+      el('mis-pedidos-contenido').innerHTML = h + (window.nvResMisHtml ? nvResMisHtml(MP.res) : '');
+      if (window.nvPushBanner) nvPushBanner('mis-pedidos-push');
+      icono();
+      return;
+    }
     if (!usuarioActual) {
       h += '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-800 space-y-2">' +
            '<p class="leading-snug"><b>Estás sin sesión.</b> Acá ves los pedidos de este dispositivo. Iniciá sesión para tenerlos en todos tus dispositivos, recibir avisos y sumar puntos.</p>' +
@@ -747,7 +768,7 @@
 
   Object.assign(window, {
     enviarPedido: enviarPedido, abrirPedido: abrirPedido, cerrarPedido: cerrarPedido,
-    abrirMisPedidos: abrirMisPedidos, cerrarMisPedidos: cerrarMisPedidos, abrirPedidoPorId: abrirPedidoPorId,
+    abrirMisPedidos: abrirMisPedidos, misPedidosTab: misPedidosTab, cerrarMisPedidos: cerrarMisPedidos, abrirPedidoPorId: abrirPedidoPorId,
     pedidoResponderTotal: pedidoResponderTotal, pedidoAbrirCancelar: pedidoAbrirCancelar,
     pedidoCerrarCancelar: pedidoCerrarCancelar, pedidoConfirmarCancelar: pedidoConfirmarCancelar,
     pedidoRecibidoClick: pedidoRecibidoClick, pedidoRecibido: pedidoRecibido,

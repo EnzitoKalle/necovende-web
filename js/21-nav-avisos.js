@@ -57,6 +57,7 @@
       if (user) {
         var r = await _supabase.from('pv_pedidos').select('id, estado').eq('cliente_id', user.id).order('creado_en', { ascending: false }).limit(30);
         (r.data || []).forEach(function (x) { cambios[x.id] = x.estado; });
+        try { var rr = await _supabase.rpc('nv_res_mis'); (rr.data || []).forEach(function (x) { cambios[x.id] = x.estado; }); } catch (e) { /* sin el SQL 13 */ }
       }
       // Pedidos de este dispositivo (sin sesión): solo los que siguen abiertos
       var locales = [];
