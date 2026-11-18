@@ -56,6 +56,8 @@
   // Navegadores dentro de otras apps (Instagram, Facebook, etc.): ahí no se puede instalar.
   var enAppInterna = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|TikTok|; wv\)/i.test(ua);
 
+  var esFirefox = /Firefox|FxiOS/i.test(ua) && !esIOS;
+  var esAndroid = /Android/i.test(ua);
   var promptDiferido = null;   // evento beforeinstallprompt (Android / Chrome)
   var cartel = null;
 
@@ -101,7 +103,7 @@
         '<div class="nv-tx"><b>Instalar NecoVende</b><span>' +
           (esIOS ? 'Agregala a tu pantalla de inicio' : 'Entrá más rápido, como una app') +
         '</span></div>' +
-        '<button type="button" class="nv-btn" id="nv-pwa-instalar">' + (esIOS ? 'Cómo instalar' : 'Instalar') + '</button>' +
+        '<button type="button" class="nv-btn" id="nv-pwa-instalar">' + (esIOS || esFirefox ? 'Cómo instalar' : 'Instalar') + '</button>' +
         '<button type="button" class="nv-x" id="nv-pwa-cerrar" aria-label="Cerrar">✕</button>' +
       '</div>';
     document.body.insertBefore(cartel, document.body.firstChild);
@@ -112,6 +114,7 @@
     });
     document.getElementById('nv-pwa-instalar').addEventListener('click', function () {
       if (esIOS) { mostrarInstruccionesIOS(); return; }
+      if (esFirefox || !promptDiferido) { mostrarInstruccionesFirefox(); return; }
       instalarAndroid();
     });
   }
@@ -182,11 +185,31 @@
     m.addEventListener('click', function (ev) { if (ev.target === m) cerrar(); });
   }
 
+  /* Firefox no tiene el botón automático de instalar (en PC no se puede instalar la web como app). */
+  function mostrarInstruccionesFirefox() {
+    if (document.getElementById('nv-pwa-ios')) return;
+    inyectarEstilos();
+    var m = document.createElement('div');
+    m.id = 'nv-pwa-ios'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+    var pasos = esAndroid
+      ? '<li><span>Tocá el menú <b>⋮</b> de Firefox (arriba o abajo a la derecha).</span></li><li><span>Elegí <b>Instalar</b> (o <b>Agregar a pantalla de inicio</b>).</span></li><li><span>Confirmá. ¡Listo!</span></li>'
+      : '<li><span>Firefox en computadora <b>no permite instalar</b> páginas como app.</span></li><li><span>Para instalarla usá <b>Chrome o Edge</b>: aparece el ícono de instalar en la barra de direcciones.</span></li><li><span>O dejá esta pestaña de NecoVende <b>abierta y fijada</b> (clic derecho en la pestaña → Fijar pestaña): suena y te avisa igual.</span></li>';
+    m.innerHTML = '<div class="nv-hoja"><h3>Instalar NecoVende</h3><p>' + (esAndroid ? 'Son 3 pasos.' : 'Así lo podés hacer desde Firefox.') + '</p><ol>' + pasos + '</ol><button type="button" class="nv-cerrar" id="nv-pwa-ios-ok">Entendido</button></div>';
+    document.body.appendChild(m);
+    function cerrar() { if (m.parentNode) m.parentNode.removeChild(m); lsSet(CLAVE_CIERRE, String(Date.now())); ocultarCartel(); }
+    document.getElementById('nv-pwa-ios-ok').addEventListener('click', cerrar);
+    m.addEventListener('click', function (ev) { if (ev.target === m) cerrar(); });
+  }
+
   // Para que el botón de notificaciones pueda abrir las mismas instrucciones.
   window.NecoInstalar = { mostrarInstruccionesIOS: mostrarInstruccionesIOS };
 
   /* En iOS no existe el evento de instalación: mostramos el cartel apenas carga la página. */
   if (esIOS) {
+    window.addEventListener('load', function () { setTimeout(mostrarCartel, 1500); });
+  }
+  /* Firefox tampoco dispara el evento: mostramos el cartel solo en Firefox de celular (en PC no se puede instalar). */
+  if (esFirefox && esAndroid) {
     window.addEventListener('load', function () { setTimeout(mostrarCartel, 1500); });
   }
 })();

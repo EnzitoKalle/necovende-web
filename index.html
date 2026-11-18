@@ -1451,7 +1451,7 @@
 
   <!-- BOTÓN FIJO: PEDIDOS DEL COMERCIO (solo si la cuenta tiene un comercio) -->
   <button id="btn-panel-pedidos" onclick="abrirPanelPedidos()" type="button" style="bottom:1.25rem" class="hidden fixed left-4 z-30 bg-slate-900 text-white font-black text-sm pl-4 pr-5 py-3.5 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-2 active:scale-95 transition">
-    <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-400"></i> Pedidos
+    <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-400"></i> <span id="panel-pedidos-texto">Pedidos</span>
     <span id="panel-pedidos-badge" class="hidden bg-rose-500 text-white text-xs font-black rounded-full min-w-[22px] h-[22px] px-1.5 flex items-center justify-center">0</span>
   </button>
 
@@ -1625,5 +1625,6 @@
   <script src="js/21-nav-avisos.js"></script>
   <script src="js/22-calendario.js"></script>
   <script src="js/23-reservas.js"></script>
+  <script src="js/24-alerta-pedidos.js"></script>
 </body>
 </html>

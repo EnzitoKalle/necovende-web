@@ -88,12 +88,25 @@
     var n = cuentaNuevos(), badge = el('panel-pedidos-badge');
     // El botón flotante aparece solo si el usuario tiene comercio Y hay algo para responder.
     // El resto del tiempo se entra desde el Panel de Control ("Pedidos y reservas de mi comercio").
-    b.classList.toggle('hidden', P.comercios.length === 0 || n === 0);
+    b.classList.toggle('hidden', P.comercios.length === 0);
+    estiloAlerta(b, n);
+    try { if (window.NvAlerta) { NvAlerta.chequear(P.comercios.length > 0); if (n === 0) NvAlerta.parar(); } } catch (e) { /* ok */ }
     if (badge) { badge.innerText = n > 99 ? '99+' : String(n); badge.classList.toggle('hidden', n === 0); }
-    b.classList.toggle('animate-pulse', n > 0);
     var pb = el('panel-btn-pedidos-comercio'), pbb = el('panel-btn-pedidos-badge');
     if (pb) pb.classList.toggle('hidden', P.comercios.length === 0);
     if (pbb) { pbb.innerText = n > 99 ? '99+' : String(n); pbb.classList.toggle('hidden', n === 0); }
+  }
+  function estiloAlerta(b, n) {
+    if (!document.getElementById('nv-ped-css')) {
+      var st = document.createElement('style'); st.id = 'nv-ped-css';
+      st.textContent = '@keyframes nvPedLat{0%,100%{transform:scale(1.12)}50%{transform:scale(1.22)}}' +
+        '@keyframes nvPedAro{0%{box-shadow:0 0 0 0 rgba(225,29,72,.7)}100%{box-shadow:0 0 0 22px rgba(225,29,72,0)}}' +
+        '#btn-panel-pedidos.nv-alerta{background:#e11d48!important;border-color:#fecdd3!important;font-size:1.05rem;transform-origin:left bottom;animation:nvPedLat .9s ease-in-out infinite,nvPedAro 1.2s ease-out infinite}';
+      document.head.appendChild(st);
+    }
+    b.classList.toggle('nv-alerta', n > 0);
+    var t = el('panel-pedidos-texto');
+    if (t) t.textContent = n > 0 ? (n === 1 ? '¡Pedido nuevo!' : '¡' + n + ' nuevos!') : 'Pedidos';
   }
   function ubicarBoton() {             // no tapar la barra del carrito
     var b = el('btn-panel-pedidos'), c = el('barra-flotante-carrito'); if (!b) return;
@@ -130,12 +143,15 @@
       P.avisar = true;
     } catch (e) { console.error('panel pedidos', e); }
     try { if (window.nvResCargarPend) await nvResCargarPend(P.comercios); } catch (e) { console.warn('reservas', e); }
+    try { if (P.avisarRes && (window.NV_RES_PEND || 0) > (P.resPrev || 0)) { if (window.NvAlerta) NvAlerta.sonar(); mostrarToast('Reserva nueva para responder'); } } catch (e) { /* ok */ }
+    P.resPrev = window.NV_RES_PEND || 0; P.avisarRes = true;
     pintarBoton();
     if (panelAbierto()) { renderPanel(); if (P.detalleId) refrescarDetalle(true); }
   }
 
   function avisarNuevo(x, n) {
     try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { /* ok */ }
+    try { if (window.NvAlerta) NvAlerta.sonar(); } catch (e) { /* ok */ }
     mostrarToast(n > 1 ? 'Tenés ' + n + ' pedidos nuevos' : 'Pedido nuevo #' + x.numero + ' de ' + x.cliente_nombre);
   }
 
@@ -153,7 +169,7 @@
         .subscribe();
     } catch (e) { console.error('realtime', e); }
     clearInterval(P.timer);
-    P.timer = setInterval(function () { if (!document.hidden) cargarPedidos(); }, 30000);
+    P.timer = setInterval(cargarPedidos, 20000);
   }
   function detener() {
     try { if (P.canal) _supabase.removeChannel(P.canal); } catch (e) { /* ok */ }
@@ -164,6 +180,7 @@
   function panelAbierto() { var m = el('modal-panel-pedidos'); return m && !m.classList.contains('hidden'); }
 
   function abrirPanelPedidos(pedidoId) {
+    try { if (window.NvAlerta) NvAlerta.parar(); } catch (e) { /* ok */ }
     if (!P.comercios.length) { mostrarToast('Tu cuenta no tiene un comercio.'); return; }
     abrirModal('modal-panel-pedidos');
     P.detalleId = null; P.detalle = null;

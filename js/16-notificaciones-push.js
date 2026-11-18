@@ -200,6 +200,45 @@ const NV_VAPID_PUBLIC_KEY = 'BDTw7eeBhWjhfaVOVT8Zatjjp_VfFxFRUllzvXdznFpyyuNkUhD
     BANNERS.forEach(pintarBanner);
   };
 
+  /* ---------- Botón flotante "Activar avisos" (para quien todavía no los tiene) ---------- */
+  var CLAVE_FLOT = 'necovende_push_flot_cierre';
+  function lsG(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsS(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ok */ } }
+  async function pintarFlotante() {
+    var b = document.getElementById('nv-push-flot');
+    try {
+      var ocultar = true;
+      if (claveConfigurada() && (typeof Notification !== 'undefined' ? Notification.permission !== 'denied' : true)) {
+        var t = parseInt(lsG(CLAVE_FLOT) || '0', 10);
+        var pausa = t > 0 && (Date.now() - t) < 3 * 86400000;
+        if (!pausa) {
+          if (esIOS() && !esStandalone()) ocultar = true;               // en iPhone primero hay que instalarla: lo explica el cartel de instalar
+          else if (soportado()) {
+            var sub = null; try { sub = await suscripcionLocal(); } catch (e) { /* ok */ }
+            ocultar = !!(sub && Notification.permission === 'granted');
+          }
+        }
+      }
+      if (ocultar) { if (b) b.remove(); return; }
+      if (!b) {
+        if (!document.body) return;
+        b = document.createElement('div'); b.id = 'nv-push-flot';
+        b.style.cssText = 'position:fixed;right:12px;bottom:calc(5.2rem + env(safe-area-inset-bottom));z-index:35;display:flex;align-items:center;background:#0ea5e9;color:#fff;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.28);font:800 12px/1 inherit';
+        b.innerHTML = '<button type="button" id="nv-push-flot-ok" style="background:transparent;border:0;color:#fff;font:inherit;padding:11px 8px 11px 14px;cursor:pointer">🔔 Activar avisos</button>' +
+          '<button type="button" id="nv-push-flot-x" aria-label="Cerrar" style="background:transparent;border:0;color:#fff;font-size:16px;padding:8px 12px 8px 4px;cursor:pointer;opacity:.85">✕</button>';
+        document.body.appendChild(b);
+        document.getElementById('nv-push-flot-x').onclick = function () { lsS(CLAVE_FLOT, String(Date.now())); b.remove(); };
+        document.getElementById('nv-push-flot-ok').onclick = async function () {
+          if (typeof usuarioActual === 'undefined' || !usuarioActual) { if (window.iniciarSesionGoogle) iniciarSesionGoogle(); return; }
+          var btn = this; await window.nvPushActivar(btn); btn.textContent = '🔔 Activar avisos'; pintarFlotante();
+        };
+      }
+    } catch (e) { /* sin botón */ }
+  }
+  window.nvPushFlotante = pintarFlotante;
+  window.addEventListener('load', function () { setTimeout(pintarFlotante, 1500); });
+  if (typeof _supabase !== 'undefined') _supabase.auth.onAuthStateChange(function () { setTimeout(pintarFlotante, 800); });
+
   /* Al iniciar sesión: si ya había permiso, el dispositivo queda asociado a esta cuenta sin pedir nada. */
   if (typeof _supabase !== 'undefined' && soportado()) {
     _supabase.auth.onAuthStateChange(function (evento, session) {
