@@ -79,6 +79,37 @@
     });
     return 'https://neco-envios.vercel.app/?' + q.toString();
   }
+  // Fotos de productos: se piden una sola vez y se guardan
+  var IMG = {};
+  function thumb(pid, cls) {
+    var u = IMG[pid];
+    return u ? '<img src="' + esc(u) + '" alt="" loading="lazy" class="' + (cls || 'w-12 h-12') + ' rounded-lg object-cover border border-slate-200 flex-shrink-0 bg-slate-100">' : '';
+  }
+  async function cargarImgs(items) {
+    var ids = []; (items || []).forEach(function (it) { if (it.producto_id && !(it.producto_id in IMG) && ids.indexOf(it.producto_id) < 0) ids.push(it.producto_id); });
+    if (!ids.length) return;
+    try {
+      var r = await _supabase.from('productos').select('id, imagen_url').in('id', ids);
+      ids.forEach(function (i) { IMG[i] = null; });
+      (r.data || []).forEach(function (p) { IMG[p.id] = p.imagen_url || null; });
+    } catch (e) { /* sin fotos */ }
+  }
+  // Items de los pedidos que están por atender, para mostrarlos en la lista sin abrir cada uno
+  async function cargarItemsActivos() {
+    var act = P.pedidos.filter(function (x) { return NUEVOS.indexOf(x.estado) >= 0 || EN_CURSO.indexOf(x.estado) >= 0; }).map(function (x) { return x.id; });
+    if (!act.length) { P.items = {}; return; }
+    try {
+      var r = await _supabase.from('pv_pedido_items').select('pedido_id, producto_id, titulo, cantidad, talle, color, sabores, nota').in('pedido_id', act).order('id');
+      if (r.error) return;
+      var m = {}; (r.data || []).forEach(function (it) { (m[it.pedido_id] = m[it.pedido_id] || []).push(it); });
+      P.items = m;
+      await cargarImgs(r.data);
+    } catch (e) { /* ok */ }
+  }
+  function lineaItem(it) {
+    var v = [it.talle, it.color, it.sabores].filter(Boolean).join(' · ');
+    return '<div class="flex items-center gap-2">' + thumb(it.producto_id, 'w-11 h-11') + '<p class="text-xs font-bold text-slate-800 leading-tight min-w-0">' + it.cantidad + 'x ' + esc(it.titulo) + (v ? '<span class="block font-semibold text-slate-500">' + esc(v) + '</span>' : '') + '</p></div>';
+  }
   function nombreComercio(id) { var c = P.comercios.find(function (x) { return x.id === id; }); return c ? c.nombre : ''; }
   function cuentaNuevos() { return P.pedidos.filter(function (x) { return NUEVOS.indexOf(x.estado) >= 0; }).length + (window.NV_RES_PEND || 0); }
 
@@ -142,6 +173,7 @@
       if (P.avisar && nuevos.length) avisarNuevo(nuevos[0], nuevos.length);
       P.avisar = true;
     } catch (e) { console.error('panel pedidos', e); }
+    try { await cargarItemsActivos(); } catch (e) { /* ok */ }
     try { if (window.nvResCargarPend) await nvResCargarPend(P.comercios); } catch (e) { console.warn('reservas', e); }
     try { if (P.avisarRes && (window.NV_RES_PEND || 0) > (P.resPrev || 0)) { if (window.NvAlerta) NvAlerta.sonar(); mostrarToast('Reserva nueva para responder'); } } catch (e) { /* ok */ }
     P.resPrev = window.NV_RES_PEND || 0; P.avisarRes = true;
@@ -241,6 +273,8 @@
            '<p class="text-xs text-slate-500">' + (x.tipo_entrega === 'envio' ? 'Envío' : 'Retiro') + ' · ' + esc(MEDIO_TXT[x.medio_pago] || x.medio_pago) + ' · ' + hace(x.creado_en) +
            (P.comercios.length > 1 ? ' · ' + esc(nombreComercio(x.comercio_id)) : '') + '</p></div>' +
            '<span class="text-base font-black text-brand-600 flex-shrink-0">' + (x.total != null ? fmtPrecio(x.total) : fmtPrecio(x.subtotal) + '+') + '</span></div>' +
+           ((P.items && P.items[x.id]) ? '<div class="space-y-1.5 bg-white/70 rounded-xl p-2 border border-slate-100">' + P.items[x.id].map(lineaItem).join('') + '</div>' : '') +
+           '<p class="text-xs font-black text-slate-700">💳 ' + esc(MEDIO_TXT[x.medio_pago] || x.medio_pago) + ' · Total ' + (x.total != null ? fmtPrecio(x.total) : fmtPrecio(x.subtotal) + ' + envío a confirmar') + '</p>' +
            '<div class="flex items-center gap-2 flex-wrap"><span class="inline-flex text-xs font-black px-3 py-1.5 rounded-full border ' + CLASES[e.k] + '">' + esc(e.t) + '</span>' +
            (PAGO_TRANSF.indexOf(x.medio_pago) >= 0 && x.estado !== 'cancelado' ? (x.pago_recibido_en ? '<span class="text-xs font-bold text-emerald-700">✓ Pago recibido</span>' : (x.comprobante_path ? '<span class="text-xs font-bold text-sky-700">📎 Con comprobante</span>' : (x.pago_avisado_en ? '<span class="text-xs font-black text-amber-700">💬 Dice que ya pagó</span>' : '<span class="text-xs font-bold text-slate-400">Pago pendiente</span>'))) : '') +
            '</div></button>';
@@ -266,11 +300,12 @@
   async function refrescarDetalle(silencioso) {
     var id = P.detalleId; if (!id) return;
     try {
-      var cols = 'titulo, cantidad, precio_unitario, subtotal, nota, talle, color, sabores';
+      var cols = 'producto_id, titulo, cantidad, precio_unitario, subtotal, nota, talle, color, sabores';
       var a = await _supabase.from('pv_pedido_items').select(cols + ', canje, puntos_costo').eq('pedido_id', id).order('id');
       if (a.error) a = await _supabase.from('pv_pedido_items').select(cols).eq('pedido_id', id).order('id');   // todavía sin 07-puntos.sql
       var b = await _supabase.from('pv_pedido_historial').select('estado_nuevo, actor, nota, creado_en').eq('pedido_id', id).order('id');
       if (id !== P.detalleId) return;
+      await cargarImgs(a.data);
       var nuevo = { items: a.data || [], historial: b.data || [] };
       var igual = P.detalle && JSON.stringify(P.detalle) === JSON.stringify(nuevo);
       P.detalle = nuevo;
@@ -293,6 +328,10 @@
     if (x.estado === 'cancelado') info = 'Cancelado por ' + (x.cancelado_por === 'comercio' ? 'el comercio' : (x.cancelado_por === 'cliente' ? 'el cliente' : 'el sistema')) + (x.motivo_cancelacion ? '. Motivo: ' + x.motivo_cancelacion : '.');
     if (x.estado === 'entregado') info = x.cierre_automatico ? 'Se cerró solo a las 24 hs.' : 'El cliente lo marcó como recibido.' + (x.puntos_otorgados > 0 ? ' Sumó ' + x.puntos_otorgados + ' puntos.' : '');
     h += '<div class="rounded-2xl border-2 p-4 ' + CLASES[e.k] + '"><p class="text-base font-black">' + esc(e.t) + '</p>' + (info ? '<p class="text-sm mt-1 leading-snug">' + esc(info) + '</p>' : '') + '</div>';
+
+    h += '<div class="rounded-2xl border-2 border-slate-200 bg-white p-3.5 flex justify-between items-center gap-3"><div><p class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Forma de pago</p><p class="text-base font-black text-slate-900">💳 ' + esc(MEDIO_TXT[x.medio_pago] || x.medio_pago) + '</p>' +
+         (PAGO_TRANSF.indexOf(x.medio_pago) >= 0 ? '<p class="text-xs font-bold ' + (x.pago_recibido_en ? 'text-emerald-700' : 'text-amber-700') + '">' + (x.pago_recibido_en ? '✓ Pago recibido' : 'Pago pendiente') + '</p>' : '') + '</div>' +
+         '<div class="text-right"><p class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Total</p><p class="text-xl font-black text-brand-600">' + (x.total != null ? fmtPrecio(x.total) : 'A confirmar') + '</p></div></div>';
 
     // ----- Acciones principales
     if (x.estado === 'esperando_confirmacion') {
@@ -343,8 +382,9 @@
     if (!P.detalle) h += '<p class="text-xs text-slate-400">Cargando…</p>';
     det.items.forEach(function (it) {
       var extra = [it.sabores, it.nota ? '📝 ' + it.nota : ''].filter(Boolean).join(' · ');
-      h += '<div class="flex justify-between gap-3"><div class="min-w-0"><p class="text-sm font-black text-slate-800 leading-tight">' + it.cantidad + 'x ' + esc(it.titulo) + '</p>' +
-           (extra ? '<p class="text-xs text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div><span class="text-sm font-bold flex-shrink-0 ' + (it.canje ? 'text-violet-600' : 'text-slate-700') + '">' + (it.canje ? '🎁 ' + (it.puntos_costo * it.cantidad) + ' pts' : fmtPrecio(it.subtotal)) + '</span></div>';
+      extra = [it.talle ? 'Talle ' + it.talle : '', it.color, extra].filter(Boolean).join(' · ');
+      h += '<div class="flex justify-between gap-3"><div class="flex gap-2.5 min-w-0">' + thumb(it.producto_id, 'w-16 h-16') + '<div class="min-w-0"><p class="text-sm font-black text-slate-800 leading-tight">' + it.cantidad + 'x ' + esc(it.titulo) + '</p>' +
+           (extra ? '<p class="text-xs text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div></div><span class="text-sm font-bold flex-shrink-0 ' + (it.canje ? 'text-violet-600' : 'text-slate-700') + '">' + (it.canje ? '🎁 ' + (it.puntos_costo * it.cantidad) + ' pts' : fmtPrecio(it.subtotal)) + '</span></div>';
     });
     h += '<div class="border-t border-slate-100 pt-3 space-y-1.5 text-sm font-semibold text-slate-600">' +
          '<div class="flex justify-between"><span>Productos</span><span>' + fmtPrecio(x.subtotal) + '</span></div>' +

@@ -265,6 +265,8 @@
       PED.data = d;
       if (silencioso && sig === PED.sig) return;     // nada cambió: no se redibuja (así no se pierde lo que está escribiendo)
       PED.sig = sig;
+      await cargarImgsP(d.items);
+      if (token !== PED.token) return;
       renderPedido(d);
     } catch (e) {
       if (!silencioso) {
@@ -284,6 +286,23 @@
            '<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="hidden" onchange="pedidoSubirComprobante(this)"></label>';
   }
 
+  var IMGP = {};
+  async function cargarImgsP(items) {
+    var ids = []; (items || []).forEach(function (it) { if (it.producto_id && !(it.producto_id in IMGP) && ids.indexOf(it.producto_id) < 0) ids.push(it.producto_id); });
+    if (!ids.length) return;
+    ids.forEach(function (i) { IMGP[i] = null; });
+    try { var r = await _supabase.from('productos').select('id, imagen_url').in('id', ids); (r.data || []).forEach(function (q) { IMGP[q.id] = q.imagen_url || null; }); } catch (e) { /* sin fotos */ }
+  }
+  function resumenVisible(p, items) {
+    if (!items.length) return '';
+    var h = '<div class="border border-slate-200 rounded-2xl bg-white p-3 space-y-2">';
+    items.forEach(function (it) {
+      var im = IMGP[it.producto_id], extra = [it.talle ? 'Talle ' + it.talle : '', it.color, it.sabores].filter(Boolean).join(' · ');
+      h += '<div class="flex items-center gap-2.5">' + (im ? '<img src="' + esc(im) + '" alt="" loading="lazy" class="w-14 h-14 rounded-xl object-cover border border-slate-200 flex-shrink-0 bg-slate-100">' : '') +
+           '<p class="text-sm font-black text-slate-800 leading-tight min-w-0">' + it.cantidad + 'x ' + esc(it.titulo) + (extra ? '<span class="block text-xs font-semibold text-slate-500">' + esc(extra) + '</span>' : '') + '</p></div>';
+    });
+    return h + '<div class="border-t border-slate-100 pt-2 flex justify-between text-xs font-black text-slate-700"><span>💳 ' + esc(MEDIO_TXT[p.medio_pago] || p.medio_pago) + '</span><span>Total ' + (p.total != null ? fmtPrecio(p.total) : 'a confirmar') + '</span></div></div>';
+  }
   function renderPedido(d) {
     var p = d.pedido, c = d.comercio || {}, items = d.items || [], hist = d.historial || [];
     var e = ESTADOS[p.estado] || { t: p.estado, c: p.estado, i: 'package', k: 'slate', d: '' };
@@ -309,6 +328,8 @@
     h += '<div class="rounded-2xl border p-3.5 ' + CLASES[e.k] + '">' +
          '<p class="text-sm font-black flex items-center gap-1.5"><i data-lucide="' + e.i + '" class="w-4 h-4"></i> ' + esc(e.t) + '</p>' +
          (detalleEstado ? '<p class="text-xs mt-1 leading-snug">' + esc(detalleEstado) + '</p>' : '') + '</div>';
+
+    h += resumenVisible(p, items);
 
     // Aviso de demora (15 min sin respuesta del comercio)
     var minEspera = Math.max(minutosDesde(p.creado_en), d.minutos_sin_respuesta || 0);
@@ -392,9 +413,10 @@
     h += '<div class="space-y-2.5">' +
          '<p class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Tu pedido</p>';
     items.forEach(function (it) {
-      var extra = [it.sabores, it.nota ? '📝 ' + it.nota : ''].filter(Boolean).join(' · ');
-      h += '<div class="flex justify-between gap-3 text-xs"><div class="min-w-0"><p class="font-bold text-slate-800 leading-tight">' + it.cantidad + 'x ' + esc(it.titulo) + '</p>' +
-           (extra ? '<p class="text-[11px] text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div>' +
+      var extra = [it.talle ? 'Talle ' + it.talle : '', it.color, it.sabores, it.nota ? '📝 ' + it.nota : ''].filter(Boolean).join(' · ');
+      var im = IMGP[it.producto_id];
+      h += '<div class="flex justify-between gap-3 text-xs"><div class="flex gap-2.5 min-w-0">' + (im ? '<img src="' + esc(im) + '" alt="" loading="lazy" class="w-14 h-14 rounded-lg object-cover border border-slate-200 flex-shrink-0 bg-slate-100">' : '') + '<div class="min-w-0"><p class="font-bold text-slate-800 leading-tight">' + it.cantidad + 'x ' + esc(it.titulo) + '</p>' +
+           (extra ? '<p class="text-[11px] text-slate-500 leading-snug break-words">' + esc(extra) + '</p>' : '') + '</div></div>' +
            '<span class="font-bold flex-shrink-0 ' + (it.canje ? 'text-violet-600' : 'text-slate-700') + '">' + (it.canje ? '🎁 ' + (it.puntos_costo * it.cantidad) + ' pts' : fmtPrecio(it.subtotal)) + '</span></div>';
     });
     h += '<div class="border-t border-slate-100 pt-2.5 space-y-1.5">' + fila('Productos', fmtPrecio(p.subtotal));
