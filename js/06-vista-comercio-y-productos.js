@@ -109,7 +109,7 @@
       if (comercioActivo.pagos_transferencia) pagos.push('Transferencia');
       if (comercioActivo.pagos_qr) pagos.push('MercadoPago / QR');
       if (comercioActivo.pagos_cuenta_dni) pagos.push('Cuenta DNI');
-      if (comercioActivo.pagos_tarjeta) pagos.push('Tarjeta Débito/Crédito');
+      if (comercioActivo.pagos_tarjeta) pagos.push(comercioActivo.cuotas_sin_interes ? 'Tarjeta Débito/Crédito (cuotas sin interés)' : 'Tarjeta Débito/Crédito');
 
       const listaCats = comercioActivo.subcategorias && comercioActivo.subcategorias.length > 0 
         ? comercioActivo.subcategorias 
@@ -442,6 +442,12 @@
           badgeStock = '<span class="text-[9px] font-black bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full">AGOTADO</span>';
         } else if (stockNum !== null && stockNum <= 5) {
           badgeStock = `<span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">Últimas ${stockNum} unidades</span>`;
+        }
+
+        const cuotasN = (!p.es_combo && p.cuotas_sin_interes && comercioActivo.pagos_tarjeta && comercioActivo.cuotas_sin_interes) ? Number(p.cuotas_sin_interes) : 0;
+        if (cuotasN >= 2) {
+          const pr = Number(p.precio) || 0;
+          badgeStock += `<span class="text-[9px] font-black bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded-full">💳 ${cuotasN} cuotas sin interés${pr ? ' de ' + (typeof fmtPrecio === 'function' ? fmtPrecio(Math.round(pr / cuotasN)) : '$' + Math.round(pr / cuotasN)) : ''}</span>`;
         }
 
         htmlAcc += `

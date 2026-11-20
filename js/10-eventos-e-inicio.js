@@ -134,6 +134,9 @@
         datosComercio.envio_gratis_desde = isNaN(gratisDesdeVal) ? null : gratisDesdeVal;
       }
 
+      // Cuotas sin interés (SQL 17): solo se manda si se usa, así no falla antes de correr el SQL
+      const _cuotasCom = document.getElementById('pago-tarjeta').checked && document.getElementById('pago-cuotas').checked;
+      if (_cuotasCom || (comercioExistente && 'cuotas_sin_interes' in comercioExistente)) datosComercio.cuotas_sin_interes = _cuotasCom;
       // Gustos destildados (columna opciones_ocultas de sql/06-listas-editables.sql)
       if (leTieneOcultos(['sabores-input']) || (comercioExistente && 'opciones_ocultas' in comercioExistente)) {
         datosComercio.opciones_ocultas = leOcultosObjeto(['sabores-input']);
@@ -147,7 +150,8 @@
       }
 
       if (res.error) {
-        if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        if (/cuotas_sin_interes/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/17-cuotas.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/plan (Ultra|Pro)/i.test(res.error.message || '')) avisoPlan(/plan Pro/i.test(res.error.message) ? 'pro' : 'ultra');
         else alert("Error al guardar: " + res.error.message);
       } else {
@@ -264,6 +268,16 @@
         Object.assign(datosProducto, _rp.campos);
       }
 
+      // Cuotas sin interés (SQL 17)
+      {
+        const chk = document.getElementById('prod-cuotas-chk').checked;
+        const nC = parseInt(document.getElementById('prod-cuotas-n').value, 10);
+        if (chk && !(nC >= 2 && nC <= 24)) { alert('Poné entre 2 y 24 cuotas sin interés.'); return; }
+        const prevC = (comercioActivo?.productos || []).find(x => String(x.id) === String(prodEditId));
+        if (chk) datosProducto.cuotas_sin_interes = nC;
+        else if (prevC && prevC.cuotas_sin_interes) datosProducto.cuotas_sin_interes = null;
+      }
+
       // Stock por talle (columna de sql/04-extras-comercios.sql)
       const stockTalles = leerStockTalles(datosProducto.talles_disponibles);
       if (!stockTalles.ok) { alert(stockTalles.error); return; }
@@ -292,6 +306,7 @@
 
       if (res.error) {
         if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/cuotas_sin_interes/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/17-cuotas.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/res_(modo|duracion|confirmacion|sena|espera|desde|hasta|dias|espacios)|reservable/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré los archivos 12 al 15 (en orden, una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/puntos_(suma|canje)/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo 07-puntos.sql (una sola vez) en el SQL Editor y probá de nuevo.');

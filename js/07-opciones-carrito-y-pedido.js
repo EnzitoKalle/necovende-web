@@ -490,6 +490,14 @@
       if (oferta) { tachado.innerText = fmtPrecio(oferta.antes); tachado.classList.remove('hidden'); }
       else tachado.classList.add('hidden');
       document.getElementById('view-prod-descripcion').innerText = p.descripcion || 'Sin descripción adicional.';
+      {
+        const cEl = document.getElementById('view-prod-cuotas'), nC = Number(p.cuotas_sin_interes) || 0;
+        const okC = !p.es_combo && nC >= 2 && comercioActivo && comercioActivo.pagos_tarjeta && comercioActivo.cuotas_sin_interes;
+        if (cEl) {
+          cEl.classList.toggle('hidden', !okC);
+          if (okC) cEl.innerText = '💳 Hasta ' + nC + ' cuotas sin interés de ' + fmtPrecio(Math.round((Number(p.precio) || 0) / nC)) + ' con tarjeta de crédito. El comercio te manda el link de pago por WhatsApp.';
+        }
+      }
 
       const porcOff = p.es_combo ? calcularAhorroPorcentualCombo(p) : (oferta ? oferta.pct : 0);
       const badgeOff = document.getElementById('view-prod-badge-off');
@@ -529,6 +537,23 @@
       if (bAdd) {
         if (!bAdd.dataset.orig) bAdd.dataset.orig = bAdd.innerHTML;
         bAdd.innerHTML = (p.reservable && !p.es_combo) ? '<i data-lucide="calendar-check" class="w-5 h-5"></i> Reservar turno' : bAdd.dataset.orig;
+        // Producto agotado: se ve "Agotado" y no se puede agregar
+        let agotado = p.disponible === false;
+        if (!agotado) {
+          if (p.es_combo) { try { agotado = typeof promoTieneProductoAgotado === 'function' && promoTieneProductoAgotado(p); } catch (e) { /* ok */ } }
+          else if (p.stock !== null && p.stock !== undefined && parseInt(p.stock) <= 0) agotado = true;
+        }
+        if (agotado) {
+          bAdd.innerHTML = '<i data-lucide="ban" class="w-5 h-5"></i> Agotado';
+          bAdd.disabled = true;
+          bAdd.classList.add('opacity-60', 'cursor-not-allowed');
+          bAdd.style.filter = 'grayscale(1)';
+          bAdd.onclick = null;
+        } else {
+          bAdd.disabled = false;
+          bAdd.classList.remove('opacity-60', 'cursor-not-allowed');
+          bAdd.style.filter = '';
+        }
       }
       abrirModal('modal-ver-producto');
       if (window.lucide) lucide.createIcons();

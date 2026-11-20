@@ -663,6 +663,7 @@
         </div>
 
         <p id="view-prod-descripcion" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto"></p>
+        <p id="view-prod-cuotas" class="hidden text-xs font-black text-sky-700 bg-sky-50 border border-sky-200 rounded-xl px-3 py-2"></p>
 
         <div id="view-prod-puntos" class="hidden space-y-2"></div>
 
@@ -984,8 +985,14 @@
               <input type="checkbox" id="pago-cuenta-dni" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500"> Cuenta DNI
             </label>
             <label class="flex items-center gap-2 cursor-pointer col-span-2">
-              <input type="checkbox" id="pago-tarjeta" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500"> Tarjeta Débito / Crédito
+              <input type="checkbox" id="pago-tarjeta" onchange="nvCuotasToggleComercio()" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500"> Tarjeta Débito / Crédito
             </label>
+            <div id="box-pago-cuotas" class="hidden col-span-2 bg-sky-50 border border-sky-200 rounded-xl p-2.5 space-y-1">
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-sky-800">
+                <input type="checkbox" id="pago-cuotas" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500"> 💳 Ofrezco cuotas sin interés
+              </label>
+              <p class="text-[10px] text-sky-700 leading-snug">Después, en cada producto, vas a poder tildar "Tiene cuotas sin interés" y elegir cuántas. El pago con tarjeta lo coordinás con el cliente por WhatsApp (por ejemplo con un link de pago de Mercado Pago).</p>
+            </div>
           </div>
         </div>
 
@@ -1177,6 +1184,17 @@
             </div>
           </div>
           <p id="prod-puntos-ayuda" class="text-[10px] text-slate-500 leading-snug">Por unidad. Los puntos se suman cuando el cliente marca “Recibido”. Dejalo vacío si no aplica.</p>
+        </div>
+
+        <div id="box-prod-cuotas" class="hidden bg-sky-50 border border-sky-200 rounded-xl p-3 space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-sky-800">
+            <input type="checkbox" id="prod-cuotas-chk" onchange="nvCuotasToggleProducto()" class="w-4 h-4 rounded border-slate-300 text-sky-600"> 💳 ¿Tiene cuotas sin interés?
+          </label>
+          <div id="prod-cuotas-n-box" class="hidden flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-600">Hasta</span>
+            <input type="number" id="prod-cuotas-n" min="2" max="24" step="1" value="3" inputmode="numeric" class="w-20 clean-input px-3 py-2 rounded-lg text-sm font-black text-center">
+            <span class="text-xs font-semibold text-slate-600">cuotas sin interés</span>
+          </div>
         </div>
 
         <div>

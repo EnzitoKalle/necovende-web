@@ -367,6 +367,12 @@
       }
     }
 
+    if (x.medio_pago === 'tarjeta' && x.estado !== 'cancelado') {
+      h += '<div class="border-2 border-sky-200 bg-sky-50/60 rounded-2xl p-4 space-y-2"><p class="text-sm font-black text-sky-800">💳 Cobro con tarjeta</p>' +
+           '<p class="text-xs text-sky-700 leading-snug">Generá el link de pago en tu Mercado Pago (o el cobrador que uses) por ' + (x.total != null ? fmtPrecio(x.total) : 'el total del pedido') + ', y mandáselo al cliente por WhatsApp.</p>' +
+           '<button type="button" onclick="panelLinkPago()" class="' + BIG + 'bg-sky-600 text-white">Enviar link de pago por WhatsApp</button></div>';
+    }
+
     // ----- Cliente
     var wa = waCliente(x.cliente_telefono);
     h += '<div class="border-2 border-slate-200 rounded-2xl p-4 space-y-2.5"><p class="text-xs font-black text-slate-500 uppercase tracking-wider">Cliente</p>' +
@@ -458,6 +464,15 @@
     if (!confirm('Le avisamos al cliente que no encontraste su pago y le pedimos que suba el comprobante. ¿Seguimos?')) return;
     accion('pv_comercio_pedir_comprobante', { p_pedido: x.id }, 'Le pedimos el comprobante al cliente.');
   }
+  function panelLinkPago() {
+    var x = actual(); if (!x) return;
+    var link = prompt('Pegá el link de pago (por ejemplo el de Mercado Pago). Si todavía no lo tenés, dejalo vacío y se abre el WhatsApp igual:', '');
+    if (link === null) return;
+    var com = nombreComercio(x.comercio_id) || 'el comercio';
+    var msg = 'Hola ' + (x.cliente_nombre || '') + '! Soy de ' + com + '. Tu pedido #' + x.numero + (x.total != null ? ' es de ' + fmtPrecio(x.total) : '') + '. ' +
+      (link.trim() ? 'Podés pagarlo con tarjeta desde este link: ' + link.trim() : 'Te paso el link de pago con tarjeta en un momento.') + ' Cualquier duda, escribime.';
+    window.open('https://wa.me/' + waCliente(x.cliente_telefono) + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  }
   function panelMarcarPago() { var x = actual(); if (x) accion('pv_comercio_marcar_pago', { p_pedido: x.id }, 'Pago registrado.'); }
   function panelEnvioPreview() {
     var x = actual(), i = el('panel-envio'), t = el('panel-envio-total'); if (!x || !i || !t) return;
@@ -509,7 +524,7 @@
   Object.assign(window, {
     abrirPanelPedidos: abrirPanelPedidos, cerrarPanelPedidos: cerrarPanelPedidos, abrirDetallePedido: abrirDetallePedido,
     ubicarBotonPanel: ubicarBoton, panelPedidosTab: panelPedidosTab, panelPedidosComercio: panelPedidosComercio, panelVolver: volverALista,
-    panelAceptar: panelAceptar, panelDespachar: panelDespachar, panelMarcarPago: panelMarcarPago, panelPedirComprobante: panelPedirComprobante,
+    panelAceptar: panelAceptar, panelLinkPago: panelLinkPago, panelDespachar: panelDespachar, panelMarcarPago: panelMarcarPago, panelPedirComprobante: panelPedirComprobante,
     panelFijarEnvio: panelFijarEnvio, panelEnvioPreview: panelEnvioPreview, panelAbrirCancelar: panelAbrirCancelar,
     panelRefrescar: cargarPedidos, panelCerrarCancelar: panelCerrarCancelar, panelConfirmarCancelar: panelConfirmarCancelar, panelVerComprobante: panelVerComprobante
   });

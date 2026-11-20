@@ -216,6 +216,8 @@
       document.getElementById('pago-qr').checked = Boolean(c.pagos_qr);
       document.getElementById('pago-cuenta-dni').checked = Boolean(c.pagos_cuenta_dni);
       document.getElementById('pago-tarjeta').checked = Boolean(c.pagos_tarjeta);
+      document.getElementById('pago-cuotas').checked = Boolean(c.cuotas_sin_interes && c.pagos_tarjeta);
+      nvCuotasToggleComercio();
 
       renderizarGrillaHorarios(c.horarios_dias || {});
 
@@ -259,6 +261,28 @@
       if (checkSabores) subBox.classList.remove('hidden');
       else subBox.classList.add('hidden');
     }
+
+    // ---- Cuotas sin interés ----
+    function nvCuotasToggleComercio() {
+      const t = document.getElementById('pago-tarjeta'), b = document.getElementById('box-pago-cuotas');
+      if (!t || !b) return;
+      b.classList.toggle('hidden', !t.checked);
+      if (!t.checked) document.getElementById('pago-cuotas').checked = false;
+    }
+    function nvCuotasToggleProducto() {
+      document.getElementById('prod-cuotas-n-box').classList.toggle('hidden', !document.getElementById('prod-cuotas-chk').checked);
+    }
+    // Muestra el bloque en el formulario de producto solo si el comercio ofrece cuotas
+    function nvCuotasCargarProducto(comercio, p) {
+      const box = document.getElementById('box-prod-cuotas'); if (!box) return;
+      const ofrece = Boolean(comercio && comercio.cuotas_sin_interes && comercio.pagos_tarjeta);
+      const n = p && p.cuotas_sin_interes ? Number(p.cuotas_sin_interes) : 0;
+      box.classList.toggle('hidden', !ofrece && !n);
+      document.getElementById('prod-cuotas-chk').checked = n > 0;
+      document.getElementById('prod-cuotas-n').value = n > 0 ? n : 3;
+      nvCuotasToggleProducto();
+    }
+    window.nvCuotasToggleComercio = nvCuotasToggleComercio; window.nvCuotasToggleProducto = nvCuotasToggleProducto;
 
     function toggleBoxVariantes() {
       const checkVariantes = document.getElementById('prod-tiene-variantes').checked;
@@ -332,6 +356,7 @@
       ajustarCampoOferta(plan);
       nvAjustarCamposPuntos(plan);
       if (window.nvResProdCargar) nvResProdCargar(comercio, null);
+      nvCuotasCargarProducto(comercio, null);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Agregar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Publicando en: ${nombreComercio} (${plan.toUpperCase()})`;
@@ -380,7 +405,11 @@
       document.getElementById('prod-sabores-especificos').value = (p.sabores_especificos || []).join(', ');
       document.getElementById('prod-opciones-custom-input').value = (p.opciones_custom || []).join(', ');
       document.getElementById('prod-requiere-coccion').checked = Boolean(p.requiere_coccion);
-      document.getElementById('prod-tiene-variantes').checked = Boolean((p.talles_disponibles || []).length || (p.colores_disponibles || []).length);
+      // Los talles/colores destildados (o agotados) también cuentan: si no, al quedarse sin stock todos desaparecía el bloque y no se podía reponer
+      const ocV = p.opciones_ocultas || {};
+      const tieneVar = Boolean((p.talles_disponibles || []).length || (p.colores_disponibles || []).length || (ocV.talles || []).length || (ocV.colores || []).length || Object.keys((p.stock_talles && typeof p.stock_talles === 'object') ? p.stock_talles : {}).length);
+      document.getElementById('prod-tiene-variantes').checked = tieneVar;
+      if (tieneVar) document.getElementById('box-check-variantes-prod').classList.remove('hidden');   // antes quedaba oculto según la categoría
       document.getElementById('prod-talles-input').value = (p.talles_disponibles || []).join(', ');
       document.getElementById('prod-colores-input').value = (p.colores_disponibles || []).join(', ');
       const ocP = p.opciones_ocultas || {};
@@ -399,6 +428,7 @@
       ajustarCampoOferta(plan);
       nvAjustarCamposPuntos(plan, p);
       if (window.nvResProdCargar) nvResProdCargar(comercioActivo, p);
+      nvCuotasCargarProducto(comercioActivo, p);
 
       document.getElementById('modal-producto-titulo-head').innerText = 'Editar Producto';
       document.getElementById('subtitulo-comercio-prod').innerText = `Modificando: ${p.titulo}`;
