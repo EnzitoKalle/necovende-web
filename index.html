@@ -713,6 +713,8 @@
           </select>
         </div>
 
+        <div id="cart-aviso-pago" class="hidden space-y-2"></div>
+
         <div id="box-alias-mercadopago" class="hidden bg-emerald-50 p-3.5 rounded-xl border border-emerald-200 text-xs text-emerald-800 font-semibold leading-snug">
           💳 Después de hacer el pedido te mostramos el total y el alias para transferir.
         </div>
@@ -987,6 +989,16 @@
             <label class="flex items-center gap-2 cursor-pointer col-span-2">
               <input type="checkbox" id="pago-tarjeta" onchange="nvCuotasToggleComercio()" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500"> Tarjeta Débito / Crédito
             </label>
+            <div id="box-pago-posnet" class="hidden col-span-2 bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-1">
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+                <input type="checkbox" id="pago-posnet-dom" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500"> 🛵 Llevo el posnet a domicilio
+              </label>
+              <p class="text-[10px] text-slate-500 leading-snug">Si no lo tildás, quien pague con tarjeta (y en cuotas) tiene que pasar por el local: el envío se desactiva y le mostramos tu dirección y horarios.</p>
+            </div>
+            <div class="col-span-2">
+              <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Promos y aclaraciones de pago (opcional)</label>
+              <textarea id="pago-aclaracion" maxlength="300" rows="2" placeholder="Ej: Cuenta DNI 20% los martes. Banco Provincia 6 cuotas sin interés los jueves, solo en el local." class="w-full clean-input px-3 py-2 rounded-xl text-xs font-medium"></textarea>
+            </div>
             <div id="box-pago-cuotas" class="hidden col-span-2 bg-sky-50 border border-sky-200 rounded-xl p-2.5 space-y-1">
               <label class="flex items-center gap-2 cursor-pointer font-bold text-sky-800">
                 <input type="checkbox" id="pago-cuotas" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500"> 💳 Ofrezco cuotas sin interés

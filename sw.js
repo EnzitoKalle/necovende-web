@@ -12,7 +12,7 @@
  *  - Supabase, CDNs y cualquier otro dominio: no se tocan (pasan directo).
  *  - Todo lo que no sea GET (pedidos, likes, etc.): no se toca.
  */
-const VERSION = 'v26';
+const VERSION = 'v27';
 const CACHE = 'necovende-' + VERSION;
 
 const PRECACHE = [

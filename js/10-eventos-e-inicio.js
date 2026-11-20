@@ -137,6 +137,11 @@
       // Cuotas sin interés (SQL 17): solo se manda si se usa, así no falla antes de correr el SQL
       const _cuotasCom = document.getElementById('pago-tarjeta').checked && document.getElementById('pago-cuotas').checked;
       if (_cuotasCom || (comercioExistente && 'cuotas_sin_interes' in comercioExistente)) datosComercio.cuotas_sin_interes = _cuotasCom;
+      // Posnet a domicilio y aclaraciones de pago (SQL 18): solo se mandan si se usan
+      const _posnet = document.getElementById('pago-tarjeta').checked && document.getElementById('pago-posnet-dom').checked;
+      const _aclar = (document.getElementById('pago-aclaracion').value || '').trim();
+      if (_posnet || (comercioExistente && 'posnet_domicilio' in comercioExistente)) datosComercio.posnet_domicilio = _posnet;
+      if (_aclar || (comercioExistente && 'aclaracion_pago' in comercioExistente)) datosComercio.aclaracion_pago = _aclar || null;
       // Gustos destildados (columna opciones_ocultas de sql/06-listas-editables.sql)
       if (leTieneOcultos(['sabores-input']) || (comercioExistente && 'opciones_ocultas' in comercioExistente)) {
         datosComercio.opciones_ocultas = leOcultosObjeto(['sabores-input']);
@@ -150,7 +155,8 @@
       }
 
       if (res.error) {
-        if (/cuotas_sin_interes/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/17-cuotas.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        if (/posnet_domicilio|aclaracion_pago/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/18-pago-local.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/cuotas_sin_interes/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/17-cuotas.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/plan (Ultra|Pro)/i.test(res.error.message || '')) avisoPlan(/plan Pro/i.test(res.error.message) ? 'pro' : 'ultra');
         else alert("Error al guardar: " + res.error.message);
@@ -306,6 +312,7 @@
 
       if (res.error) {
         if (/precio_anterior/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré el archivo sql/05-ofertas-y-pedidos.sql (una sola vez) en el SQL Editor y probá de nuevo.');
+        else if (/posnet_domicilio|aclaracion_pago/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/18-pago-local.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/cuotas_sin_interes/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/17-cuotas.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/opciones_ocultas/i.test(res.error.message || '')) alert('Falta un paso en Supabase: corré el archivo sql/06-listas-editables.sql (una sola vez) en el SQL Editor y probá de nuevo.');
         else if (/res_(modo|duracion|confirmacion|sena|espera|desde|hasta|dias|espacios)|reservable/i.test(res.error.message || '') && res.error.code !== 'P0001') alert('Falta un paso en Supabase: corré los archivos 12 al 15 (en orden, una sola vez) en el SQL Editor y probá de nuevo.');

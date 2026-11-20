@@ -109,7 +109,7 @@
       if (comercioActivo.pagos_transferencia) pagos.push('Transferencia');
       if (comercioActivo.pagos_qr) pagos.push('MercadoPago / QR');
       if (comercioActivo.pagos_cuenta_dni) pagos.push('Cuenta DNI');
-      if (comercioActivo.pagos_tarjeta) pagos.push(comercioActivo.cuotas_sin_interes ? 'Tarjeta Débito/Crédito (cuotas sin interés)' : 'Tarjeta Débito/Crédito');
+      if (comercioActivo.pagos_tarjeta) pagos.push((comercioActivo.cuotas_sin_interes ? 'Tarjeta Débito/Crédito (cuotas sin interés)' : 'Tarjeta Débito/Crédito') + (comercioActivo.posnet_domicilio ? '' : ' · en el local'));
 
       const listaCats = comercioActivo.subcategorias && comercioActivo.subcategorias.length > 0 
         ? comercioActivo.subcategorias 
@@ -226,6 +226,7 @@
                   : '<span class="text-slate-400">Efectivo</span>'
                 }
               </div>
+              ${comercioActivo.aclaracion_pago && String(comercioActivo.aclaracion_pago).trim() ? `<p class="mt-2 text-[11px] text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 leading-snug whitespace-pre-line">🏷️ ${esc(comercioActivo.aclaracion_pago)}</p>` : ''}
             </div>
           </div>
         </div>

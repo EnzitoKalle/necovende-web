@@ -649,6 +649,35 @@
       const aviso = document.getElementById('box-alias-mercadopago');
       const esTransferencia = medioPago === 'Transferencia' || medioPago === 'MercadoPago / QR';
       aviso.classList.toggle('hidden', !(esTransferencia && comercioCarrito && comercioCarrito.alias_mp && comercioCarrito.alias_mp.trim() !== ''));
+      nvAvisoPago();
+    }
+
+    // Tarjeta sin posnet a domicilio = hay que pasar por el local: se fuerza el retiro y se muestra dónde y cuándo.
+    // También muestra las promos / aclaraciones de pago que cargó el comercio.
+    function nvAvisoPago() {
+      const box = document.getElementById('cart-aviso-pago'), sel = document.getElementById('cart-medio-pago'), tipo = document.getElementById('cart-tipo-entrega');
+      if (!box || !sel || !comercioCarrito) return;
+      const c = comercioCarrito;
+      const esTarjeta = sel.value === 'Tarjeta Débito/Crédito';
+      const enLocal = esTarjeta && !c.posnet_domicilio;
+      let h = '';
+      if (enLocal) {
+        h += '<div class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs text-sky-800 leading-snug space-y-1"><p class="font-black">💳 La tarjeta se paga en el local</p>' +
+             '<p>Reservamos tu pedido y pasás a abonar con tarjeta (también en cuotas sin interés).</p>' +
+             '<p>📍 <b>' + esc(c.direccion || 'Necochea') + '</b></p><p>🕒 ' + esc(obtenerHorarioHoyTexto(c)) + '</p></div>';
+      }
+      if (c.aclaracion_pago && String(c.aclaracion_pago).trim()) {
+        h += '<div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 leading-snug"><p class="font-black mb-0.5">🏷️ Promos y condiciones de pago</p><p class="whitespace-pre-line">' + esc(c.aclaracion_pago) + '</p></div>';
+      }
+      box.innerHTML = h;
+      box.classList.toggle('hidden', !h);
+      if (tipo) {
+        const hayEnvios = Boolean(c.hace_envios || c.envio_gratis);
+        if (enLocal && hayEnvios) {
+          if (tipo.value !== 'retiro') { tipo.value = 'retiro'; toggleDireccionCarrito(); }
+          tipo.disabled = true;
+        } else tipo.disabled = false;
+      }
     }
 
     function copiarAliasPago() {
@@ -807,7 +836,7 @@
       if (comercioCarrito.pagos_transferencia) selectPago.innerHTML += `<option value="Transferencia">Transferencia</option>`;
       if (comercioCarrito.pagos_qr) selectPago.innerHTML += `<option value="MercadoPago / QR">MercadoPago / QR</option>`;
       if (comercioCarrito.pagos_cuenta_dni) selectPago.innerHTML += `<option value="Cuenta DNI">Cuenta DNI</option>`;
-      if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">Tarjeta Débito / Crédito</option>`;
+      if (comercioCarrito.pagos_tarjeta) selectPago.innerHTML += `<option value="Tarjeta Débito/Crédito">${comercioCarrito.posnet_domicilio ? 'Tarjeta Débito / Crédito' : 'Tarjeta Débito / Crédito (se paga en el local)'}</option>`;
       if (selectPago.options.length === 0) selectPago.innerHTML = `<option value="A convenir">A convenir con el comercio</option>`;
 
       toggleAliasMercadoPago();
@@ -825,6 +854,7 @@
       }
 
       toggleDireccionCarrito();
+      nvAvisoPago();
 
       carrito.forEach((item, i) => {
         itemsContainer.innerHTML += `

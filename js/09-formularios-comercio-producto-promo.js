@@ -217,6 +217,8 @@
       document.getElementById('pago-cuenta-dni').checked = Boolean(c.pagos_cuenta_dni);
       document.getElementById('pago-tarjeta').checked = Boolean(c.pagos_tarjeta);
       document.getElementById('pago-cuotas').checked = Boolean(c.cuotas_sin_interes && c.pagos_tarjeta);
+      document.getElementById('pago-posnet-dom').checked = Boolean(c.posnet_domicilio && c.pagos_tarjeta);
+      document.getElementById('pago-aclaracion').value = c.aclaracion_pago || '';
       nvCuotasToggleComercio();
 
       renderizarGrillaHorarios(c.horarios_dias || {});
@@ -267,7 +269,8 @@
       const t = document.getElementById('pago-tarjeta'), b = document.getElementById('box-pago-cuotas');
       if (!t || !b) return;
       b.classList.toggle('hidden', !t.checked);
-      if (!t.checked) document.getElementById('pago-cuotas').checked = false;
+      const bp = document.getElementById('box-pago-posnet'); if (bp) bp.classList.toggle('hidden', !t.checked);
+      if (!t.checked) { document.getElementById('pago-cuotas').checked = false; document.getElementById('pago-posnet-dom').checked = false; }
     }
     function nvCuotasToggleProducto() {
       document.getElementById('prod-cuotas-n-box').classList.toggle('hidden', !document.getElementById('prod-cuotas-chk').checked);
