@@ -104,7 +104,7 @@
       if (planFuncion === 'ultra') {
         datosComercio.color_primario = document.getElementById('comercio-color-primario').value;
         datosComercio.color_acento = document.getElementById('comercio-color-acento').value;
-        datosComercio.posicion_portada = document.getElementById('comercio-posicion-portada').value;
+        datosComercio.posicion_portada = 'object-center';   // el encuadre ahora se hace al subir la foto
       } else if (!editId) {
         datosComercio.color_primario = '#f8fafc'; datosComercio.color_acento = '#ea580c'; datosComercio.posicion_portada = 'object-center';
       }

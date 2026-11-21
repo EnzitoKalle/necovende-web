@@ -118,7 +118,7 @@
       const colorFondo = esUltra ? (comercioActivo.color_primario || '#f8fafc') : '#f8fafc';
       document.body.style.backgroundColor = colorFondo;
       const colorAcentoBtn = esUltra ? (comercioActivo.color_acento || '#f97316') : '#f97316';
-      const posPortada = (esUltra && ['object-center', 'object-top', 'object-bottom'].includes(comercioActivo.posicion_portada)) ? comercioActivo.posicion_portada : 'object-center';
+      const posPortada = 'object-center';   // el encuadre se hace al subir la foto
       const direccionLocalEsc = (comercioActivo.direccion || 'Necochea').replace(/'/g, "\\'");
 
       const redesHtml = generarBotonesRedesSociales(comercioActivo.redes_sociales, plan);

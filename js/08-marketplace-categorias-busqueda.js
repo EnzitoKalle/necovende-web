@@ -2,7 +2,8 @@
       const originalFile = fileInput.files[0];
       if (!originalFile) return null;
 
-      const compressedFile = await comprimirImagenCliente(originalFile, 800, 800, 0.8);
+      // Las fotos encuadradas (perfil / portada) ya vienen al tamaño justo: no se vuelven a achicar
+      const compressedFile = originalFile.nvRecortada ? originalFile : await comprimirImagenCliente(originalFile, 800, 800, 0.8);
       const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 

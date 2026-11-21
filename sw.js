@@ -12,7 +12,7 @@
  *  - Supabase, CDNs y cualquier otro dominio: no se tocan (pasan directo).
  *  - Todo lo que no sea GET (pedidos, likes, etc.): no se toca.
  */
-const VERSION = 'v29';
+const VERSION = 'v31';
 const CACHE = 'necovende-' + VERSION;
 
 const PRECACHE = [
@@ -45,6 +45,8 @@ const PRECACHE = [
   '/js/22-calendario.js',
   '/js/23-reservas.js',
   '/js/24-alerta-pedidos.js',
+  '/js/25-crecimiento.js',
+  '/js/26-recortar-foto.js',
   '/img/icon-192.png',
   '/img/icon-512.png',
   '/img/apple-touch-icon.png'
