@@ -255,6 +255,7 @@
                     ${insigniaTilde}
                   </div>
                   
+                  ${typeof nvChipsComercio === 'function' ? nvChipsComercio(c, true) : ''}
                   <div class="mt-2 flex flex-wrap items-center gap-1.5">
                     ${(c.pagos_tarjeta && c.cuotas_sin_interes && Number(c.cuotas_productos) > 0) ? `<span class="text-[9px] font-black px-2.5 py-1 rounded-full border shadow-sm bg-sky-50 text-sky-700 border-sky-200" title="Solo en los productos que lo indican">💳 CUOTAS SIN INTERÉS EN ${Number(c.cuotas_productos) === 1 ? '1 PRODUCTO' : Number(c.cuotas_productos) + ' PRODUCTOS'}</span>` : ''}
                     <span class="text-[9px] font-black px-2.5 py-1 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">

@@ -3,3 +3,5 @@ Allow: /
 
 # Cuando tengas dominio propio, agregá acá la línea del sitemap, por ejemplo:
 # Sitemap: https://TU-DOMINIO.com/sitemap.xml
+
+Sitemap: https://necovende-web.vercel.app/sitemap.xml

@@ -168,6 +168,7 @@
                   </div>
                   <div id="stats-${c.id}" class="mt-1 text-[10px] text-slate-500 font-semibold">Cargando estadísticas...</div>
                   <div class="mt-0.5">${activoBadge}</div>
+                  ${typeof nvCompletitudHtml === 'function' ? nvCompletitudHtml(c) : ''}
                   ${htmlPlanComercio(c)}
                 </div>
               </div>

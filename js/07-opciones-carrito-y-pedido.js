@@ -658,9 +658,10 @@
       const box = document.getElementById('cart-aviso-pago'), sel = document.getElementById('cart-medio-pago'), tipo = document.getElementById('cart-tipo-entrega');
       if (!box || !sel || !comercioCarrito) return;
       const c = comercioCarrito;
+      const demora = Number(c.demora_min) > 0 ? '<div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 font-semibold">⏱ Preparación estimada: ~' + Number(c.demora_min) + ' min desde que el comercio acepta tu pedido.</div>' : '';
       const esTarjeta = sel.value === 'Tarjeta Débito/Crédito';
       const enLocal = esTarjeta && !c.posnet_domicilio;
-      let h = '';
+      let h = demora;
       if (enLocal) {
         h += '<div class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs text-sky-800 leading-snug space-y-1"><p class="font-black">💳 La tarjeta se paga en el local</p>' +
              '<p>Reservamos tu pedido y pasás a abonar con tarjeta (también en cuotas sin interés).</p>' +

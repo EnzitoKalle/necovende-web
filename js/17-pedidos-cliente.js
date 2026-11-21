@@ -201,6 +201,8 @@
           fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
       } catch (e) { /* el historial de "repetir pedido" es opcional */ }
+      // Primer pedido: buen momento para ofrecer los avisos (el botón vuelve a aparecer aunque lo haya cerrado antes)
+      try { localStorage.removeItem('necovende_push_flot_cierre'); if (window.nvPushFlotante) setTimeout(window.nvPushFlotante, 1500); } catch (e) { /* ok */ }
 
       reflejarStockLocal(necesidades);
       el('cart-nota-general').value = '';
@@ -330,6 +332,7 @@
          (detalleEstado ? '<p class="text-xs mt-1 leading-snug">' + esc(detalleEstado) + '</p>' : '') + '</div>';
 
     h += resumenVisible(p, items);
+    if (p.estado === 'entregado') { h += '<div id="nv-resena-box"></div>'; var _tk = PED.token; setTimeout(function () { if (window.nvResenaPintar) nvResenaPintar(p, _tk); }, 0); }
 
     // Aviso de demora (15 min sin respuesta del comercio)
     var minEspera = Math.max(minutosDesde(p.creado_en), d.minutos_sin_respuesta || 0);

@@ -154,6 +154,7 @@
                 </div>
                 
                 ${insigniaVerificado ? `<div class="mt-1">${insigniaVerificado}</div>` : ''}
+                ${typeof nvChipsComercio === 'function' ? nvChipsComercio(comercioActivo, true) + nvBotonOpiniones(comercioActivo) : ''}
 
                 <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                   ${listaCats.map(cat => `<span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md border border-slate-200">${esc(cat)}</span>`).join('')}
@@ -254,11 +255,14 @@
             <button type="button" onclick="abrirModalAvisoComercio()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 transition">📢 Aviso</button>
             ${comercioActivo.calendario_activo ? `<button type="button" onclick="nvAbrirCalendario('${comercioActivo.id}')" class="text-xs font-bold px-3 py-2 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition">📅 Calendario <span id="res-badge" class="hidden ml-1 bg-rose-500 text-white rounded-full px-1.5 text-[10px]"></span></button>` : ''}
             <button type="button" onclick="abrirModalQrComercio()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 transition">▦ QR</button>
+            <button type="button" onclick="nvResultados('${comercioActivo.id}')" class="text-xs font-bold px-3 py-2 rounded-xl border bg-sky-50 border-sky-200 text-sky-700 hover:bg-sky-100 transition">📊 Resultados</button>
+            <button type="button" onclick="nvAjustePrecios()" class="text-xs font-bold px-3 py-2 rounded-xl border bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 transition">💲 Ajustar precios</button>
           </div>`);
         const topSolicitados = [...(comercioActivo.productos || [])].filter(p => !p.es_combo)
           .sort((a,b) => (Number(b.solicitudes_count)||0) - (Number(a.solicitudes_count)||0)).slice(0,5);
         header.insertAdjacentHTML('beforeend', `<div class="px-5 pb-5 bg-white"><div class="rounded-2xl border border-brand-100 bg-brand-50/60 p-4"><h3 class="text-xs font-black uppercase tracking-wide text-brand-700 mb-2">📈 Productos más solicitados</h3>${topSolicitados.length && topSolicitados.some(p => Number(p.solicitudes_count)>0) ? topSolicitados.map((p,i)=>`<div class="flex justify-between gap-3 py-1.5 text-xs"><span class="font-semibold text-slate-700">${i+1}. ${esc(p.titulo)}</span><strong class="text-brand-700">${Number(p.solicitudes_count)||0} solicitudes</strong></div>`).join('') : '<p class="text-xs text-slate-500">Todavía no hay solicitudes. Cada clic en “Agregar” suma al contador.</p>'}</div></div>`);
       }
+      try { if (window.nvJsonLd) nvJsonLd(comercioActivo); } catch (e) { /* ok */ }
       renderizarProductosComercio(comercioActivo.productos, esDuenio, colorAcentoBtn);
 
       document.getElementById('vista-inicio').classList.add('hidden');
@@ -495,6 +499,7 @@
                   <button onclick="${esCombo ? `prepararEditarPromo('${p.id}')` : `prepararEditarProducto('${p.id}')`}" title="Editar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                   </button>
+                  ${esCombo ? '' : `<button onclick="nvDuplicarProducto('${p.id}')" title="Duplicar" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"><i data-lucide="copy" class="w-4 h-4"></i></button>`}
                   <button onclick="eliminarProducto('${p.id}')" title="Eliminar" class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                   </button>

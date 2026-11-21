@@ -216,6 +216,7 @@
       document.getElementById('pago-qr').checked = Boolean(c.pagos_qr);
       document.getElementById('pago-cuenta-dni').checked = Boolean(c.pagos_cuenta_dni);
       document.getElementById('pago-tarjeta').checked = Boolean(c.pagos_tarjeta);
+      document.getElementById('demora-min').value = c.demora_min || '';
       document.getElementById('pago-cuotas').checked = Boolean(c.cuotas_sin_interes && c.pagos_tarjeta);
       document.getElementById('pago-posnet-dom').checked = Boolean(c.posnet_domicilio && c.pagos_tarjeta);
       document.getElementById('pago-aclaracion').value = c.aclaracion_pago || '';
