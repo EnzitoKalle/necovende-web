@@ -12,6 +12,7 @@
       if (tipo === 'abierto') filtroAbierto = !filtroAbierto;
       if (tipo === 'envio') filtroEnvio = !filtroEnvio;
       if (tipo === 'populares') ordenPopulares = !ordenPopulares;
+      if (tipo === 'cuotas') filtroCuotas = !filtroCuotas;
       if (tipo === 'ofertas') {
         filtroOfertas = !filtroOfertas;
         // En modo Ofertas el buscador pasa a buscar solo entre las ofertas y promos
@@ -21,7 +22,7 @@
         if (filtroOfertas) document.getElementById('seccion-subcategorias').classList.add('hidden');
         else if (categoriaPrincipalSeleccionada !== 'Todas' && categoriaPrincipalSeleccionada !== 'Favoritos ❤️') document.getElementById('seccion-subcategorias').classList.remove('hidden');
       }
-      const estados = { 'chip-ofertas': filtroOfertas, 'chip-abierto': filtroAbierto, 'chip-envio': filtroEnvio, 'chip-populares': ordenPopulares };
+      const estados = { 'chip-ofertas': filtroOfertas, 'chip-abierto': filtroAbierto, 'chip-envio': filtroEnvio, 'chip-cuotas': filtroCuotas, 'chip-populares': ordenPopulares };
       Object.entries(estados).forEach(([id, on]) => {
         document.getElementById(id).className = 'chip-filtro whitespace-nowrap text-xs font-bold px-3.5 py-2 rounded-full border shadow-sm transition ' +
           (on ? 'bg-brand-500 text-white border-brand-500' : 'bg-white text-slate-600 border-slate-200');

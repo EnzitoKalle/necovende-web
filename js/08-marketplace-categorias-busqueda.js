@@ -255,7 +255,8 @@
                     ${insigniaTilde}
                   </div>
                   
-                  <div class="mt-2">
+                  <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                    ${(c.pagos_tarjeta && c.cuotas_sin_interes && Number(c.cuotas_productos) > 0) ? `<span class="text-[9px] font-black px-2.5 py-1 rounded-full border shadow-sm bg-sky-50 text-sky-700 border-sky-200" title="Solo en los productos que lo indican">💳 CUOTAS SIN INTERÉS EN ${Number(c.cuotas_productos) === 1 ? '1 PRODUCTO' : Number(c.cuotas_productos) + ' PRODUCTOS'}</span>` : ''}
                     <span class="text-[9px] font-black px-2.5 py-1 rounded-full border shadow-sm ${abierto ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">
                       ${abierto ? '🟢 ABIERTO' : '🔴 CERRADO'}
                     </span>
@@ -328,6 +329,7 @@
 
       if (filtroAbierto) resultado = resultado.filter(c => estaAbierto(c));
       if (filtroEnvio) resultado = resultado.filter(c => c.envio_gratis);
+      if (filtroCuotas) resultado = resultado.filter(c => c.pagos_tarjeta && c.cuotas_sin_interes && Number(c.cuotas_productos) > 0);
       if (ordenPopulares) resultado.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
       else resultado.sort((a, b) => {
         const planPesa = { 'ultra': 3, 'pro': 2, 'gratis': 1 };
@@ -350,7 +352,7 @@
       renderizarComercios(resultado);
 
       clearTimeout(timeoutBusquedaGlobal);
-      if (texto.length >= 2 || filtroOfertas) {
+      if (texto.length >= 2 || filtroOfertas || filtroCuotas) {
         timeoutBusquedaGlobal = setTimeout(() => buscarProductosGlobales(texto), 300);
       } else {
         document.getElementById('seccion-resultados-productos').classList.add('hidden');
@@ -369,6 +371,7 @@
         let q = _supabase.from('productos').select(campos).eq('disponible', true);
         // Servidor: la palabra más larga (en el título o la descripción). El resto de las palabras se verifica abajo.
         if (palabras.length) q = q.or(`titulo.ilike.%${palabraClave}%,descripcion.ilike.%${palabraClave}%`);
+        if (filtroCuotas) q = q.gte('cuotas_sin_interes', 2);
         if (filtroOfertas) q = soloPromos ? q.eq('es_combo', true) : q.or('precio_anterior.not.is.null,es_combo.eq.true');
         if (ordenPrecio) q = q.order('precio', { ascending: ordenPrecio === 'asc' });
         return q.limit(60);
@@ -381,7 +384,7 @@
       const secProds = document.getElementById('seccion-resultados-productos');
       const container = document.getElementById('container-productos-busqueda');
       const counter = document.getElementById('total-prods-busqueda');
-      document.getElementById('titulo-prods-busqueda').innerText = filtroOfertas ? 'Ofertas y promos' : 'Productos Encontrados';
+      document.getElementById('titulo-prods-busqueda').innerText = filtroOfertas ? 'Ofertas y promos' : (filtroCuotas ? 'Productos en cuotas sin interés' : 'Productos Encontrados');
 
       const datos = [];
       (productos || []).forEach(p => {
@@ -393,6 +396,7 @@
           if (!palabras.every(w => texto.includes(w))) return;
         }
         if (filtroAbierto && !estaAbierto(c)) return;
+        if (filtroCuotas && !(c.pagos_tarjeta && c.cuotas_sin_interes && Number(p.cuotas_sin_interes) >= 2)) return;
         const oferta = ofertaDe(p, c);
         if (filtroOfertas && !oferta && !(p.es_combo && c.plan === 'ultra')) return;
         if (p.es_combo && c.plan !== 'ultra') return;   // promos y combos: solo Ultra
@@ -404,10 +408,10 @@
       else datos.sort((a, b) => ordenPrecio === 'asc' ? a.p.precio - b.p.precio : b.p.precio - a.p.precio);
 
       if (!datos.length) {
-        if (filtroOfertas) {
+        if (filtroOfertas || filtroCuotas) {
           secProds.classList.remove('hidden');
           counter.innerText = '0 productos';
-          container.innerHTML = `<div class="clean-card rounded-2xl p-6 text-center text-xs text-slate-500">${query ? 'No hay ofertas que coincidan con tu búsqueda.' : 'Todavía no hay ofertas cargadas. ¡Volvé pronto!'}</div>`;
+          container.innerHTML = `<div class="clean-card rounded-2xl p-6 text-center text-xs text-slate-500">${filtroCuotas && !filtroOfertas ? 'Todavía no hay productos en cuotas sin interés.' : (query ? 'No hay ofertas que coincidan con tu búsqueda.' : 'Todavía no hay ofertas cargadas. ¡Volvé pronto!')}</div>`;
         } else secProds.classList.add('hidden');
         return;
       }
@@ -428,7 +432,7 @@
               <div class="min-w-0 flex-1">
                 <h4 class="font-black text-slate-900 text-sm truncate">${esc(p.titulo)}${p.es_combo ? ' <span class="text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full align-middle">PROMO</span>' : ''}</h4>
                 <p class="text-[11px] text-slate-500 truncate">Vendido por: <strong class="text-brand-600">${esc(c.nombre)}</strong> · <span class="${abierto ? 'text-emerald-600' : 'text-slate-400'} font-bold">${abierto ? '🟢 Abierto' : '🔴 Cerrado'}</span></p>
-                <p class="text-sm font-black text-brand-600 mt-0.5">${precioTextoPromo(p)}${!oferta && configPromo(p) && descuentoPromoConfig(p) > 0 ? ` <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${etiquetaDescuento(p, descuentoPromoConfig(p))}</span>` : ''}${oferta ? ` <span class="text-[11px] font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span> <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${oferta.pct}% OFF</span>` : ''}</p>
+                <p class="text-sm font-black text-brand-600 mt-0.5">${precioTextoPromo(p)}${!oferta && configPromo(p) && descuentoPromoConfig(p) > 0 ? ` <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${etiquetaDescuento(p, descuentoPromoConfig(p))}</span>` : ''}${(c.pagos_tarjeta && c.cuotas_sin_interes && Number(p.cuotas_sin_interes) >= 2) ? ` <span class="text-[10px] font-black bg-sky-50 text-sky-700 border border-sky-200 px-1.5 py-0.5 rounded-md">💳 ${p.cuotas_sin_interes} cuotas s/interés</span>` : ''}${oferta ? ` <span class="text-[11px] font-bold text-slate-400 line-through">${fmtPrecio(oferta.antes)}</span> <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5 rounded-md">${oferta.pct}% OFF</span>` : ''}</p>
               </div>
             </div>
             <button class="bg-brand-50 text-brand-600 hover:bg-brand-500 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition flex-shrink-0 border border-brand-200">
